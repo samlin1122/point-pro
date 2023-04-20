@@ -1,4 +1,4 @@
-import Button from "@mui/material/Button"
+import { Button } from "@mui/material"
 import { styled } from "@mui/material/styles"
 
 const ButtonBase = styled(Button)(({ theme, size }) => ({
@@ -11,6 +11,6 @@ const ButtonBase = styled(Button)(({ theme, size }) => ({
     color: theme.palette.primary.main,
     backgroundColor: theme.palette.secondary.main
   }
-})) as typeof Button
+}))
 
 export default ButtonBase
