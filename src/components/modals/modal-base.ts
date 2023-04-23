@@ -3,6 +3,6 @@ import { styled } from "@mui/material/styles"
 
 const ModalBase = styled(Modal)(({ theme }) => ({
   // your custom styles go here
-})) as typeof Modal
+}))
 
 export default ModalBase
