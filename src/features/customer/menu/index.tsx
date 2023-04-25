@@ -1,32 +1,30 @@
 // Libs
-import { useEffect } from 'react'
-import { Box } from '@mui/material'
+import { useEffect } from "react"
+import { Box } from "@mui/material"
 // Components
-import MobileLayout from '~/hoc/mobile-layout'
-import { SeatInfo, MenuNavbar, Meals } from './index.styles'
+import MobileLayout from "~/hoc/mobile-layout"
+import { SeatInfo, MenuNavbar, Meals } from "./index.styles"
 // Others
-import { useAppDispatch } from '~/app/hook'
-import { fetchMenu } from '../slice'
+import { useAppDispatch } from "~/app/hook"
+import { fetchMenu } from "../slice"
 
-interface IMenuProps {
-}
+interface IMenuProps {}
 
 const Menu = (props: IMenuProps) => {
-  const dispatch = useAppDispatch();
+  const dispatch = useAppDispatch()
 
   useEffect(() => {
-    dispatch(fetchMenu());
+    dispatch(fetchMenu())
   }, [])
-
 
   return (
     <MobileLayout>
       <Box
         sx={{
-          flexGrow: '1',
+          flexGrow: "1",
           padding: "0 10px",
-          display: 'flex',
-          flexDirection: 'column',
+          display: "flex",
+          flexDirection: "column"
         }}
       >
         <SeatInfo />
