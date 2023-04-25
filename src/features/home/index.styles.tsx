@@ -3,6 +3,7 @@ import { useSelector, useDispatch } from "react-redux"
 import { decrement, increment } from "./slice"
 
 import { ButtonBase } from "../../components/buttons"
+import { Box, Typography } from "@mui/material"
 
 interface CounterButton {}
 
@@ -20,5 +21,29 @@ export const CounterButton: React.FC<CounterButton> = () => {
         Decrement
       </ButtonBase>
     </>
+  )
+}
+
+interface Title
+{
+  title: string,
+  subtitle: string,
+}
+
+
+export const Title: React.FC<Title> = ({ title, subtitle }) => {
+  return (
+    <Box
+      sx={{
+        display: "flex",
+        gap: 2
+      }}
+    >
+      <Box width={2} height={2} borderRadius={"50%"} bgcolor="primary.main" />
+      <Box>
+        <Typography component={"h2"} fontWeight={900}>{title}</Typography>
+        <Typography component={"h4"}>{subtitle}</Typography>
+      </Box>
+    </Box>
   )
 }

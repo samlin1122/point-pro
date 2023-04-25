@@ -1,3 +1,4 @@
+import { useMediaQuery, useTheme } from "@mui/material";
 import { createSlice } from "@reduxjs/toolkit";
 import type { PayloadAction } from "@reduxjs/toolkit";
 
@@ -33,3 +34,32 @@ export const counterSlice = createSlice({
 export const { increment, decrement, incrementByAmount } = counterSlice.actions;
 
 export default counterSlice.reducer;
+
+
+type DeviceType = "mobile" | "tablet" | "desktop"
+
+interface DeviceState {
+  device: DeviceType
+}
+
+const initialDeviceState: DeviceState = {
+  device: "desktop"
+}
+
+export const deviceSlice = createSlice({
+  name: "device",
+  initialState: initialDeviceState,
+  reducers: {
+    setDevice: (state, action: PayloadAction<DeviceType>) => {
+      state.device = action.payload
+    }
+  }
+})
+
+export const { setDevice } = deviceSlice.actions
+
+export const useDeviceType = () => {
+  const theme = useTheme()
+  const isTablet = useMediaQuery(theme.breakpoints.up("sm"))
+  return isTablet ? "tablet" : "mobile"
+}
