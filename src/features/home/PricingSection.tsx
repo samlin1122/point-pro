@@ -1,5 +1,5 @@
 // PricingSection.tsx
-import React, { useEffect, useRef, useState } from "react"
+import React, { useState } from "react"
 import {
   Grid,
   Card,
@@ -9,25 +9,30 @@ import {
   Pagination,
   useMediaQuery,
   useTheme,
-  styled,
+  List,
+  ListItem,
+  ListItemText,
+  Box
 } from "@mui/material"
-import { keyframes, GlobalStyles, css } from "@mui/system"
+import { GlobalStyles, css } from "@mui/system"
+import { AnimatedCard } from "./PricingSection.styles"
+import { Row } from "../../components/layout"
 
-import { AnimatedCard } from "./pricingSection.styles"
-
-const cardData = [
+const pricingData = [
   {
     id: 1,
     title: "基本版",
-    price: "1490/月",
+    price: "299/月",
     content: ["單一設備連線", "基本銷售報告", "產品庫存管理", "信用卡/現金支付", "電子收據功能", "電子郵件支援"],
+    imgUrl: "/src/assets/images/pricing-plan01.jpg",
     animationClass: ""
   },
   {
     id: 2,
     title: "專業版",
-    price: "2970/月",
+    price: "999/月",
     content: ["多設備連線", "高級銷售報告", "高級庫存管理", "員工管理與時薪追踪", "促銷活動設定", "24/7專業客服支援"],
+    imgUrl: "/src/assets/images/pricing-plan02.jpg",
     animationClass: ""
   },
   {
@@ -35,6 +40,7 @@ const cardData = [
     title: "企業版",
     price: "聯繫獲取定價",
     content: ["定制功能與整合", "企業報告", "專屬客戶經理", "API整合", "線上與電話客服支援", "量身打造的解決方案"],
+    imgUrl: "/src/assets/images/pricing-plan03.jpg",
     animationClass: ""
   }
 ]
@@ -67,66 +73,53 @@ const globalStyles = css`
   }
 `
 
-
-
-
 const PricingSection = () => {
-  const [cards, setCards] = useState(cardData)
+  const [cards, setCards] = useState(pricingData)
   const [currentPage, setCurrentPage] = useState(1)
-  const [ centerCardIndex, setCenterCardIndex ] = useState(1)
-  const cardRefs = useRef<(HTMLDivElement | null)[]>([])
+  const [centerCardIndex, setCenterCardIndex] = useState(1)
   const [animationClass, setAnimationClass] = useState<{ [key: number]: string }>({
     0: "",
     1: "",
     2: ""
   })
 
-
   const theme = useTheme()
   const isTablet = useMediaQuery(theme.breakpoints.up("sm"))
 
+  const handleCardClick = (clickedCardIndex: number) => {
+    setCards((prevCards) => {
+      const newCards = [...prevCards]
+      const clickedCard = newCards[clickedCardIndex]
+      const centerCard = newCards[centerCardIndex]
+      if (clickedCardIndex < centerCardIndex) {
+        // Move clicked card to the left of the center card
+        newCards.splice(centerCardIndex, 1, clickedCard)
+        newCards.splice(clickedCardIndex, 1, centerCard)
+        // Remove animation classes from all cards
+        newCards.forEach((card) => {
+          card.animationClass = ""
+        })
+        // Set animation class
+        setAnimationClass({ [clickedCardIndex]: "moveRight", [centerCardIndex]: "moveLeft" })
+      } else if (clickedCardIndex > centerCardIndex) {
+        // Move clicked card to the right of the center card
+        newCards.splice(clickedCardIndex, 1)
+        newCards.splice(centerCardIndex, 0, clickedCard)
+        // Remove animation classes from all cards
+        newCards.forEach((card) => {
+          card.animationClass = ""
+        })
+        // Set animation class
+        setAnimationClass({ [centerCardIndex]: "moveRight", [clickedCardIndex]: "moveLeft" })
+      }
 
-const handleCardClick = (clickedCardIndex: number) => {
-  setCards((prevCards) => {
-    const newCards = [...prevCards]
-    const clickedCard = newCards[clickedCardIndex]
-    const centerCard = newCards[centerCardIndex]
-    if (clickedCardIndex < centerCardIndex) {
-      // Move clicked card to the left of the center card
-      newCards.splice(centerCardIndex, 1, clickedCard)
-      newCards.splice(clickedCardIndex, 1, centerCard)
-
-      // Remove animation classes from all cards
-      newCards.forEach((card) => {
-        card.animationClass = ""
-      })
-
-      // Set animation class
-      const distance = centerCardIndex - clickedCardIndex
-      setAnimationClass({ [centerCardIndex]: "moveLeft", [clickedCardIndex]: "moveRight" })
-    } else if (clickedCardIndex > centerCardIndex) {
-      // Move clicked card to the right of the center card
-      newCards.splice(clickedCardIndex, 1)
-      newCards.splice(centerCardIndex, 0, clickedCard)
-
-      // Remove animation classes from all cards
-      newCards.forEach((card) => {
-        card.animationClass = ""
-      })
-
-      // Set animation class
-      const distance = clickedCardIndex - centerCardIndex
-      setAnimationClass({ [centerCardIndex]: "moveRight", [clickedCardIndex]: "moveLeft" })
-    }
-
-    return newCards
-  })
-  // Reset animation class
-  setTimeout(() => {
-    setAnimationClass({})
-  }, 500)
-}
-
+      return newCards
+    })
+    // Reset animation class
+    setTimeout(() => {
+      setAnimationClass({})
+    }, 300)
+  }
 
   const handlePageChange = (event: React.ChangeEvent<unknown>, value: number) => {
     setCurrentPage(value)
@@ -134,35 +127,48 @@ const handleCardClick = (clickedCardIndex: number) => {
 
   if (isTablet) {
     return (
-      <Grid container justifyContent="center" spacing={1}>
+      <Grid container spacing={2}>
         <GlobalStyles styles={globalStyles} />
         {cards.map((card, index) => (
-          <Grid item key={`card-${card.id}`} xs={12} sm={4}>
+          <Grid item xs={12} md={4} key={`card-${card.id}`}>
             <AnimatedCard
               className={animationClass[index]}
               onClick={() => handleCardClick(index)}
               data-id={card.id}
               index={index}
-              sx={{
-                filter: `blur(${index === 1 ? 0 : 1.5}px)})`
-              }}
             >
-              <CardContent>
-                <Typography variant="h5" component="h2">
-                  {card.title}
-                </Typography>
-                <Typography>{card.content}</Typography>
-              </CardContent>
-              <Button
-                variant="contained"
-                color="primary"
-                sx={{
-                  margin: "1rem",
-                  pointerEvents: index === 1 ? "auto" : "none"
-                }}
-              >
-                選擇方案
-              </Button>
+              <img
+                style={{ height: 262, borderRadius: "2.5rem", objectFit: "cover", width: "100%" }}
+                src={card.imgUrl}
+                title={card.title}
+              />
+              <Box pt={3} px={4} pb={2} borderRadius={5} sx={{ backgroundColor: "white" }}>
+                <Row sx={{ justifyContent: "space-between" }} mb={5}>
+                  <Typography variant="h5" component="h2" sx={{ fontWeight: 900 }}>
+                    {card.title}
+                  </Typography>
+                  <Typography variant="h5" component="h2" sx={{ fontWeight: 900 }}>
+                    {card.price}
+                  </Typography>
+                </Row>
+                <List>
+                  {card.content.map((content, index) => (
+                    <ListItem key={`content-${index}`} sx={{ paddingTop: 0 }}>
+                      <ListItemText primary={content} />
+                    </ListItem>
+                  ))}
+                </List>
+                <Button
+                  variant="contained"
+                  color="primary"
+                  sx={{
+                    margin: "1rem",
+                    pointerEvents: index === 1 ? "auto" : "none"
+                  }}
+                >
+                  選擇方案
+                </Button>
+              </Box>
             </AnimatedCard>
           </Grid>
         ))}
@@ -198,5 +204,3 @@ const handleCardClick = (clickedCardIndex: number) => {
 }
 
 export default PricingSection
-
-

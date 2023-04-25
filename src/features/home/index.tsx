@@ -1,9 +1,6 @@
 // Libs
 // Components
-import { CounterButton } from "./index.styles"
-import Container from "@mui/material/Container"
-import { Box, Typography, useMediaQuery, useTheme } from "@mui/material"
-import { useEffect, useRef, useState } from "react"
+import FeatureSection from "./FeatureSection"
 import HeroSection from "./HeroSection"
 import PricingSection from "./PricingSection"
 
@@ -15,6 +12,7 @@ const HomeContainer: React.FC<HomeContainerProps> = ({ ...rest }) =>
   return (
     <>
       <HeroSection />
+      <FeatureSection />
       <PricingSection />
     </>
   );
