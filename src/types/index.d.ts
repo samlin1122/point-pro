@@ -12,18 +12,18 @@ export interface IMeal {
   description: string
   price: number
   position: number
-  specialities: ISpeciality[]
+  specialties: ISpecialty[]
   categories: IMenuCategory[]
 }
 
-export interface ISpeciality {
+export interface ISpecialty {
   id: string
   title: string
   type: "single" | "multiple"
-  items: ISpecialityOption[]
+  items: ISpecialtyOption[]
 }
 
-export interface ISpecialityOption {
+export interface ISpecialtyOption {
   id: string
   title: string
   price?: number
