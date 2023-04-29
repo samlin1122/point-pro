@@ -1,8 +1,7 @@
 // Libs
-import { createBrowserRouter } from "react-router-dom"
+import { createBrowserRouter } from "react-router-dom";
 // Components
-import { Home } from "../pages"
-import Customer from "~/features/customer"
+import { Home, CustomerOrder } from "~/pages";
 
 const router = createBrowserRouter([
   {
@@ -10,17 +9,9 @@ const router = createBrowserRouter([
     element: <Home />
   },
   {
-    path: "menu/:categoryId?",
-    element: <Customer.Menu />
-  },
-  {
-    path: "cart",
-    element: <Customer.Cart />
-  },
-  {
-    path: "orders",
-    element: <Customer.Order />
+    path: "customer-order",
+    element: <CustomerOrder />
   }
-])
+]);
 
-export default router
+export default router;

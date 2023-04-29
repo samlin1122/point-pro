@@ -1,1 +1,4 @@
-export { default as Home } from "./Home"
+import Home from "./Home";
+import CustomerOrder from "./CustomerOrder";
+
+export { Home, CustomerOrder };
