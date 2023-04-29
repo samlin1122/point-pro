@@ -1,13 +1,13 @@
 // Libs
 // Components
-import HomePage from "../../features/home"
+import HomeContainer from "../../features/home"
 import withMainLayout from "../../hoc/create-main-layout"
 // Styles
 
 interface HomeProps {}
 
-const Home: React.FC<HomeProps> = (props) => {
-  return <HomePage {...props} />
+const HomePage: React.FC<HomeProps> = (props) => {
+  return <HomeContainer {...props} />
 }
 
-export default withMainLayout(Home)
+export default withMainLayout(HomePage)
