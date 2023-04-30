@@ -12,9 +12,8 @@ const withMobileLayout =
         sx={{
           width: "100vw",
           maxWidth: "768px",
-          overflow: "scroll",
           minHeight: "100vh",
-          padding: "1rem"
+          padding: ".5rem"
         }}
       >
         <WrappedComponent {...props} />
