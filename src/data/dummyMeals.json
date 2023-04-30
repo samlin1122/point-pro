@@ -7,7 +7,7 @@
       "description": "現烤現做需要25分鐘左右",
       "price": 180,
       "position": 0,
-      "specialities": [
+      "specialties": [
         {
           "id": "1",
           "title": "辣度",
@@ -94,7 +94,7 @@
       "description": "現烤現做需要25分鐘左右",
       "price": 180,
       "position": 1,
-      "specialities": [],
+      "specialties": [],
       "categories": [
         {
           "id": "1",
@@ -109,7 +109,7 @@
       "description": "現烤現做需要25分鐘左右",
       "price": 180,
       "position": 2,
-      "specialities": [],
+      "specialties": [],
       "categories": [
         {
           "id": "1",
@@ -124,7 +124,7 @@
       "description": "現烤現做需要25分鐘左右\n肉品原產地：臺灣豬肉",
       "price": 180,
       "position": 3,
-      "specialities": [],
+      "specialties": [],
       "categories": [
         {
           "id": "1",
@@ -139,7 +139,7 @@
       "description": "現烤現做需要25分鐘左右",
       "price": 180,
       "position": 4,
-      "specialities": [],
+      "specialties": [],
       "categories": [
         {
           "id": "1",
@@ -154,7 +154,7 @@
       "description": "現烤現做需要25分鐘左右\n肉品原產地：西班牙豬肉",
       "price": 180,
       "position": 5,
-      "specialities": [],
+      "specialties": [],
       "categories": [
         {
           "id": "1",
@@ -169,7 +169,7 @@
       "description": "現烤現做需要25分鐘左右",
       "price": 180,
       "position": 6,
-      "specialities": [],
+      "specialties": [],
       "categories": [
         {
           "id": "1",
@@ -184,7 +184,7 @@
       "description": "使用產銷履歷鱸魚\n此餐點需要25分以上",
       "price": 1100,
       "position": 7,
-      "specialities": [
+      "specialties": [
         {
           "id": "2",
           "title": "調味",
@@ -217,7 +217,7 @@
       "description": "使用產銷履歷鱸魚",
       "price": 600,
       "position": 8,
-      "specialities": [
+      "specialties": [
         {
           "id": "2",
           "title": "調味",
@@ -250,7 +250,7 @@
       "description": "使用產銷履歷雞肉\n生綠竹筍為季節限定",
       "price": 800,
       "position": 9,
-      "specialities": [
+      "specialties": [
         {
           "id": "2",
           "title": "調味",
@@ -283,7 +283,7 @@
       "description": "使用產銷履歷雞肉\n生綠竹筍為季節限定",
       "price": 480,
       "position": 10,
-      "specialities": [
+      "specialties": [
         {
           "id": "2",
           "title": "調味",

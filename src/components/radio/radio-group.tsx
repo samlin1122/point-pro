@@ -1,17 +1,17 @@
-import RadioBase from "./radio-base"
-import { RadioGroup, FormControlLabel, FormControl, FormLabel } from "@mui/material"
+import RadioBase from "./radio-base";
+import { RadioGroup, FormControlLabel, FormControl, FormLabel } from "@mui/material";
 
 interface RadioGroupType {
-  title: string
-  list: Array<RadioItemType>
-  isRow: boolean | undefined
+  title: string;
+  list: Array<RadioItemType>;
+  isRow: boolean | undefined;
 }
 
 interface RadioItemType {
-  id: string
-  label: string
-  value: string | number
-  disabled: boolean
+  id: string;
+  label: string;
+  value: string | number;
+  disabled: boolean;
 }
 
 export default function RadioButtonsGroup({ title, list, isRow }: RadioGroupType) {
@@ -34,5 +34,5 @@ export default function RadioButtonsGroup({ title, list, isRow }: RadioGroupType
         ))}
       </RadioGroup>
     </FormControl>
-  )
+  );
 }

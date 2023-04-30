@@ -1,1 +1,1 @@
-export { default as datePickerBase } from "./date-picker-base"
+export { default as datePickerBase } from "./date-picker-base";
