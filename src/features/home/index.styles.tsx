@@ -5,13 +5,13 @@ import { Circle } from "@mui/icons-material"
 import type { RootState } from "../../app/store"
 import { decrement, increment } from "./slice"
 
-import { ButtonBase } from "../../components/buttons"
+import { ButtonBase } from "../../components/buttons";
 
 interface CounterButton {}
 
 export const CounterButton: React.FC<CounterButton> = () => {
-  const count = useSelector((state: RootState) => state.counter.value)
-  const dispatch = useDispatch()
+  const count = useSelector((state: RootState) => state.counter.value);
+  const dispatch = useDispatch();
 
   return (
     <>
@@ -23,8 +23,8 @@ export const CounterButton: React.FC<CounterButton> = () => {
         Decrement
       </ButtonBase>
     </>
-  )
-}
+  );
+};
 
 interface Title
 {

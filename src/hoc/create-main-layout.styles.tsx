@@ -1,5 +1,5 @@
-import { Container } from "@mui/material"
-import { styled } from "@mui/material/styles"
+import { Container } from "@mui/material";
+import { styled } from "@mui/material/styles";
 
 export const Base = styled("div")(() => ({
   // your custom styles go here
@@ -7,4 +7,4 @@ export const Base = styled("div")(() => ({
   width: "100%",
   height: "100vh",
   maxHeight: "100vh"
-}))
+}));

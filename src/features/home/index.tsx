@@ -19,6 +19,6 @@ const HomeContainer: React.FC<HomeContainerProps> = ({ ...rest }) =>
       <TestimonialsSection />
       <MapSection />
     </>
-  )
-}
-export default HomeContainer
+  );
+};
+export default HomeContainer;

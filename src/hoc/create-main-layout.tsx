@@ -1,8 +1,8 @@
-import React from "react"
+import React from "react";
 // Components
-import Header from "../components/header"
-import Footer from "../components/footer"
-import { Base } from "./create-main-layout.styles"
+import Header from "../components/header";
+import Footer from "../components/footer";
+import { Base } from "./create-main-layout.styles";
 // Styles
 // import { Base, Content } from "./create-main-layout.styles"
 // Libs
@@ -16,7 +16,7 @@ function withMainLayout<T extends Props>(WrappedComponent: React.ComponentType<T
       <WrappedComponent {...props} />
       <Footer />
     </Base>
-  )
+  );
 }
 
-export default withMainLayout
+export default withMainLayout;

@@ -1,0 +1,313 @@
+{
+  "meals": [
+    {
+      "id": "1",
+      "title": "魚下巴",
+      "coverUrl": "https://inline.imgix.net/item/-LcASJUmFBDOVa0DJA8H:inline-live-2a466-47f9750d-720e-465f-a9fb-4b4949bcc259_烤魚下巴黑底800x800.jpg?h=100&w=100",
+      "description": "現烤現做需要25分鐘左右",
+      "price": 180,
+      "position": 0,
+      "specialties": [
+        {
+          "id": "1",
+          "title": "辣度",
+          "type": "single",
+          "items": [
+            {
+              "id": "1",
+              "title": "不辣",
+              "price": null
+            },
+            {
+              "id": "2",
+              "title": "小辣",
+              "price": null
+            },
+            {
+              "id": "3",
+              "title": "中辣",
+              "price": null
+            },
+            {
+              "id": "4",
+              "title": "大辣",
+              "price": null
+            }
+          ]
+        },
+        {
+          "id": "2",
+          "title": "調味",
+          "type": "multiple",
+          "items": [
+            {
+              "id": "1",
+              "title": "少油",
+              "price": null
+            },
+            {
+              "id": "2",
+              "title": "少鹽",
+              "price": null
+            },
+            {
+              "id": "3",
+              "title": "無味素",
+              "price": null
+            },
+            {
+              "id": "4",
+              "title": "不加蔥",
+              "price": null
+            }
+          ]
+        },
+        {
+          "id": "3",
+          "title": "加量",
+          "type": "single",
+          "items": [
+            {
+              "id": "1",
+              "title": "加10元飯",
+              "price": 10
+            },
+            {
+              "id": "2",
+              "title": "加20元飯",
+              "price": 20
+            }
+          ]
+        }
+      ],
+      "categories": [
+        {
+          "id": "1",
+          "title": "火烤類"
+        }
+      ]
+    },
+    {
+      "id": "2",
+      "title": "秋刀魚",
+      "coverUrl": "https://inline.imgix.net/item/-LcASJUmFBDOVa0DJA8H:inline-live-2a466-606d37a6-5471-4860-8974-cec4fa6eb8d8_秋刀魚800x800.jpg?h=100&w=100",
+      "description": "現烤現做需要25分鐘左右",
+      "price": 180,
+      "position": 1,
+      "specialties": [],
+      "categories": [
+        {
+          "id": "1",
+          "title": "火烤類"
+        }
+      ]
+    },
+    {
+      "id": "3",
+      "title": "烤日式鯖魚",
+      "coverUrl": "https://inline.imgix.net/item/-LcASJUmFBDOVa0DJA8H:inline-live-2a466-ea0aaeed-1fd5-4cd3-aabc-7be1769f7a86_烤日式鯖魚800x800.jpg?h=100&w=100",
+      "description": "現烤現做需要25分鐘左右",
+      "price": 180,
+      "position": 2,
+      "specialties": [],
+      "categories": [
+        {
+          "id": "1",
+          "title": "火烤類"
+        }
+      ]
+    },
+    {
+      "id": "4",
+      "title": "鹽豬肉",
+      "coverUrl": "https://inline.imgix.net/item/-LcASJUmFBDOVa0DJA8H:inline-live-2a466-baaeb049-0d9c-4fed-b21b-7112d1a89802_鹽豬肉800x800.jpg?h=100&w=100",
+      "description": "現烤現做需要25分鐘左右\n肉品原產地：臺灣豬肉",
+      "price": 180,
+      "position": 3,
+      "specialties": [],
+      "categories": [
+        {
+          "id": "1",
+          "title": "火烤類"
+        }
+      ]
+    },
+    {
+      "id": "5",
+      "title": "牛小排",
+      "coverUrl": "https://inline.imgix.net/item/-LcASJUmFBDOVa0DJA8H:inline-live-2a466-e00a64ed-8450-44f2-b111-667948b23d05_牛小排800x800.jpg?h=100&w=100",
+      "description": "現烤現做需要25分鐘左右",
+      "price": 180,
+      "position": 4,
+      "specialties": [],
+      "categories": [
+        {
+          "id": "1",
+          "title": "火烤類"
+        }
+      ]
+    },
+    {
+      "id": "6",
+      "title": "烤松阪豬肉",
+      "coverUrl": "https://inline.imgix.net/item/-LcASJUmFBDOVa0DJA8H:inline-live-2a466-3717533c-de9a-48ca-8a7e-733638362cdf_烤松阪豬1500x1500.jpg?h=100&w=100",
+      "description": "現烤現做需要25分鐘左右\n肉品原產地：西班牙豬肉",
+      "price": 180,
+      "position": 5,
+      "specialties": [],
+      "categories": [
+        {
+          "id": "1",
+          "title": "火烤類"
+        }
+      ]
+    },
+    {
+      "id": "7",
+      "title": "烤櫻桃鴨肉串（四串）",
+      "coverUrl": "https://inline.imgix.net/item/-LcASJUmFBDOVa0DJA8H:inline-live-2a466-2c41ee42-3f11-4411-aef4-20152f672ee1_烤櫻桃鴨肉串800x800.jpg?h=100&w=100",
+      "description": "現烤現做需要25分鐘左右",
+      "price": 180,
+      "position": 6,
+      "specialties": [],
+      "categories": [
+        {
+          "id": "1",
+          "title": "火烤類"
+        }
+      ]
+    },
+    {
+      "id": "8",
+      "title": "港都海產鍋 - 大",
+      "coverUrl": "https://inline.imgix.net/item/-LcASJUmFBDOVa0DJA8H:inline-live-2a466-fa982159-3ba1-46f1-825a-b40d655932cb_港都海產鍋1500x1500.jpg?h=100&w=100",
+      "description": "使用產銷履歷鱸魚\n此餐點需要25分以上",
+      "price": 1100,
+      "position": 7,
+      "specialties": [
+        {
+          "id": "2",
+          "title": "調味",
+          "type": "multiple",
+          "items": [
+            {
+              "id": "1",
+              "title": "少油",
+              "price": null
+            },
+            {
+              "id": "2",
+              "title": "少鹽",
+              "price": null
+            }
+          ]
+        }
+      ],
+      "categories": [
+        {
+          "id": "2",
+          "title": "火鍋類"
+        }
+      ]
+    },
+    {
+      "id": "9",
+      "title": "港都海產鍋 - 小",
+      "coverUrl": "https://inline.imgix.net/item/-LcASJUmFBDOVa0DJA8H:inline-live-2a466-fa982159-3ba1-46f1-825a-b40d655932cb_港都海產鍋1500x1500.jpg?h=100&w=100",
+      "description": "使用產銷履歷鱸魚",
+      "price": 600,
+      "position": 8,
+      "specialties": [
+        {
+          "id": "2",
+          "title": "調味",
+          "type": "multiple",
+          "items": [
+            {
+              "id": "1",
+              "title": "少油",
+              "price": null
+            },
+            {
+              "id": "2",
+              "title": "少鹽",
+              "price": null
+            }
+          ]
+        }
+      ],
+      "categories": [
+        {
+          "id": "2",
+          "title": "火鍋類"
+        }
+      ]
+    },
+    {
+      "id": "10",
+      "title": "竹筍雞鍋 - 大",
+      "coverUrl": "https://inline.imgix.net/item/-LcASJUmFBDOVa0DJA8H:inline-live-2a466-abb1df98-5d15-4eee-bace-cded825c7f54_綠竹筍雞鍋800x800.jpg?h=100&w=100",
+      "description": "使用產銷履歷雞肉\n生綠竹筍為季節限定",
+      "price": 800,
+      "position": 9,
+      "specialties": [
+        {
+          "id": "2",
+          "title": "調味",
+          "type": "multiple",
+          "items": [
+            {
+              "id": "1",
+              "title": "少油",
+              "price": null
+            },
+            {
+              "id": "2",
+              "title": "少鹽",
+              "price": null
+            }
+          ]
+        }
+      ],
+      "categories": [
+        {
+          "id": "2",
+          "title": "火鍋類"
+        }
+      ]
+    },
+    {
+      "id": "11",
+      "title": "竹筍雞鍋 - 小",
+      "coverUrl": "https://inline.imgix.net/item/-LcASJUmFBDOVa0DJA8H:inline-live-2a466-abb1df98-5d15-4eee-bace-cded825c7f54_綠竹筍雞鍋800x800.jpg?h=100&w=100",
+      "description": "使用產銷履歷雞肉\n生綠竹筍為季節限定",
+      "price": 480,
+      "position": 10,
+      "specialties": [
+        {
+          "id": "2",
+          "title": "調味",
+          "type": "multiple",
+          "items": [
+            {
+              "id": "1",
+              "title": "少油",
+              "price": null
+            },
+            {
+              "id": "2",
+              "title": "少鹽",
+              "price": null
+            }
+          ]
+        }
+      ],
+      "categories": [
+        {
+          "id": "2",
+          "title": "火鍋類"
+        }
+      ]
+    }
+  ]
+}
