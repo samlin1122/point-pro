@@ -22,6 +22,7 @@ import {
   RadioGroup,
   Tab,
   Tabs,
+  ToggleButton,
   Typography,
   styled,
   tabsClasses
@@ -29,6 +30,7 @@ import {
 import MenuBookIcon from "@mui/icons-material/MenuBook";
 import CartIcon from "@mui/icons-material/ShoppingCart";
 import ReceiptIcon from "@mui/icons-material/Receipt";
+import ExpandMoreIcon from "@mui/icons-material/ExpandMore";
 // Components
 import { ButtonBase } from "~/components/buttons";
 // Others
@@ -50,15 +52,20 @@ import { CheckboxBase } from "~/components/checkbox";
 interface IHeaderProps {}
 export const Header = (props: IHeaderProps) => {
   return (
-    <Box sx={{ fontWeight: "bold", fontSize: "1.5rem" }}>
-      <Breadcrumbs>
+    <>
+      <Breadcrumbs separator=">">
         <Link href="/" underline="hover" color="inherit">
           港都熱炒
         </Link>
-        <Typography sx={{ fontWeight: "bold", color: "#020202" }}>我要點餐</Typography>
+        <Typography sx={{ fontWeight: "500", color: "#020202" }}>我要點餐</Typography>
       </Breadcrumbs>
-      <Typography sx={{ fontSize: "2.5rem", fontWeight: "bold", padding: "1rem 0" }}>港都熱炒</Typography>
-    </Box>
+      <Typography
+        variant="h1"
+        sx={{ padding: ".5rem 0 1rem", fontWeight: "900", position: "sticky", top: "0", bgcolor: "#FFF" }}
+      >
+        港都熱炒
+      </Typography>
+    </>
   );
 };
 
@@ -68,7 +75,9 @@ export const SeatInfo = (props: ISeatInfoProps) => {
     <>
       {true && (
         <Box sx={{ padding: "0 0 1rem" }}>
-          <Typography sx={{ fontSize: "1.5rem", fontWeight: "bold" }}>內用資訊</Typography>
+          <Typography variant="h3" sx={{ fontWeight: "700", paddingBottom: "1rem" }}>
+            內用資訊
+          </Typography>
           <Grid
             container
             sx={{
@@ -79,12 +88,12 @@ export const SeatInfo = (props: ISeatInfoProps) => {
             }}
           >
             <Grid item xs={6} sx={{ padding: "0 1rem" }}>
-              <Box sx={{ color: "#919191", fontWeight: "bold" }}>座位</Box>
-              <Box sx={{ fontSize: "1.5rem", fontWeight: "bold", color: "#020202" }}>{"A03-1"}</Box>
+              <Box sx={{ color: "#919191", fontWeight: "500" }}>座位</Box>
+              <Box sx={{ fontSize: "1.5rem", fontWeight: "900", color: "#020202" }}>{"A03-1"}</Box>
             </Grid>
             <Grid item xs={6} sx={{ padding: "0 1rem", borderLeft: "1px solid #D1D1D1" }}>
-              <Box sx={{ color: "#919191", fontWeight: "bold" }}>入座時間</Box>
-              <Box sx={{ fontSize: "1.5rem", fontWeight: "bold", color: "#020202" }}>{"17:30"}</Box>
+              <Box sx={{ color: "#919191", fontWeight: "500" }}>入座時間</Box>
+              <Box sx={{ fontSize: "1.5rem", fontWeight: "900", color: "#020202" }}>{"17:30"}</Box>
             </Grid>
           </Grid>
         </Box>
@@ -100,51 +109,77 @@ export const CategoryNavbar = (props: ICategoryNavbarProps) => {
   const categories = useAppSelector(({ customerOrder }) => customerOrder.categories);
   const currentCategory = useAppSelector(({ customerOrder }) => customerOrder.currentCategory);
 
-  const onChange = (e: React.SyntheticEvent, newValue: string) => {
+  const [isShowDropdown, setIsShowDropdown] = useState(false);
+
+  const handleClickCategory = (e: React.SyntheticEvent, newValue: string) => {
     dispatch(setCurrentCategory({ currentCategory: newValue }));
   };
 
+  const handleToggleCategoryDropdown = () => {
+    setIsShowDropdown((prev: boolean) => !prev);
+  };
+
   return (
-    <Box>
-      <Typography sx={{ fontSize: "1.5rem", fontWeight: "bold" }}>菜單</Typography>
-      <Tabs
-        value={currentCategory}
-        onChange={onChange}
-        variant="scrollable"
-        sx={{
-          [`& .${tabsClasses.scrollButtons}`]: {
-            width: "24px",
-            "&.Mui-disabled": { opacity: 0.3 }
-          },
-          "& .MuiTabs-indicator": {
-            display: "none"
-          },
-          marginBottom: "10px"
-        }}
-      >
-        {categories.map(({ id, title }) => (
-          <Tab
-            key={id}
-            value={id}
-            label={title}
+    <>
+      <Typography variant="h3" sx={{ fontWeight: "700", paddingBottom: "1rem" }}>
+        菜單
+      </Typography>
+      <Box sx={{ display: "flex", position: "sticky", top: "4.5rem" }}>
+        <Tabs
+          value={currentCategory}
+          onChange={handleClickCategory}
+          variant="scrollable"
+          sx={{
+            [`& .${tabsClasses.scrollButtons}`]: {
+              width: "24px",
+              "&.Mui-disabled": { opacity: 0.3 }
+            },
+            "& .MuiTabs-indicator": {
+              display: "none"
+            },
+            marginBottom: "10px"
+          }}
+        >
+          {categories.map(({ id, title }) => (
+            <Tab
+              key={id}
+              value={id}
+              label={title}
+              sx={{
+                bgcolor: "#F2F2F2",
+                borderRadius: "5rem",
+                margin: ".2rem",
+                minHeight: "auto",
+                minWidth: "auto",
+                "&:focus": {
+                  outline: "none"
+                },
+                "&.Mui-selected[aria-selected='true']": {
+                  color: "#020202",
+                  bgcolor: "#F7E252"
+                }
+              }}
+            />
+          ))}
+        </Tabs>
+        <ToggleButton
+          value="check"
+          size="small"
+          selected={isShowDropdown}
+          onChange={handleToggleCategoryDropdown}
+          sx={{
+            "&.MuiToggleButton-root[value='check']": { outline: "none", border: "none", bgcolor: "transparent" }
+          }}
+        >
+          <ExpandMoreIcon
             sx={{
-              bgcolor: "#F2F2F2",
-              borderRadius: "5rem",
-              margin: ".2rem",
-              minHeight: "auto",
-              minWidth: "auto",
-              "&:focus": {
-                outline: "none"
-              },
-              "&.Mui-selected[aria-selected='true']": {
-                color: "#020202",
-                bgcolor: "#F7E252"
-              }
+              rotate: isShowDropdown ? "180deg" : "0deg",
+              transition: ".3s"
             }}
           />
-        ))}
-      </Tabs>
-    </Box>
+        </ToggleButton>
+      </Box>
+    </>
   );
 };
 
@@ -154,77 +189,77 @@ export const Meals = (props: IMealsProps) => {
   const meals = useAppSelector(({ customerOrder }) => customerOrder.meals);
   const currentCategory = useAppSelector(({ customerOrder }) => customerOrder.currentCategory);
 
-  const showMeals = meals.filter(
-    (meal) => meal.categories.filter((category) => category.id === currentCategory).length > 0
-  );
+  // const showMeals = meals.filter(
+  //   (meal) => meal.categories.filter((category) => category.id === currentCategory).length > 0
+  // );
 
   const handleSelectedMeal = (currentMealId: string) => () => {
     dispatch(openCustomizeDialog({ currentMealId }));
   };
 
   return (
-    <Box
-      sx={{
-        display: "flex",
-        flexDirection: "column",
-        flexWrap: "nowrap",
-        gap: "10px",
-        overflowY: "auto"
-      }}
-    >
-      {showMeals.map((meal) => (
-        <Card
-          key={meal.id}
-          sx={{
-            height: "80px",
-            flexShrink: "0",
-            bgcolor: "#F8F8F8"
-          }}
-        >
-          <CardActionArea
+    <>
+      <Box
+        sx={{
+          paddingBottom: "5rem",
+          position: "sticky",
+          top: "8rem"
+        }}
+      >
+        {meals.map((meal) => (
+          <Card
+            key={meal.id}
             sx={{
-              display: "flex",
-              "&:focus": {
-                outline: "none"
-              }
+              height: "80px",
+              flexShrink: "0",
+              bgcolor: "#F8F8F8"
             }}
-            onClick={handleSelectedMeal(meal.id)}
           >
-            <CardMedia
-              component="img"
-              image={meal.coverUrl}
-              alt={meal.title}
-              sx={{
-                height: "100%",
-                width: "80px"
-              }}
-            />
-            <CardContent
+            <CardActionArea
               sx={{
                 display: "flex",
-                flexDirection: "column",
-                justifyContent: "space-between",
-                flexGrow: "1",
-                height: "100%"
+                "&:focus": {
+                  outline: "none"
+                }
               }}
+              onClick={handleSelectedMeal(meal.id)}
             >
-              <Box
+              <CardMedia
+                component="img"
+                image={meal.coverUrl}
+                alt={meal.title}
+                sx={{
+                  height: "100%",
+                  width: "80px"
+                }}
+              />
+              <CardContent
                 sx={{
                   display: "flex",
-                  justifyContent: "space-between"
+                  flexDirection: "column",
+                  justifyContent: "space-between",
+                  flexGrow: "1",
+                  height: "100%"
                 }}
               >
-                <Typography>{meal.title}</Typography>
-                <Typography>${meal.price}</Typography>
-              </Box>
-              <Typography component={"pre"} color="text.secondary" fontSize={"12px"}>
-                {meal.description}
-              </Typography>
-            </CardContent>
-          </CardActionArea>
-        </Card>
-      ))}
-    </Box>
+                <Box
+                  sx={{
+                    display: "flex",
+                    justifyContent: "space-between"
+                  }}
+                >
+                  <Typography>{meal.title}</Typography>
+                  <Typography>${meal.price}</Typography>
+                </Box>
+                <Typography component={"pre"} color="text.secondary" fontSize={"12px"}>
+                  {meal.description}
+                </Typography>
+              </CardContent>
+            </CardActionArea>
+          </Card>
+        ))}
+      </Box>
+    </>
   );
 };
 
@@ -251,16 +286,18 @@ export const Footer = () => {
   };
 
   return (
-    <Paper
+    <Box
       sx={{
         position: "fixed",
-        bottom: "1rem",
+        bottom: ".5rem",
         left: "50%",
         transform: "translateX(-50%)",
         padding: "5px",
+        borderRadius: "10px",
         height: "4.5rem",
         display: "flex",
-        width: "220px"
+        width: "220px",
+        bgcolor: "#FFFFFF"
       }}
     >
       <BottomNavigation
@@ -280,7 +317,7 @@ export const Footer = () => {
         <StyledBottomNavigationAction label="購物車" value={CART} icon={<CartIcon sx={{ fontSize: "1rem" }} />} />
         <StyledBottomNavigationAction label="訂單" value={ORDER} icon={<ReceiptIcon sx={{ fontSize: "1rem" }} />} />
       </BottomNavigation>
-    </Paper>
+    </Box>
   );
 };
 
