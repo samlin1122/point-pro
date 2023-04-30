@@ -1,13 +1,13 @@
-import * as React from "react"
+import * as React from "react";
 // Components
-import Badge from "@mui/material/Badge"
-import AppBar from "@mui/material/AppBar"
-import Toolbar from "@mui/material/Toolbar"
-import IconButton from "@mui/material/IconButton"
-import Typography from "@mui/material/Typography"
+import Badge from "@mui/material/Badge";
+import AppBar from "@mui/material/AppBar";
+import Toolbar from "@mui/material/Toolbar";
+import IconButton from "@mui/material/IconButton";
+import Typography from "@mui/material/Typography";
 // Libs
-import NotificationsIcon from "@mui/icons-material/Notifications"
-import AccountCircleIcon from "@mui/icons-material/AccountCircle"
+import NotificationsIcon from "@mui/icons-material/Notifications";
+import AccountCircleIcon from "@mui/icons-material/AccountCircle";
 
 interface HeaderProps {}
 
@@ -31,7 +31,7 @@ const Header: React.FC<HeaderProps> = () => {
         </IconButton>
       </Toolbar>
     </AppBar>
-  )
-}
+  );
+};
 
-export default Header
+export default Header;

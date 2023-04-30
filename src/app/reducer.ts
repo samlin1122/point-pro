@@ -1,4 +1,4 @@
-import { customerOrderSlice } from "~/features/customer-order/slice";
+import { customerOrderSlice } from "~/features/orders/slice";
 import { counterSlice } from "../features/home/slice";
 
 const reducer = {

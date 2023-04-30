@@ -1,9 +1,9 @@
-import React from "react"
+import React from "react";
 
 interface IOrdersContainerPros {}
 
 export const OrdersContainer: React.FC<IOrdersContainerPros> = ({}) => {
-  return <div>後台訂單頁內容</div>
-}
+  return <div>後台訂單頁內容</div>;
+};
 
-export default OrdersContainer
+export default OrdersContainer;

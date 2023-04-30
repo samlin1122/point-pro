@@ -1,5 +1,5 @@
 // Libs
-import { createBrowserRouter } from "react-router-dom"
+import { createBrowserRouter } from "react-router-dom";
 // Components
 import {
   Home,
@@ -9,8 +9,8 @@ import {
   AdminMeals,
   AdminMealDetail,
   AdminMealSetting,
-  CustomerOrder
-} from "../pages"
+  Orders
+} from "../pages";
 
 const router = createBrowserRouter([
   {
@@ -18,8 +18,8 @@ const router = createBrowserRouter([
     element: <Home />
   },
   {
-    path: "customer-order",
-    element: <CustomerOrder />
+    path: "orders",
+    element: <Orders />
   },
   {
     path: "admin",
@@ -50,6 +50,6 @@ const router = createBrowserRouter([
       }
     ]
   }
-])
+]);
 
-export default router
+export default router;

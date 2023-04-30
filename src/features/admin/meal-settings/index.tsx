@@ -1,5 +1,5 @@
 export const MealSettingsContainer = ({}) => {
-  return <div>菜單設定頁</div>
-}
+  return <div>菜單設定頁</div>;
+};
 
-export default MealSettingsContainer
+export default MealSettingsContainer;

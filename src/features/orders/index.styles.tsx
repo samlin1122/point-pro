@@ -1,6 +1,6 @@
 // Libs
-import React, { useRef, useState } from "react"
-import { useLocation, useNavigate } from "react-router-dom"
+import React, { useRef, useState } from "react";
+import { useLocation, useNavigate } from "react-router-dom";
 import {
   Badge,
   BottomNavigation,
@@ -25,14 +25,14 @@ import {
   Typography,
   styled,
   tabsClasses
-} from "@mui/material"
-import MenuBookIcon from "@mui/icons-material/MenuBook"
-import CartIcon from "@mui/icons-material/ShoppingCart"
-import ReceiptIcon from "@mui/icons-material/Receipt"
+} from "@mui/material";
+import MenuBookIcon from "@mui/icons-material/MenuBook";
+import CartIcon from "@mui/icons-material/ShoppingCart";
+import ReceiptIcon from "@mui/icons-material/Receipt";
 // Components
-import { ButtonBase } from "~/components/buttons"
+import { ButtonBase } from "~/components/buttons";
 // Others
-import { useAppDispatch, useAppSelector } from "~/app/hook"
+import { useAppDispatch, useAppSelector } from "~/app/hook";
 import {
   setCurrentCategory,
   openDialog,
@@ -42,10 +42,10 @@ import {
   CART,
   ORDER,
   CUSTOMIZED
-} from "./slice"
-import { MobileDialogLayout } from "~/components/dialog"
-import { RadioBase } from "~/components/radio"
-import { CheckboxBase } from "~/components/checkbox"
+} from "./slice";
+import { MobileDialogLayout } from "~/components/dialog";
+import { RadioBase } from "~/components/radio";
+import { CheckboxBase } from "~/components/checkbox";
 
 interface IHeaderProps {}
 export const Header = (props: IHeaderProps) => {
@@ -59,8 +59,8 @@ export const Header = (props: IHeaderProps) => {
       </Breadcrumbs>
       <Typography sx={{ fontSize: "2.5rem", fontWeight: "bold", padding: "1rem 0" }}>港都熱炒</Typography>
     </Box>
-  )
-}
+  );
+};
 
 interface ISeatInfoProps {}
 export const SeatInfo = (props: ISeatInfoProps) => {
@@ -90,19 +90,19 @@ export const SeatInfo = (props: ISeatInfoProps) => {
         </Box>
       )}
     </>
-  )
-}
+  );
+};
 
 interface ICategoryNavbarProps {}
 export const CategoryNavbar = (props: ICategoryNavbarProps) => {
-  const dispatch = useAppDispatch()
+  const dispatch = useAppDispatch();
 
-  const categories = useAppSelector(({ customerOrder }) => customerOrder.categories)
-  const currentCategory = useAppSelector(({ customerOrder }) => customerOrder.currentCategory)
+  const categories = useAppSelector(({ customerOrder }) => customerOrder.categories);
+  const currentCategory = useAppSelector(({ customerOrder }) => customerOrder.currentCategory);
 
   const onChange = (e: React.SyntheticEvent, newValue: string) => {
-    dispatch(setCurrentCategory({ currentCategory: newValue }))
-  }
+    dispatch(setCurrentCategory({ currentCategory: newValue }));
+  };
 
   return (
     <Box>
@@ -145,22 +145,22 @@ export const CategoryNavbar = (props: ICategoryNavbarProps) => {
         ))}
       </Tabs>
     </Box>
-  )
-}
+  );
+};
 
 interface IMealsProps {}
 export const Meals = (props: IMealsProps) => {
-  const dispatch = useAppDispatch()
-  const meals = useAppSelector(({ customerOrder }) => customerOrder.meals)
-  const currentCategory = useAppSelector(({ customerOrder }) => customerOrder.currentCategory)
+  const dispatch = useAppDispatch();
+  const meals = useAppSelector(({ customerOrder }) => customerOrder.meals);
+  const currentCategory = useAppSelector(({ customerOrder }) => customerOrder.currentCategory);
 
   const showMeals = meals.filter(
     (meal) => meal.categories.filter((category) => category.id === currentCategory).length > 0
-  )
+  );
 
   const handleSelectedMeal = (currentMealId: string) => () => {
-    dispatch(openCustomizeDialog({ currentMealId }))
-  }
+    dispatch(openCustomizeDialog({ currentMealId }));
+  };
 
   return (
     <Box
@@ -225,8 +225,8 @@ export const Meals = (props: IMealsProps) => {
         </Card>
       ))}
     </Box>
-  )
-}
+  );
+};
 
 const StyledBottomNavigationAction = styled(BottomNavigationAction)(({ theme }) => ({
   borderRadius: "10px",
@@ -240,15 +240,15 @@ const StyledBottomNavigationAction = styled(BottomNavigationAction)(({ theme }) 
   "&.Mui-selected": {
     color: "#F0F0F0"
   }
-}))
+}));
 
 export const Footer = () => {
-  const dispatch = useAppDispatch()
-  const currentDialog = useAppSelector(({ customerOrder }) => customerOrder.currentDialog)
+  const dispatch = useAppDispatch();
+  const currentDialog = useAppSelector(({ customerOrder }) => customerOrder.currentDialog);
 
   const handleFooterAction = (e: React.SyntheticEvent<Element, Event>, newValue: string) => {
-    if (newValue) dispatch(openDialog({ currentDialog: newValue }))
-  }
+    if (newValue) dispatch(openDialog({ currentDialog: newValue }));
+  };
 
   return (
     <Paper
@@ -281,49 +281,49 @@ export const Footer = () => {
         <StyledBottomNavigationAction label="訂單" value={ORDER} icon={<ReceiptIcon sx={{ fontSize: "1rem" }} />} />
       </BottomNavigation>
     </Paper>
-  )
-}
+  );
+};
 
 interface ICustomizedDialog {}
 export const CustomizedDialog = (props: ICustomizedDialog) => {
-  const dispatch = useAppDispatch()
-  const meals = useAppSelector(({ customerOrder }) => customerOrder.meals)
-  const currentDialog = useAppSelector(({ customerOrder }) => customerOrder.currentDialog)
-  const currentMealId = useAppSelector(({ customerOrder }) => customerOrder.currentMealId)
-  const currentMeal = meals.find((meal) => meal.id === currentMealId)
+  const dispatch = useAppDispatch();
+  const meals = useAppSelector(({ customerOrder }) => customerOrder.meals);
+  const currentDialog = useAppSelector(({ customerOrder }) => customerOrder.currentDialog);
+  const currentMealId = useAppSelector(({ customerOrder }) => customerOrder.currentMealId);
+  const currentMeal = meals.find((meal) => meal.id === currentMealId);
 
-  const specialtiesValue = useRef<{ [key: string]: number[] }>({})
+  const specialtiesValue = useRef<{ [key: string]: number[] }>({});
 
   const handleClose = () => {
-    dispatch(closeCustomizeDialog())
-  }
+    dispatch(closeCustomizeDialog());
+  };
 
   const handleCustomize = () => {
-    dispatch(closeCustomizeDialog())
-  }
+    dispatch(closeCustomizeDialog());
+  };
 
   const handleAddCart = () => {
-    console.log("handleAddCart", specialtiesValue)
-  }
+    console.log("handleAddCart", specialtiesValue);
+  };
 
   const handleRadioChange = (e: React.ChangeEvent<HTMLInputElement>, value: string) => {
-    const fieldName = e.target.name
-    const fieldValue = +value
-    const currentFieldValue = specialtiesValue.current[fieldName] || []
+    const fieldName = e.target.name;
+    const fieldValue = +value;
+    const currentFieldValue = specialtiesValue.current[fieldName] || [];
 
-    specialtiesValue.current = { ...specialtiesValue.current, [fieldName]: [...currentFieldValue, fieldValue] }
-  }
+    specialtiesValue.current = { ...specialtiesValue.current, [fieldName]: [...currentFieldValue, fieldValue] };
+  };
 
   const handleCheckboxChange = (e: React.ChangeEvent<HTMLInputElement>, checked: boolean) => {
-    const fieldName = e.target.name
-    const fieldValue = +e.target.value
-    const currentFieldValue = specialtiesValue.current[fieldName] || []
+    const fieldName = e.target.name;
+    const fieldValue = +e.target.value;
+    const currentFieldValue = specialtiesValue.current[fieldName] || [];
     const newFieldValue = checked
       ? [...specialtiesValue.current[fieldName], fieldValue]
-      : currentFieldValue.filter((id) => id !== fieldValue)
+      : currentFieldValue.filter((id) => id !== fieldValue);
 
-    specialtiesValue.current[fieldName] = newFieldValue
-  }
+    specialtiesValue.current[fieldName] = newFieldValue;
+  };
 
   return (
     <MobileDialogLayout
@@ -385,22 +385,22 @@ export const CustomizedDialog = (props: ICustomizedDialog) => {
         </FormControl>
       </Box>
     </MobileDialogLayout>
-  )
-}
+  );
+};
 
 interface ICartProps {}
 export const CartDialog = (props: ICartProps) => {
-  const dispatch = useAppDispatch()
-  const currentDialog = useAppSelector(({ customerOrder }) => customerOrder.currentDialog)
-  const cart = useAppSelector(({ customerOrder }) => customerOrder.cart)
+  const dispatch = useAppDispatch();
+  const currentDialog = useAppSelector(({ customerOrder }) => customerOrder.currentDialog);
+  const cart = useAppSelector(({ customerOrder }) => customerOrder.cart);
 
   const handleClose = () => {
-    dispatch(closeDialog())
-  }
+    dispatch(closeDialog());
+  };
 
   const handleSubmitOrders = () => {
-    console.log("handleSubmitOrders")
-  }
+    console.log("handleSubmitOrders");
+  };
 
   return (
     <MobileDialogLayout
@@ -437,22 +437,22 @@ export const CartDialog = (props: ICartProps) => {
         )}
       </Box>
     </MobileDialogLayout>
-  )
-}
+  );
+};
 
 interface IOrderProps {}
 export const OrderDialog = (props: IOrderProps) => {
-  const dispatch = useAppDispatch()
-  const currentDialog = useAppSelector(({ customerOrder }) => customerOrder.currentDialog)
-  const orders = useAppSelector(({ customerOrder }) => customerOrder.orders)
+  const dispatch = useAppDispatch();
+  const currentDialog = useAppSelector(({ customerOrder }) => customerOrder.currentDialog);
+  const orders = useAppSelector(({ customerOrder }) => customerOrder.orders);
 
   const handleClose = () => {
-    dispatch(closeDialog())
-  }
+    dispatch(closeDialog());
+  };
 
   const handleCheckout = () => {
-    console.log("handleCheckout")
-  }
+    console.log("handleCheckout");
+  };
 
   return (
     <MobileDialogLayout
@@ -483,5 +483,5 @@ export const OrderDialog = (props: IOrderProps) => {
         )}
       </Box>
     </MobileDialogLayout>
-  )
-}
+  );
+};
