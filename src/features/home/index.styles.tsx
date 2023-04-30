@@ -1,9 +1,11 @@
-import type { RootState } from "../../app/store";
-import { useSelector, useDispatch } from "react-redux";
-import { decrement, increment } from "./slice";
+import { useSelector, useDispatch } from "react-redux"
+import { Box, Typography } from "@mui/material"
+import { Circle } from "@mui/icons-material"
+
+import type { RootState } from "../../app/store"
+import { decrement, increment } from "./slice"
 
 import { ButtonBase } from "../../components/buttons"
-import { Box, Typography } from "@mui/material"
 
 interface CounterButton {}
 
@@ -33,15 +35,21 @@ interface Title
 
 export const Title: React.FC<Title> = ({ title, subtitle }) => {
   return (
-    <Box
-      sx={{
-        display: "flex",
-        gap: 2
-      }}
-    >
-      <Box width={2} height={2} borderRadius={"50%"} bgcolor="primary.main" />
-      <Box>
-        <Typography component={"h2"} fontWeight={900}>{title}</Typography>
+    <Box>
+      <Box
+        sx={{
+          display: "flex",
+          alignItems: "center",
+          gap: 2,
+        }}
+        mb={1}
+      >
+        <Circle sx={{ fontSize: "0.5rem", color: "primary.main" }} />
+        <Typography component={"h2"} fontWeight={900}>
+          {title}
+        </Typography>
+      </Box>
+      <Box ml={3}>
         <Typography component={"h4"}>{subtitle}</Typography>
       </Box>
     </Box>
