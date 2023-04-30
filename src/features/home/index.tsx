@@ -1,6 +1,6 @@
 // Libs
 // Components
-import { CounterButton } from "./index.styles"
+import { CounterButton } from "./index.styles";
 
 interface HomeContainerProps {}
 
@@ -13,6 +13,6 @@ const HomeContainer: React.FC<HomeContainerProps> = ({ ...rest }) => {
       </div>
       <p className="read-the-docs">Click on the Vite and React logos to learn more</p>
     </>
-  )
-}
-export default HomeContainer
+  );
+};
+export default HomeContainer;

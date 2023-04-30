@@ -1,5 +1,5 @@
-import { Button } from "@mui/material"
-import { styled } from "@mui/material/styles"
+import { Button } from "@mui/material";
+import { styled } from "@mui/material/styles";
 
 const ButtonBase = styled(Button)(({ theme, size }) => ({
   // your custom styles go here
@@ -11,6 +11,6 @@ const ButtonBase = styled(Button)(({ theme, size }) => ({
     color: theme.palette.primary.main,
     backgroundColor: theme.palette.secondary.main
   }
-}))
+}));
 
-export default ButtonBase
+export default ButtonBase;

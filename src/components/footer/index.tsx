@@ -1,9 +1,9 @@
-import * as React from "react"
+import * as React from "react";
 // Components
-import { Box, Container, Grid, Typography, IconButton } from "@mui/material"
-import FacebookIcon from "@mui/icons-material/Facebook"
-import TwitterIcon from "@mui/icons-material/Twitter"
-import LinkedInIcon from "@mui/icons-material/LinkedIn"
+import { Box, Container, Grid, Typography, IconButton } from "@mui/material";
+import FacebookIcon from "@mui/icons-material/Facebook";
+import TwitterIcon from "@mui/icons-material/Twitter";
+import LinkedInIcon from "@mui/icons-material/LinkedIn";
 
 interface FooterProps {}
 
@@ -46,7 +46,7 @@ const Footer: React.FC<FooterProps> = () => {
         </Box>
       </Container>
     </Box>
-  )
-}
+  );
+};
 
-export default Footer
+export default Footer;

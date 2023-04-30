@@ -1,8 +1,16 @@
 // Libs
-import { createBrowserRouter } from "react-router-dom"
+import { createBrowserRouter } from "react-router-dom";
 // Components
-import { Home, AdminMenu, AdminOrders, AdminLogin, AdminMeals, AdminMealDetail, AdminMealSetting } from "../pages"
-import Customer from "~/features/customer"
+import {
+  Home,
+  AdminMenu,
+  AdminOrders,
+  AdminLogin,
+  AdminMeals,
+  AdminMealDetail,
+  AdminMealSetting,
+  Orders
+} from "../pages";
 
 const router = createBrowserRouter([
   {
@@ -10,16 +18,8 @@ const router = createBrowserRouter([
     element: <Home />
   },
   {
-    path: "menu/:categoryId?",
-    element: <Customer.Menu />
-  },
-  {
-    path: "cart",
-    element: <Customer.Cart />
-  },
-  {
     path: "orders",
-    element: <Customer.Order />
+    element: <Orders />
   },
   {
     path: "admin",
@@ -50,6 +50,6 @@ const router = createBrowserRouter([
       }
     ]
   }
-])
+]);
 
-export default router
+export default router;

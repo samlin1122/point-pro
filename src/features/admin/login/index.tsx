@@ -1,5 +1,5 @@
 export const LoginContainer = ({}) => {
-  return <div>登入頁</div>
-}
+  return <div>登入頁</div>;
+};
 
-export default LoginContainer
+export default LoginContainer;
