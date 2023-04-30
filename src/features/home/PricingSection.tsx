@@ -15,8 +15,10 @@ import {
   Box
 } from "@mui/material"
 import { GlobalStyles, css } from "@mui/system"
-import { AnimatedCard } from "./PricingSection.styles"
 import { Row } from "../../components/layout"
+import { useDeviceType } from "./slice"
+import { AnimatedCard } from "./PricingSection.styles"
+import { Title } from "./index.styles"
 
 const pricingData = [
   {
@@ -83,9 +85,7 @@ const PricingSection = () => {
     2: ""
   })
 
-  const theme = useTheme()
-  const isTablet = useMediaQuery(theme.breakpoints.up("sm"))
-
+  const deviceType = useDeviceType()
   const handleCardClick = (clickedCardIndex: number) => {
     setCards((prevCards) => {
       const newCards = [...prevCards]
@@ -125,58 +125,78 @@ const PricingSection = () => {
     setCurrentPage(value)
   }
 
-  if (isTablet) {
+  if (deviceType === "tablet") {
     return (
-      <Grid container spacing={2}>
-        <GlobalStyles styles={globalStyles} />
-        {cards.map((card, index) => (
-          <Grid item xs={12} md={4} key={`card-${card.id}`}>
-            <AnimatedCard
-              className={animationClass[index]}
-              onClick={() => handleCardClick(index)}
-              data-id={card.id}
-              index={index}
-            >
-              <img
-                style={{ height: 262, borderRadius: "2.5rem", objectFit: "cover", width: "100%" }}
-                src={card.imgUrl}
-                title={card.title}
-              />
-              <Box pt={3} px={4} pb={2} borderRadius={5} sx={{ backgroundColor: "white" }}>
-                <Row sx={{ justifyContent: "space-between" }} mb={5}>
-                  <Typography variant="h5" component="h2" sx={{ fontWeight: 900 }}>
-                    {card.title}
-                  </Typography>
-                  <Typography variant="h5" component="h2" sx={{ fontWeight: 900 }}>
-                    {card.price}
-                  </Typography>
-                </Row>
-                <List>
-                  {card.content.map((content, index) => (
-                    <ListItem key={`content-${index}`} sx={{ paddingTop: 0 }}>
-                      <ListItemText primary={content} />
-                    </ListItem>
-                  ))}
-                </List>
-                <Button
-                  variant="contained"
-                  color="primary"
-                  sx={{
-                    margin: "1rem",
-                    pointerEvents: index === 1 ? "auto" : "none"
-                  }}
-                >
-                  選擇方案
-                </Button>
-              </Box>
-            </AnimatedCard>
-          </Grid>
-        ))}
-      </Grid>
+      <Box bgcolor={"white"} py={15}>
+        <Row
+          sx={{
+            alignItems: "flex-start",
+            gap: deviceType === "tablet" ? "6.5rem" : "2.5rem",
+            marginBottom: deviceType === "tablet" ? "13.125rem" : "2.5rem"
+          }}
+        >
+          <Title
+            title="我們的價格方案"
+            subtitle="透明且無隱藏費用的定價，讓您放心選擇 PointPro 做為您的餐飲 POS 合作夥伴。"
+          />
+          <Typography component={"h3"} fontSize={deviceType === "tablet" ? 48 : 32} fontWeight={900}>
+            無論您是新創餐廳還是連鎖品牌， PointPro 都能為您提供最適合的解決方案。
+          </Typography>
+        </Row>
+        <Grid container spacing={2}>
+          <GlobalStyles styles={globalStyles} />
+          {cards.map((card, index) => (
+            <Grid item xs={12} md={4} key={`card-${card.id}`}>
+              <AnimatedCard
+                className={animationClass[index]}
+                onClick={() => handleCardClick(index)}
+                data-id={card.id}
+                index={index}
+              >
+                <img
+                  style={{ height: 262, borderRadius: "2.5rem", objectFit: "cover", width: "100%" }}
+                  src={card.imgUrl}
+                  title={card.title}
+                />
+                <Box pt={3} px={4} pb={2} borderRadius={5} sx={{ backgroundColor: "white" }}>
+                  <Row sx={{ justifyContent: "space-between" }} mb={5}>
+                    <Typography variant="h5" component="h2" sx={{ fontWeight: 900 }}>
+                      {card.title}
+                    </Typography>
+                    <Typography variant="h5" component="h2" sx={{ fontWeight: 900 }}>
+                      {card.price}
+                    </Typography>
+                  </Row>
+                  <List>
+                    {card.content.map((content, index) => (
+                      <ListItem key={`content-${index}`} sx={{ paddingTop: 0 }}>
+                        <ListItemText primary={content} />
+                      </ListItem>
+                    ))}
+                  </List>
+                  <Button
+                    variant="contained"
+                    color="primary"
+                    sx={{
+                      margin: "1rem",
+                      pointerEvents: index === 1 ? "auto" : "none"
+                    }}
+                  >
+                    選擇方案
+                  </Button>
+                </Box>
+              </AnimatedCard>
+            </Grid>
+          ))}
+        </Grid>
+        <Typography component={"p"} fontSize={16} fontWeight={600} align={"center"} mt={5} mb={3}>
+          立即註冊，開始免費試用， 讓您的餐飲業務達到新的高峰
+        </Typography>
+      </Box>
     )
   } else {
     return (
-      <>
+      <Box bgcolor={"white"} py={5}>
         <Grid container justifyContent="center">
           <Grid item xs={12}>
             <Card>
@@ -198,7 +218,7 @@ const PricingSection = () => {
           onChange={handlePageChange}
           sx={{ display: "flex", justifyContent: "center", marginTop: "1rem" }}
         />
-      </>
+      </Box>
     )
   }
 }

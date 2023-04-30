@@ -73,35 +73,36 @@ const FeatureSection = () =>
               {featureData[0].title}
             </Typography>
           </Row>
-          <Grid container xs={12} spacing={deviceType === "tablet" ? 3 : 2}>
+          <Grid container spacing={deviceType === "tablet" ? 3 : 2}>
             {featureData[0].content.map((feature, index) => {
               return (
-                  <Grid item xs={12} md={3} key={feature.title}>
-                    <img
-                      src={feature.imgUrl}
-                      alt=""
-                      style={{
-                        borderRadius: "2.5rem",
-                        width: "100%",
-                        aspectRatio: deviceType === "tablet" ? "51/47" : "1/1",
-                        objectFit: "cover"
-                      }}
-                    />
-                    <Box
-                      flex={"column"}
-                      px={deviceType === "tablet" ? 3 : 2}
-                      pt={deviceType === "tablet" ? 4 : 3}
-                      pb={3}
-                      textAlign={"center"}
-                    >
-                      <Typography component={"h3"} fontSize={24} fontWeight={900}>
-                        {feature.title}
-                      </Typography>
-                      <Typography component={"p"} fontSize={deviceType === "tablet" ? 24 : 16}>
-                        {feature.description}
-                      </Typography>
-                    </Box>
-                  </Grid>
+                <Grid item xs={12} md={3} key={feature.title}>
+                  <img
+                    src={feature.imgUrl}
+                    alt=""
+                    style={{
+                      borderRadius: "2.5rem",
+                      width: "100%",
+                      maxHeight: deviceType === "tablet" ? "17.625rem" : "21.9375rem",
+                      aspectRatio: deviceType === "tablet" ? "51/47" : "1/1",
+                      objectFit: "cover"
+                    }}
+                  />
+                  <Box
+                    flex={"column"}
+                    px={deviceType === "tablet" ? 3 : 2}
+                    pt={deviceType === "tablet" ? 4 : 3}
+                    pb={3}
+                    textAlign={"center"}
+                  >
+                    <Typography component={"h3"} fontSize={24} fontWeight={900}>
+                      {feature.title}
+                    </Typography>
+                    <Typography component={"p"} fontSize={deviceType === "tablet" ? 24 : 16}>
+                      {feature.description}
+                    </Typography>
+                  </Box>
+                </Grid>
               )
             })}
           </Grid>
