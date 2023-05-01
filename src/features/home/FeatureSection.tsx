@@ -2,9 +2,20 @@ import { Box, Container, Grid, Typography } from "@mui/material"
 import { Column, Row } from "../../components/layout"
 import { Title } from "./index.styles"
 import { useDeviceType } from "./slice"
+import FeatureCard from "./FeatureSection.style"
+import { Assignment, MoreTime, ChromeReaderMode, MenuBook } from "@mui/icons-material"
 
+interface FeatureData {
+  title: string
+  content: {
+    imgUrl?: string
+    icon?: JSX.Element
+    title: string
+    description: string
+  }[]
+}
 
-const featureData = [
+const featureData: FeatureData[]  = [
   {
     title: "個性化、貼心、無微不至的餐飲服務",
     content: [
@@ -34,24 +45,24 @@ const featureData = [
     title: "智能化經營,靈活管理,實現更大收益",
     content: [
       {
-        imgUrl: "/src/assets/images/feature01.jpg",
+        icon: <Assignment sx={{ fontSize: 40 }} />,
         title: "訂單管理",
-        description: "簡便且高效的訂單管理系統，幫助餐廳營運更流暢"
+        description: "簡便且高效的訂單管理系統，<br />幫助餐廳營運更流暢"
       },
       {
-        imgUrl: "/src/assets/images/feature02.jpg",
+        icon: <MoreTime sx={{ fontSize: 40 }} />,
         title: "預訂管理",
-        description: "直觀的預訂管理系統，使餐廳更優化預訂管理"
+        description: "直觀的預訂管理系統，<br />使餐廳更優化預訂管理"
       },
       {
-        imgUrl: "/src/assets/images/feature03.jpg",
+        icon: <ChromeReaderMode sx={{ fontSize: 40 }} />,
         title: "菜單管理",
-        description: "簡單的菜單編輯工具，讓餐廳可以輕鬆管理和編輯"
+        description: "簡單的菜單編輯工具，<br />讓餐廳可以輕鬆管理和編輯"
       },
       {
-        imgUrl: "/src/assets/images/feature04.jpg",
+        icon: <MenuBook sx={{ fontSize: 40 }} />,
         title: "庫存管理",
-        description: "庫存管理工具，讓餐廳可以更好地管理庫存，減少浪費"
+        description: "庫存管理工具，讓餐廳可以<br />更好地管理庫存，減少浪費"
       }
     ]
   }
@@ -61,10 +72,10 @@ const FeatureSection = () =>
 {
   const deviceType = useDeviceType()
   return (
-    <Box pt={20} bgcolor={"secondary.main"}>
+    <Box pt={20} bgcolor={"background.paper"}>
       <Container>
         <Column sx={{ gap: deviceType === "tablet" ? "5rem" : "2.5rem" }}>
-          <Row sx={{ gap: deviceType === "tablet" ? "6.5rem" : "2.5rem" }}>
+          <Box display={"flex"} flexDirection={deviceType === "tablet" ? "row" : "column"} gap={deviceType === "tablet" ? "6rem" : "2.5rem" }>
             <Title
               title="產品功能特色"
               subtitle="為您的餐廳帶來卓越的管理體驗，PointPro POS 系統專為提升營運效率而設計"
@@ -72,7 +83,7 @@ const FeatureSection = () =>
             <Typography component={"h3"} fontSize={deviceType === "tablet" ? 48 : 32} fontWeight={900}>
               {featureData[0].title}
             </Typography>
-          </Row>
+          </Box>
           <Grid container spacing={deviceType === "tablet" ? 3 : 2}>
             {featureData[0].content.map((feature, index) => {
               return (
@@ -106,14 +117,33 @@ const FeatureSection = () =>
               )
             })}
           </Grid>
-          <Row>
-            <Box>
-
-            </Box>
-            <Grid>
-              
+          <Grid container spacing={deviceType === "tablet" ? 3 : 5} justifyContent={"space-between"} alignItems={"stretch"}>
+            <Grid item xs={12} md={6} display={"flex"} flexDirection={"column"} justifyContent={"space-between"}>
+              <Typography component={"h3"} variant={deviceType === "tablet" ? "h1" : "h3"} fontWeight={900} sx={{maxWidth: "32rem"}}>
+                {featureData[ 1 ].title}
+              </Typography>
+              {
+                deviceType === "tablet" && <Box mt={'auto'} ml={'auto'}>
+                  <img src="/src/assets/featureIllustration.svg" alt="" />
+                </Box>
+              }
             </Grid>
-          </Row>
+            <Grid item xs={12} md={5} display={"flex"} flexDirection={"column"} gap={deviceType === "tablet" ? "1rem" : "0.5rem"}>
+              {
+                featureData[ 1 ].content.map((feature, index) =>
+                {
+                  return (
+                    <FeatureCard
+                    key={feature.title}
+                    description={feature.description}
+                    title={feature.title}>
+                      {feature.icon}
+                    </FeatureCard>
+                  )
+                }
+                )}
+            </Grid>
+          </Grid>
         </Column>
       </Container>
     </Box>
