@@ -1,3 +1,4 @@
+import { useLocation, useNavigate, useParams } from "react-router-dom";
 export interface Props {}
 
 export interface IMenuCategory {
@@ -43,4 +44,9 @@ export interface IMobileSlice {
   currentDialog: string;
   isShowDialog: boolean;
   isLoading: boolean;
+}
+export interface RouterProps {
+  location: ReturnType<typeof useLocation>;
+  navigate: ReturnType<typeof useNavigate>;
+  params: ReturnType<typeof useParams>;
 }

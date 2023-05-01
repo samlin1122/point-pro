@@ -3,8 +3,8 @@ export { default as Home } from "./Home";
 export { default as AdminMenu } from "./Admin/Menu";
 export { default as AdminOrders } from "./Admin/Orders";
 export { default as AdminLogin } from "./Admin/Login";
-export { default as AdminMeals } from "./Admin/Meals";
-export { default as AdminMealDetail } from "./Admin/Meals/Meals-detail";
-export { default as AdminMealSetting } from "./Admin/Meal-setting";
+export { default as AdminMealList } from "./Admin/Meal/List";
+export { default as AdminMealDetail } from "./Admin/Meal/Detail";
+export { default as AdminMealSetting } from "./Admin/Meal/Settings";
 // Customer page
 export { default as Orders } from "./Orders";

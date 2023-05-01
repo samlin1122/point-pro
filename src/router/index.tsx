@@ -6,7 +6,7 @@ import {
   AdminMenu,
   AdminOrders,
   AdminLogin,
-  AdminMeals,
+  AdminMealList,
   AdminMealDetail,
   AdminMealSetting,
   Orders
@@ -37,16 +37,21 @@ const router = createBrowserRouter([
         element: <AdminLogin />
       },
       {
-        path: "meals",
-        element: <AdminMeals />
-      },
-      {
-        path: "meals/:meal_id",
-        element: <AdminMealDetail />
-      },
-      {
-        path: "meal-settings",
-        element: <AdminMealSetting />
+        path: "meal",
+        children: [
+          {
+            path: "list",
+            element: <AdminMealList />
+          },
+          {
+            path: "meals/:meal_id",
+            element: <AdminMealDetail />
+          },
+          {
+            path: "settings",
+            element: <AdminMealSetting />
+          }
+        ]
       }
     ]
   }

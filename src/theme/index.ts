@@ -7,7 +7,9 @@ const theme = createTheme({
       black: "#020202"
     },
     primary: {
+      light: "#fadf8d",
       main: "#F7C324",
+      dark: "#c59c1c",
       contrastText: "#020202"
     },
     secondary: {
@@ -27,7 +29,7 @@ const theme = createTheme({
     fontSize: 16,
     fontFamily: ["Noto Sans TC", "Inter", " system-ui", "Avenir", "Helvetica", "Arial", "sans-serif"].join(","),
     h1: { fontSize: "3rem" },
-    h2: { fontSize: "2.5rem" }, // 40px
+    h2: { fontSize: "2.5rem", fontWeight: 900, lineHeight: "48px" }, // 40px
     h3: { fontSize: "2rem" }, // 32px
     h4: { fontSize: "1.75rem" },
     h5: { fontSize: "1.5rem" }, // 24px

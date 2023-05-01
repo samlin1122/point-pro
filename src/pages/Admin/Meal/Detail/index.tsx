@@ -1,6 +1,6 @@
 // Libs
 // Components
-import MealDetailContainer from "~/features/admin/meals/meals-detail";
+import MealDetailContainer from "~/features/admin/meal/detail";
 import withMainLayout from "~/hoc/create-main-layout";
 // Styles
 
