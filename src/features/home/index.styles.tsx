@@ -1,5 +1,5 @@
 import { useSelector, useDispatch } from "react-redux"
-import { Box, Typography } from "@mui/material"
+import { Box, SxProps, Typography, styled } from "@mui/material"
 import { Circle } from "@mui/icons-material"
 
 import type { RootState } from "../../app/store"
@@ -30,12 +30,13 @@ interface Title
 {
   title: string,
   subtitle: string,
+  sx?: SxProps,
 }
 
 
-export const Title: React.FC<Title> = ({ title, subtitle }) => {
+export const Title: React.FC<Title> = ({ title, subtitle, sx }) => {
   return (
-    <Box>
+    <Box sx={{ ...sx }}>
       <Box
         sx={{
           display: "flex",

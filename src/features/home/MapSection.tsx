@@ -11,6 +11,9 @@ import { PushPin } from "@mui/icons-material"
 
 import "mapbox-gl/dist/mapbox-gl.css"
 
+
+
+
 const MapSection = () => {
   const mapboxToken = import.meta.env.VITE_MAPBOX_TOKEN
 
@@ -21,7 +24,7 @@ const MapSection = () => {
   })
 
   const [popupInfo, setPopupInfo] = React.useState(true)
-  const iconPin = <PushPin style={{ fontSize: 20, color: "gray[100]", zIndex: 999 }} />
+  const iconPin = <PushPin style={{ fontSize: 20, color: "common.black", zIndex: 999 }} />
 
   const handleMove = (evt: ViewStateChangeEvent) => {
     setViewport({
@@ -72,7 +75,7 @@ const MapSection = () => {
               onClose={() => setPopupInfo(!popupInfo)}
             >
               <Box sx={{ display: "flex", flexDirection: "column", gap: "1rem", padding: "1.5rem" }}>
-                <img src="your_logo_url_here" alt="Logo" width="100" />
+                <img src="/src/assets/map_logo.svg" alt="logo" />
                 <Typography variant="h4" component="h4" fontSize={16} fontWeight={700}>
                   特別的餐飲體驗
                   <br />
