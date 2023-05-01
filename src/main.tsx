@@ -12,6 +12,10 @@ import CssBaseline from "@mui/material/CssBaseline";
 import theme from "./theme";
 import "./index.css";
 
+import dayjs from "dayjs";
+import "dayjs/locale/zh-tw";
+dayjs.locale("zh-tw");
+
 ReactDOM.createRoot(document.getElementById("root") as HTMLElement).render(
   <React.StrictMode>
     <ThemeProvider theme={theme}>

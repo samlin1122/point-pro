@@ -18,5 +18,5 @@ npm i
 ## Run
 
 ```javascript=!
-npm start
+npm run dev
 ```

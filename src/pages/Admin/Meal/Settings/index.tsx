@@ -1,6 +1,6 @@
 // Libs
 // Components
-import MealSettingsContainer from "~/features/admin/meal-settings";
+import MealSettingsContainer from "~/features/admin/meal/settings";
 import withMainLayout from "~/hoc/create-main-layout";
 // Styles
 
