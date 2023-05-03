@@ -42,7 +42,7 @@ const AboutUsSection = () =>
   const deviceType = useDeviceType();
 
   return (
-    <Box bgcolor={"background.paper"} pt={deviceType === "tablet" ? "5rem" : "2.5rem"}>
+    <Box bgcolor={"background.paper"} pt={deviceType === "tablet" ? "5rem" : "2.5rem"} pb={deviceType === "tablet" ? "10rem" : "5rem"}>
       <Container>
         <Column>
           <Box position={"relative"} flex={"auto"}>

@@ -1,6 +1,12 @@
 import { createTheme } from "@mui/material/styles";
-
 declare module '@mui/material/styles' {
+  interface CommonColors {
+    "black_80": string;
+    "black_60": string;
+    "black_40": string;
+    "black_20": string;
+  }
+
   interface TypographyVariants
   {
     display1: React.CSSProperties;
@@ -35,7 +41,11 @@ declare module '@mui/material/Typography' {
 const theme = createTheme({
   palette: {
     common: {
-      black: "#020202"
+      black: "#020202",
+      black_80: "#525252",
+      black_60: "#919191",
+      black_40: "#D1D1D1",
+      black_20: "#F2F2F2",
     },
     primary: {
       light: "#fadf8d",

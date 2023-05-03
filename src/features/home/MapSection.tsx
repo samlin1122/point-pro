@@ -1,10 +1,9 @@
-import React, { useMemo } from "react"
+import { useState } from "react"
 import {
   Map,
   MapProvider,
   Marker,
   Popup,
-  ViewStateChangeEvent,
 } from "react-map-gl"
 import { Box, Typography } from "@mui/material"
 import { PushPin } from "@mui/icons-material"
@@ -17,22 +16,14 @@ import "mapbox-gl/dist/mapbox-gl.css"
 const MapSection = () => {
   const mapboxToken = import.meta.env.VITE_MAPBOX_TOKEN
 
-  const [viewport, setViewport] = React.useState({
+  const [viewport, setViewport] = useState({
     latitude: 25.0829869,
     longitude: 121.5937946,
     zoom: 17
   })
 
-  const [popupInfo, setPopupInfo] = React.useState(true)
+  const [popupInfo, setPopupInfo] = useState(true)
   const iconPin = <PushPin style={{ fontSize: 20, color: "common.black", zIndex: 999 }} />
-
-  const handleMove = (evt: ViewStateChangeEvent) => {
-    setViewport({
-      ...viewport,
-      longitude: evt.viewState.longitude,
-      latitude: evt.viewState.latitude,
-    })
-  }
 
   return (
     <>
@@ -54,6 +45,11 @@ const MapSection = () => {
           }}
           mapboxAccessToken={mapboxToken}
           mapStyle="mapbox://styles/huan5678/clh33ifj9008w01r8ea6nfvpd"
+          scrollZoom={false}
+          doubleClickZoom={false}
+          dragRotate={false}
+          dragPan={false}
+          cursor="default"
           style={{ position: "relative", height: "100vh", width: "100%" }}
         >
           <Marker
@@ -81,7 +77,7 @@ const MapSection = () => {
                   <br />
                   來自於我們與您的專屬互動
                 </Typography>
-                <Typography variant="body2" component="p">
+                <Typography variant="body2" component="p" color="common.black_80">
                   114 台北市內湖區
                   <br />
                   成功路四段145號6樓

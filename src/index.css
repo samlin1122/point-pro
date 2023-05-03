@@ -5,11 +5,3 @@
   -moz-osx-font-smoothing: grayscale;
   -webkit-text-size-adjust: 100%;
 }
-#root {
-  width: 100%;
-}
-
-body {
-  min-width: 320px;
-  min-height: 100vh;
-}

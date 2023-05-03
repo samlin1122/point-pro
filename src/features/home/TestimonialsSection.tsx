@@ -82,10 +82,10 @@ const TestimonialsSection = () => {
                 />
                 <Box bgcolor={"white"} borderRadius={"2.5rem"} flex={"column"} px={deviceType === "tablet" ? 3 : 2} pt={deviceType === "tablet" ? 4 : 3} pb={3}>
                   <Rating value={feature.rate} precision={0.5} size="small" readOnly />
-                  <Typography component={"h3"} fontSize={24} fontWeight={900}>
+                  <Typography variant="h5" component={"h3"} fontWeight={900}>
                     {feature.name}
                   </Typography>
-                  <Typography component={"p"} fontSize={16}>
+                  <Typography variant="body1" color="common.black_80" component={"p"}>
                     {feature.content}
                   </Typography>
                 </Box>
