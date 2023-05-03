@@ -44,7 +44,7 @@ const router = createBrowserRouter([
             element: <AdminMealList />
           },
           {
-            path: "meals/:meal_id",
+            path: "list/:meal_id",
             element: <AdminMealDetail />
           },
           {

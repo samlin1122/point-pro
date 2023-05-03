@@ -24,7 +24,7 @@ function withMainLayout<T extends Record<string, unknown>>(Component: FC<T & Rou
   return (props: T) => (
     <Box sx={{ position: "relative", minWidth: "100vw", minHeight: "100vh" }}>
       <Header />
-      <Box sx={{ minHeight: "calc( 100vh - 88px )" }}>
+      <Box sx={{ height: "calc( 100vh - 88px )", overflow: "auto" }}>
         <WrappedComponent {...props} />
       </Box>
     </Box>
