@@ -1,4 +1,4 @@
-import { useState, FC, MouseEvent } from "react";
+import { useState, FC, ChangeEvent } from "react";
 
 import {
   List,
@@ -29,7 +29,7 @@ export const MealListContainer: FC<RouterProps> = ({ navigate }) => {
     setCategory(event.target.value as string);
   };
 
-  const handleSwitchClick = (event: MouseEvent<HTMLButtonElement>) => {
+  const handleSwitchClick = (event: ChangeEvent<HTMLInputElement>) => {
     event.stopPropagation();
     console.log(event.target.checked);
   };
