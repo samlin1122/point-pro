@@ -13,7 +13,7 @@ import {
 } from "./index.styles";
 // Others
 import { useAppDispatch } from "~/app/hook";
-import { fetchMenu } from "./slice";
+import { getMenu, getOrders } from "./slice";
 
 interface IMenuProps {}
 
@@ -21,7 +21,8 @@ const CustomerOrder = (props: IMenuProps) => {
   const dispatch = useAppDispatch();
 
   useEffect(() => {
-    dispatch(fetchMenu());
+    dispatch(getMenu());
+    dispatch(getOrders());
   }, []);
 
   return (
