@@ -2,7 +2,7 @@ import { styled } from "@mui/material"
 import { Column } from "../../components/layout"
 
 type AnimatedCardProps =
- {
+{
   index: number
 }
 
