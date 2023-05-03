@@ -29,3 +29,7 @@ export const Column = styled(Box)(() => ({
   position: "relative",
   flexDirection: "column"
 }));
+
+export const Base = styled(Box)(() => ({
+  padding: "24px"
+}));
