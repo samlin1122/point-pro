@@ -1,4 +1,4 @@
-import { Fragment, useEffect, useState } from "react";
+import { Fragment, memo, useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 // Components
 import { Box, List, ListItem, ListItemButton, ListItemIcon, ListItemText } from "@mui/material";
@@ -9,21 +9,30 @@ import { sideBarItemList } from "~/utils/constants";
 interface SideBarItemOpenType {
   [keyname: string]: boolean;
 }
-const SideBar = () => {
+type SideBarType = {
+  path: string;
+};
+
+const SideBar = ({ path }: SideBarType) => {
   const [openList, setOpenList] = useState<SideBarItemOpenType>({});
   const navigate = useNavigate();
+  console.log("SideBar");
 
-  useEffect(() => {
-    sideBarItemList.map((e) => {
-      if (e.list) {
-        setOpenList({ ...openList, [e.id]: false });
-      }
-    });
-  }, []);
+  // useEffect(() => {
+  //   console.log("1");
 
-  const handleClick = (item) => {
+  //   sideBarItemList.map((e) => {
+  //     if (e.list) {
+  //       setOpenList({ ...openList, [e.id]: false });
+  //     }
+  //   });
+  // }, []);
+
+  const handleClick = (item: { path?: string | undefined; id: string }) => {
     if (item.path) {
-      navigate({ pathname: `/admin/${item.path}` });
+      if (path !== `/admin/${item.path}`) {
+        navigate({ pathname: `/admin/${item.path}` });
+      }
     } else {
       setOpenList((value) => ({ ...value, [item.id]: !value[item.id] }));
     }
@@ -42,16 +51,18 @@ const SideBar = () => {
                 ) : null}
               </ListItemButton>
             </ListItem>
-            {item.list && openList[item.id] ? (
-              <List sx={{ pl: 7 }}>
-                {item.list.map((e) => (
-                  <ListItem key={e.id} disablePadding onClick={() => handleClick(e)}>
-                    <ListItemButton>
-                      <ListItemText primary={e.name} />
-                    </ListItemButton>
-                  </ListItem>
-                ))}
-              </List>
+            {item.list ? (
+              openList[item.id] ? (
+                <List sx={{ pl: 7 }}>
+                  {item.list.map((e) => (
+                    <ListItem key={e.id} disablePadding onClick={() => handleClick(e)}>
+                      <ListItemButton>
+                        <ListItemText primary={e.name} />
+                      </ListItemButton>
+                    </ListItem>
+                  ))}
+                </List>
+              ) : null
             ) : null}
           </Fragment>
         ))}
@@ -60,4 +71,4 @@ const SideBar = () => {
   );
 };
 
-export default SideBar;
+export default memo(SideBar);
