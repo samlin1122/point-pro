@@ -1,25 +1,19 @@
 // Libs
-import React, { useRef, useState } from "react";
-import { useLocation, useNavigate } from "react-router-dom";
+import { Fragment, SyntheticEvent, useCallback, useEffect, useMemo, useState } from "react";
 import {
-  Badge,
   BottomNavigation,
   BottomNavigationAction,
   Box,
   Breadcrumbs,
-  Card,
-  CardActionArea,
-  CardContent,
-  CardMedia,
-  Dialog,
-  FormControl,
-  FormControlLabel,
-  FormGroup,
-  FormLabel,
+  Button,
+  Checkbox,
+  Divider,
   Grid,
   Link,
-  Paper,
-  RadioGroup,
+  List,
+  ListItem,
+  ListItemButton,
+  ListSubheader,
   Tab,
   Tabs,
   ToggleButton,
@@ -27,27 +21,43 @@ import {
   styled,
   tabsClasses
 } from "@mui/material";
-import MenuBookIcon from "@mui/icons-material/MenuBook";
+import RestaurantMenuIcon from "@mui/icons-material/RestaurantMenu";
 import CartIcon from "@mui/icons-material/ShoppingCart";
-import ReceiptIcon from "@mui/icons-material/Receipt";
+import StickyNote2Icon from "@mui/icons-material/StickyNote2";
 import ExpandMoreIcon from "@mui/icons-material/ExpandMore";
+import ThumbUpIcon from "@mui/icons-material/ThumbUp";
+import AddIcon from "@mui/icons-material/Add";
+import RemoveIcon from "@mui/icons-material/Remove";
+import DeleteIcon from "@mui/icons-material/Delete";
+
 // Components
 import { ButtonBase } from "~/components/buttons";
+import { MobileDialogLayout } from "~/components/dialog";
+import { CheckboxBase } from "~/components/checkbox";
 // Others
 import { useAppDispatch, useAppSelector } from "~/app/hook";
 import {
-  setCurrentCategory,
   openDialog,
   closeDialog,
   openCustomizeDialog,
   closeCustomizeDialog,
+  setCurrentCategory,
+  updateSpecialty,
+  increaseMealAmount,
+  decreaseMealAmount,
+  createCartItem,
   CART,
   ORDER,
-  CUSTOMIZED
+  CUSTOMIZED,
+  viewCartItemCustomized,
+  deleteCartItem,
+  updateCartItem,
+  increaseCartItemAmount,
+  decreaseCartItemAmount
 } from "./slice";
-import { MobileDialogLayout } from "~/components/dialog";
-import { RadioBase } from "~/components/radio";
-import { CheckboxBase } from "~/components/checkbox";
+import { ICartItem, IOrder, IPaymentLog, ISpecialty, ISpecialtyOption } from "~/types";
+import usePrevious from "~/hooks/usePrevious";
+import * as dayjs from "dayjs";
 
 interface IHeaderProps {}
 export const Header = (props: IHeaderProps) => {
@@ -57,11 +67,18 @@ export const Header = (props: IHeaderProps) => {
         <Link href="/" underline="hover" color="inherit">
           港都熱炒
         </Link>
-        <Typography sx={{ fontWeight: "500", color: "#020202" }}>我要點餐</Typography>
+        <Typography sx={{ fontWeight: 500, color: "common.black" }}>我要點餐</Typography>
       </Breadcrumbs>
       <Typography
         variant="h1"
-        sx={{ padding: ".5rem 0 1rem", fontWeight: "900", position: "sticky", top: "0", bgcolor: "#FFF" }}
+        sx={{
+          padding: ".5rem 0 1rem",
+          fontWeight: 900,
+          position: "sticky",
+          top: 0,
+          zIndex: 2,
+          bgcolor: "background.paper"
+        }}
       >
         港都熱炒
       </Typography>
@@ -75,7 +92,7 @@ export const SeatInfo = (props: ISeatInfoProps) => {
     <>
       {true && (
         <Box sx={{ padding: "0 0 1rem" }}>
-          <Typography variant="h3" sx={{ fontWeight: "700", paddingBottom: "1rem" }}>
+          <Typography variant="h3" sx={{ fontWeight: 900, paddingBottom: "1rem" }}>
             內用資訊
           </Typography>
           <Grid
@@ -88,12 +105,12 @@ export const SeatInfo = (props: ISeatInfoProps) => {
             }}
           >
             <Grid item xs={6} sx={{ padding: "0 1rem" }}>
-              <Box sx={{ color: "#919191", fontWeight: "500" }}>座位</Box>
-              <Box sx={{ fontSize: "1.5rem", fontWeight: "900", color: "#020202" }}>{"A03-1"}</Box>
+              <Box sx={{ color: "#919191", fontWeight: 500 }}>座位</Box>
+              <Box sx={{ fontSize: "1.5rem", fontWeight: 900, color: "common.black" }}>{"A03-1"}</Box>
             </Grid>
             <Grid item xs={6} sx={{ padding: "0 1rem", borderLeft: "1px solid #D1D1D1" }}>
-              <Box sx={{ color: "#919191", fontWeight: "500" }}>入座時間</Box>
-              <Box sx={{ fontSize: "1.5rem", fontWeight: "900", color: "#020202" }}>{"17:30"}</Box>
+              <Box sx={{ color: "#919191", fontWeight: 500 }}>入座時間</Box>
+              <Box sx={{ fontSize: "1.5rem", fontWeight: 900, color: "common.black" }}>{"17:30"}</Box>
             </Grid>
           </Grid>
         </Box>
@@ -102,17 +119,34 @@ export const SeatInfo = (props: ISeatInfoProps) => {
   );
 };
 
+export const StyledTab = styled(Tab)(({ theme }) => ({
+  backgroundColor: "#F2F2F2",
+  borderRadius: "5rem",
+  margin: ".2rem",
+  fontSize: "1rem",
+  minHeight: "auto",
+  minWidth: "auto",
+  "&:focus": {
+    outline: "none"
+  },
+  "&.Mui-selected[aria-selected='true']": {
+    color: theme.palette.common.black,
+    backgroundColor: theme.palette.primary.main
+  }
+}));
+
 interface ICategoryNavbarProps {}
 export const CategoryNavbar = (props: ICategoryNavbarProps) => {
   const dispatch = useAppDispatch();
 
+  const [isShowDropdown, setIsShowDropdown] = useState(false);
+
   const categories = useAppSelector(({ customerOrder }) => customerOrder.categories);
   const currentCategory = useAppSelector(({ customerOrder }) => customerOrder.currentCategory);
 
-  const [isShowDropdown, setIsShowDropdown] = useState(false);
-
-  const handleClickCategory = (e: React.SyntheticEvent, newValue: string) => {
-    dispatch(setCurrentCategory({ currentCategory: newValue }));
+  const handleClickCategory = (categoryId: string) => {
+    setIsShowDropdown(false);
+    dispatch(setCurrentCategory(categoryId));
   };
 
   const handleToggleCategoryDropdown = () => {
@@ -121,168 +155,235 @@ export const CategoryNavbar = (props: ICategoryNavbarProps) => {
 
   return (
     <>
-      <Typography variant="h3" sx={{ fontWeight: "700", paddingBottom: "1rem" }}>
+      <Typography variant="h3" sx={{ fontWeight: 900, paddingBottom: "1rem" }}>
         菜單
       </Typography>
-      <Box sx={{ display: "flex", position: "sticky", top: "4.5rem" }}>
-        <Tabs
-          value={currentCategory}
-          onChange={handleClickCategory}
-          variant="scrollable"
-          sx={{
-            [`& .${tabsClasses.scrollButtons}`]: {
-              width: "24px",
-              "&.Mui-disabled": { opacity: 0.3 }
-            },
-            "& .MuiTabs-indicator": {
-              display: "none"
-            },
-            marginBottom: "10px"
-          }}
-        >
-          {categories.map(({ id, title }) => (
-            <Tab
-              key={id}
-              value={id}
-              label={title}
+      <Box
+        sx={{
+          position: "sticky",
+          top: "4.5rem",
+          zIndex: 2,
+          bgcolor: "background.paper",
+          transform: "translateY(10%)" // [FIX]: sticky jumping when scroll in mobile
+        }}
+        id="category-tabs"
+      >
+        <Box sx={{ display: "flex" }}>
+          <Tabs
+            value={currentCategory}
+            onChange={(_, value) => handleClickCategory(value)}
+            variant="scrollable"
+            sx={{
+              [`& .${tabsClasses.scrollButtons}`]: {
+                display: "none"
+              },
+              "& .MuiTabs-indicator": {
+                display: "none"
+              },
+              marginBottom: "10px"
+            }}
+          >
+            {categories.map(({ id, title }) => (
+              <StyledTab key={id} value={id} label={title} />
+            ))}
+          </Tabs>
+          <ToggleButton
+            value="check"
+            size="small"
+            selected={isShowDropdown}
+            onChange={handleToggleCategoryDropdown}
+            sx={{
+              "&.MuiToggleButton-root[value='check']": { outline: "none", border: "none", bgcolor: "transparent" }
+            }}
+          >
+            <ExpandMoreIcon
               sx={{
-                bgcolor: "#F2F2F2",
-                borderRadius: "5rem",
-                margin: ".2rem",
-                minHeight: "auto",
-                minWidth: "auto",
-                "&:focus": {
-                  outline: "none"
-                },
-                "&.Mui-selected[aria-selected='true']": {
-                  color: "#020202",
-                  bgcolor: "#F7E252"
-                }
+                rotate: isShowDropdown ? "180deg" : "0deg",
+                transition: ".3s"
               }}
             />
-          ))}
-        </Tabs>
-        <ToggleButton
-          value="check"
-          size="small"
-          selected={isShowDropdown}
-          onChange={handleToggleCategoryDropdown}
+          </ToggleButton>
+        </Box>
+        <Box
           sx={{
-            "&.MuiToggleButton-root[value='check']": { outline: "none", border: "none", bgcolor: "transparent" }
+            display: isShowDropdown ? "block" : "none",
+            maxHeight: "60vh",
+            border: "1px solid #F2F2F2",
+            position: "absolute",
+            overflowY: "scroll",
+            zIndex: 2,
+            bgcolor: "common.white",
+            width: "100%"
           }}
         >
-          <ExpandMoreIcon
-            sx={{
-              rotate: isShowDropdown ? "180deg" : "0deg",
-              transition: ".3s"
-            }}
-          />
-        </ToggleButton>
+          <List>
+            {categories.map((category) => (
+              <Fragment key={category.id}>
+                <ListItemButton onClick={() => handleClickCategory(category.id)} sx={{ padding: "1rem" }}>
+                  {category.title}
+                </ListItemButton>
+                <Divider light />
+              </Fragment>
+            ))}
+          </List>
+        </Box>
       </Box>
     </>
   );
 };
 
 interface IMealsProps {}
+const subHeaderHeight = 48;
+const stickyTopOffset = 128;
+
 export const Meals = (props: IMealsProps) => {
   const dispatch = useAppDispatch();
-  const meals = useAppSelector(({ customerOrder }) => customerOrder.meals);
-  const currentCategory = useAppSelector(({ customerOrder }) => customerOrder.currentCategory);
 
-  // const showMeals = meals.filter(
-  //   (meal) => meal.categories.filter((category) => category.id === currentCategory).length > 0
-  // );
+  const combinedMenu = useAppSelector(({ customerOrder }) => customerOrder.combinedMenu);
+  const currentCategory = useAppSelector(({ customerOrder }) => customerOrder.currentCategory);
+  const cart = useAppSelector(({ customerOrder }) => customerOrder.cart);
+
+  const prevCategory = usePrevious(currentCategory);
+  const getItemAmountInCart = useCallback(
+    (mealId: string) => cart.reduce((acc, cur) => (cur.id === mealId ? acc + cur.amount : acc), 0),
+    [cart]
+  );
 
   const handleSelectedMeal = (currentMealId: string) => () => {
-    dispatch(openCustomizeDialog({ currentMealId }));
+    dispatch(openCustomizeDialog(currentMealId));
   };
 
+  useEffect(() => {
+    if (prevCategory && currentCategory) {
+      const categoryDividerEl = document.getElementById(currentCategory) as HTMLHRElement;
+      const categoryFirstElTop = categoryDividerEl.getBoundingClientRect().top;
+      const scrollToTop = categoryFirstElTop - (stickyTopOffset + subHeaderHeight) + window.scrollY;
+      window.scroll({ top: scrollToTop, behavior: "smooth" });
+    }
+  }, [currentCategory]);
+
+  // [TODO]: scrolling change tab focus
+
   return (
-    <>
-      <Box
-        sx={{
-          paddingBottom: "5rem",
-          position: "sticky",
-          top: "8rem"
-        }}
-      >
-        {meals.map((meal) => (
-          <Card
-            key={meal.id}
-            sx={{
-              height: "80px",
-              flexShrink: "0",
-              bgcolor: "#F8F8F8"
-            }}
-          >
-            <CardActionArea
-              sx={{
-                display: "flex",
-                "&:focus": {
-                  outline: "none"
-                }
-              }}
-              onClick={handleSelectedMeal(meal.id)}
-            >
-              <CardMedia
-                component="img"
-                image={meal.coverUrl}
-                alt={meal.title}
-                sx={{
-                  height: "100%",
-                  width: "80px"
-                }}
-              />
-              <CardContent
-                sx={{
-                  display: "flex",
-                  flexDirection: "column",
-                  justifyContent: "space-between",
-                  flexGrow: "1",
-                  height: "100%"
-                }}
-              >
-                <Box
-                  sx={{
-                    display: "flex",
-                    justifyContent: "space-between"
-                  }}
-                >
-                  <Typography>{meal.title}</Typography>
-                  <Typography>${meal.price}</Typography>
-                </Box>
-                <Typography component={"pre"} color="text.secondary" fontSize={"12px"}>
-                  {meal.description}
+    <Box sx={{ padding: "0 .2rem 5rem" }}>
+      <List sx={{ width: "100%", zIndex: 0, "& ul": { padding: 0 } }} subheader={<li />} id="meal-list">
+        {combinedMenu.map((category) => (
+          <li key={category.id}>
+            <ul>
+              <ListSubheader sx={{ padding: ".5rem 0", color: "common.black", top: stickyTopOffset }}>
+                <Typography variant="h6" sx={{ fontWeight: 900 }}>
+                  {category.title}
                 </Typography>
-              </CardContent>
-            </CardActionArea>
-          </Card>
+              </ListSubheader>
+              <Divider light id={category.id} />
+              {category.allMeals.map((meal, idx) => (
+                <Box key={`${meal.id}-${idx}`}>
+                  <ListItem sx={{ padding: ".5rem" }}>
+                    <ListItemButton sx={{ padding: "0" }} onClick={handleSelectedMeal(meal.id)}>
+                      <Grid container gap={1} sx={{ alignItems: "center", justifyContent: "space-between" }}>
+                        <Grid item sx={{ position: "relative" }}>
+                          <Box
+                            component="img"
+                            src={meal.coverUrl}
+                            alt={`${meal.title}-img`}
+                            sx={{ width: "5rem", verticalAlign: "middle" }}
+                          />
+                          {meal.recommended && (
+                            <Box
+                              sx={{
+                                position: "absolute",
+                                left: 0,
+                                top: 0,
+                                bgcolor: "primary.main",
+                                display: "flex",
+                                padding: ".1rem"
+                              }}
+                            >
+                              <ThumbUpIcon sx={{ width: "1rem", height: "1rem" }} />
+                            </Box>
+                          )}
+                        </Grid>
+                        <Grid item sx={{ flexGrow: 1 }}>
+                          <Box sx={{ fontWeight: "700" }}>{meal.title}</Box>
+                          <Box>${meal.price}</Box>
+                        </Grid>
+
+                        {getItemAmountInCart(meal.id) > 0 && (
+                          <Grid item>
+                            <Box
+                              sx={{
+                                bgcolor: "common.black",
+                                color: "common.white",
+                                borderRadius: "50%",
+                                width: "2rem",
+                                height: "2rem",
+                                textAlign: "center"
+                              }}
+                            >
+                              {getItemAmountInCart(meal.id)}
+                            </Box>
+                          </Grid>
+                        )}
+                      </Grid>
+                    </ListItemButton>
+                  </ListItem>
+                  <Divider light />
+                </Box>
+              ))}
+            </ul>
+          </li>
         ))}
-      </Box>
-    </>
+      </List>
+    </Box>
   );
 };
 
-const StyledBottomNavigationAction = styled(BottomNavigationAction)(({ theme }) => ({
-  borderRadius: "10px",
-  minWidth: "auto",
-  padding: "0",
-  gap: "5px",
-  backgroundColor: "#F0F0F0",
-  "&:focus": {
-    outline: "none"
-  },
-  "&.Mui-selected": {
-    color: "#F0F0F0"
-  }
-}));
+interface IStyledBottomNavigationActionProps {
+  amount?: number;
+}
+const StyledBottomNavigationAction = styled(BottomNavigationAction)(
+  ({ amount }: IStyledBottomNavigationActionProps) => ({
+    borderRadius: ".6rem",
+    minWidth: "auto",
+    padding: "0",
+    gap: ".3rem",
+    backgroundColor: "#F2F2F2",
+    "&:focus": { outline: "none" },
+    "&.Mui-selected": { color: "#F0F0F0" },
+    "&.MuiBottomNavigationAction-root::after": {
+      content: `"${amount}"`,
+      display: `${amount ? "flex" : "none"}`,
+      justifyContent: "center",
+      alignItems: "center",
+      position: "absolute",
+      top: 0,
+      right: 0,
+      width: "1.5rem",
+      height: "1.5rem",
+      fontSize: ".8rem",
+      color: "#020202",
+      borderRadius: "0 .6rem 0 0",
+      backgroundColor: "#F7C324"
+    }
+  })
+);
 
-export const Footer = () => {
+interface IFooterProps {}
+export const Footer = (props: IFooterProps) => {
   const dispatch = useAppDispatch();
-  const currentDialog = useAppSelector(({ customerOrder }) => customerOrder.currentDialog);
 
-  const handleFooterAction = (e: React.SyntheticEvent<Element, Event>, newValue: string) => {
-    if (newValue) dispatch(openDialog({ currentDialog: newValue }));
+  const currentDialog = useAppSelector(({ customerOrder }) => customerOrder.currentDialog);
+  const cart = useAppSelector(({ customerOrder }) => customerOrder.cart);
+  const orders = useAppSelector(({ customerOrder }) => customerOrder.orders);
+
+  const cartAmount = useMemo(() => cart.reduce((acc, item) => (acc += item.amount), 0), [cart]);
+  const unPaidOrderAmount = useMemo(
+    () => orders.filter(({ paymentLogs }) => paymentLogs[0].status === "UNPAID").length,
+    [orders]
+  );
+
+  const handleClickFooter = (e: SyntheticEvent<Element, Event>, currentDialog: string) => {
+    if (currentDialog) dispatch(openDialog(currentDialog));
   };
 
   return (
@@ -293,30 +394,91 @@ export const Footer = () => {
         left: "50%",
         transform: "translateX(-50%)",
         padding: "5px",
-        borderRadius: "10px",
+        borderRadius: ".6rem",
         height: "4.5rem",
         display: "flex",
         width: "220px",
-        bgcolor: "#FFFFFF"
+        bgcolor: "common.white"
       }}
     >
       <BottomNavigation
         showLabels
         value={currentDialog}
-        onChange={handleFooterAction}
+        onChange={handleClickFooter}
         sx={{
           gap: "5px",
           height: "100%",
           width: "100%",
-          "& .Mui-selected": {
-            bgcolor: "#020202"
-          }
+          bgcolor: "common.white",
+          "& .Mui-selected": { bgcolor: "common.black" },
+          "& .MuiSvgIcon-root": { fontSize: "1rem" }
         }}
       >
-        <StyledBottomNavigationAction label="菜單" value="" icon={<MenuBookIcon sx={{ fontSize: "1rem" }} />} />
-        <StyledBottomNavigationAction label="購物車" value={CART} icon={<CartIcon sx={{ fontSize: "1rem" }} />} />
-        <StyledBottomNavigationAction label="訂單" value={ORDER} icon={<ReceiptIcon sx={{ fontSize: "1rem" }} />} />
+        <StyledBottomNavigationAction label="菜單" value="" icon={<RestaurantMenuIcon />} />
+        <StyledBottomNavigationAction label="購物車" value={CART} icon={<CartIcon />} amount={cartAmount} />
+        <StyledBottomNavigationAction
+          label="訂單"
+          value={ORDER}
+          icon={<StickyNote2Icon />}
+          amount={unPaidOrderAmount}
+        />
       </BottomNavigation>
+    </Box>
+  );
+};
+
+interface IInputNumberProps {
+  value: number;
+  onMinus: () => void;
+  onAdd: () => void;
+}
+export const InputNumber = (props: IInputNumberProps) => {
+  const { value, onMinus, onAdd } = props;
+
+  const handleStopPropagation = (e: SyntheticEvent<Element, Event>) => {
+    e.stopPropagation();
+  };
+  return (
+    <Box
+      sx={{
+        display: "flex",
+        justifyContent: "space-between",
+        alignItems: "center",
+        border: "1px solid #F2F2F2",
+        borderRadius: ".5rem",
+        bgcolor: "common.white"
+      }}
+      onClick={handleStopPropagation}
+    >
+      <Button
+        sx={{
+          "&.MuiButtonBase-root": {
+            bgcolor: "transparent",
+            color: "common.black",
+            outline: "none",
+            padding: ".5rem"
+          }
+        }}
+        onClick={() => onMinus()}
+      >
+        <RemoveIcon />
+      </Button>
+      <Typography variant="h6" sx={{ fontWeight: 900, minWidth: "2rem", textAlign: "center" }}>
+        {value}
+      </Typography>
+      <Button
+        sx={{
+          "&.MuiButtonBase-root": {
+            bgcolor: "transparent",
+            color: "common.black",
+            outline: "none",
+            padding: ".5rem"
+          }
+        }}
+        onClick={() => onAdd()}
+      >
+        <AddIcon />
+      </Button>
     </Box>
   );
 };
@@ -324,42 +486,39 @@ export const Footer = () => {
 interface ICustomizedDialog {}
 export const CustomizedDialog = (props: ICustomizedDialog) => {
   const dispatch = useAppDispatch();
+
   const meals = useAppSelector(({ customerOrder }) => customerOrder.meals);
   const currentDialog = useAppSelector(({ customerOrder }) => customerOrder.currentDialog);
   const currentMealId = useAppSelector(({ customerOrder }) => customerOrder.currentMealId);
-  const currentMeal = meals.find((meal) => meal.id === currentMealId);
+  const currentMealAmount = useAppSelector(({ customerOrder }) => customerOrder.currentMealAmount);
+  const currentSpecialty = useAppSelector(({ customerOrder }) => customerOrder.currentSpecialty);
+  const isModifiedCartItem = useAppSelector(({ customerOrder }) => customerOrder.isModifiedCartItem);
 
-  const specialtiesValue = useRef<{ [key: string]: number[] }>({});
+  const currentMeal = meals.find((meal) => meal.id === currentMealId);
+  const specialtyItems = currentSpecialty.reduce((acc, cur) => acc.concat(cur.items), [] as ISpecialtyOption[]);
 
   const handleClose = () => {
     dispatch(closeCustomizeDialog());
   };
 
-  const handleCustomize = () => {
-    dispatch(closeCustomizeDialog());
+  const handleClickItem = (selectedSpecialty: ISpecialty, selectedItem: ISpecialtyOption) => () => {
+    dispatch(updateSpecialty({ selectedSpecialty, selectedItem }));
   };
 
-  const handleAddCart = () => {
-    console.log("handleAddCart", specialtiesValue);
+  const handleAdd = () => {
+    dispatch(increaseMealAmount());
   };
 
-  const handleRadioChange = (e: React.ChangeEvent<HTMLInputElement>, value: string) => {
-    const fieldName = e.target.name;
-    const fieldValue = +value;
-    const currentFieldValue = specialtiesValue.current[fieldName] || [];
-
-    specialtiesValue.current = { ...specialtiesValue.current, [fieldName]: [...currentFieldValue, fieldValue] };
+  const handleMinus = () => {
+    dispatch(decreaseMealAmount());
   };
 
-  const handleCheckboxChange = (e: React.ChangeEvent<HTMLInputElement>, checked: boolean) => {
-    const fieldName = e.target.name;
-    const fieldValue = +e.target.value;
-    const currentFieldValue = specialtiesValue.current[fieldName] || [];
-    const newFieldValue = checked
-      ? [...specialtiesValue.current[fieldName], fieldValue]
-      : currentFieldValue.filter((id) => id !== fieldValue);
+  const handleAddToCart = () => {
+    dispatch(createCartItem());
+  };
 
-    specialtiesValue.current[fieldName] = newFieldValue;
+  const handleUpdateCartItem = () => {
+    dispatch(updateCartItem());
   };
 
   return (
@@ -367,60 +526,50 @@ export const CustomizedDialog = (props: ICustomizedDialog) => {
       title={currentMeal?.title}
       isOpen={currentDialog === CUSTOMIZED}
       onCloseDialog={handleClose}
-      actionButton={<ButtonBase onClick={handleAddCart}> 加入購物車 </ButtonBase>}
+      actionButton={
+        <>
+          <Box sx={{ display: "flex", justifyContent: "space-between", alignItems: "center", width: "100%" }}>
+            <InputNumber value={currentMealAmount} onAdd={handleAdd} onMinus={handleMinus} />
+            <Typography variant="h5" sx={{ fontWeight: 900 }}>
+              ${currentMealAmount * (currentMeal?.price ?? 0)}
+            </Typography>
+          </Box>
+          {isModifiedCartItem ? (
+            <ButtonBase onClick={handleUpdateCartItem}>確認修改</ButtonBase>
+          ) : (
+            <ButtonBase onClick={handleAddToCart}>加入購物車</ButtonBase>
+          )}
+        </>
+      }
     >
-      <Box
-        component="form"
-        onSubmit={handleCustomize}
-        sx={{
-          display: "flex",
-          justifyContent: "center",
-          padding: "5px"
-        }}
-      >
-        <FormControl sx={{ width: "100%" }}>
-          <Typography
-            variant="h5"
-            sx={{
-              textAlign: "center",
-              fontWeight: "bold"
-            }}
-          ></Typography>
-
+      {currentMeal?.specialties.length ? (
+        <List subheader={<li />} sx={{ "& ul": { padding: 0 } }}>
           {currentMeal?.specialties.map((specialty) => (
-            <Box key={specialty.id}>
-              <FormLabel id={specialty.id}>{specialty.title}:</FormLabel>
-
-              {specialty.type === "single" && (
-                <RadioGroup
-                  row
-                  aria-labelledby={specialty.id}
-                  id={specialty.id}
-                  name={specialty.title}
-                  onChange={handleRadioChange}
-                >
-                  {specialty.items.map((item) => (
-                    <FormControlLabel key={item.id} value={item.id} label={item.title} control={<RadioBase />} />
-                  ))}
-                </RadioGroup>
-              )}
-
-              {specialty.type === "multiple" && (
-                <FormGroup row aria-labelledby={specialty.id} id={specialty.id}>
-                  {specialty.items.map((item) => (
-                    <FormControlLabel
-                      key={item.id}
-                      value={item.id}
-                      label={item.title}
-                      control={<CheckboxBase onChange={handleCheckboxChange} name={specialty.title} />}
-                    />
-                  ))}
-                </FormGroup>
-              )}
-            </Box>
+            <li key={specialty.id}>
+              <ul>
+                <ListSubheader sx={{ padding: "1rem 0", color: "common.black" }} disableSticky>
+                  <Typography variant="h6" sx={{ fontWeight: 900 }}>
+                    {specialty.title}
+                  </Typography>
+                </ListSubheader>
+                {specialty.items.map((item) => (
+                  <Fragment key={item.id}>
+                    <ListItemButton onClick={handleClickItem(specialty, item)}>
+                      <Box sx={{ display: "flex", justifyContent: "space-between", width: "100%" }}>
+                        <Typography>{item.title}</Typography>
+                        <CheckboxBase checked={!!specialtyItems.find(({ id }) => id === item.id)} />
+                      </Box>
+                    </ListItemButton>
+                    <Divider light />
+                  </Fragment>
+                ))}
+              </ul>
+            </li>
           ))}
-        </FormControl>
-      </Box>
+        </List>
+      ) : (
+        <Typography sx={{ textAlign: "center", margin: "auto", color: "text.disabled" }}>此餐點無客製化選項</Typography>
+      )}
     </MobileDialogLayout>
   );
 };
@@ -428,11 +577,31 @@ export const CustomizedDialog = (props: ICustomizedDialog) => {
 interface ICartProps {}
 export const CartDialog = (props: ICartProps) => {
   const dispatch = useAppDispatch();
+
   const currentDialog = useAppSelector(({ customerOrder }) => customerOrder.currentDialog);
   const cart = useAppSelector(({ customerOrder }) => customerOrder.cart);
 
+  const totalAmount = cart.reduce((acc, cur) => (acc += cur.amount * cur.price), 0);
+
   const handleClose = () => {
     dispatch(closeDialog());
+  };
+
+  const handleCustomized = (cartItem: ICartItem, idx: number) => () => {
+    dispatch(viewCartItemCustomized({ cartItem, idx }));
+  };
+
+  const handleDeleteCartItem = (idx: number) => (e: SyntheticEvent<Element, Event>) => {
+    e.stopPropagation();
+    dispatch(deleteCartItem(idx));
+  };
+
+  const handleAdd = (idx: number) => {
+    dispatch(increaseCartItemAmount(idx));
+  };
+
+  const handleMinus = (idx: number) => {
+    dispatch(decreaseCartItemAmount(idx));
   };
 
   const handleSubmitOrders = () => {
@@ -442,35 +611,95 @@ export const CartDialog = (props: ICartProps) => {
   return (
     <MobileDialogLayout
       title="購物車"
+      titleSize="h2"
       isOpen={currentDialog === CART}
       onCloseDialog={handleClose}
-      actionButton={<ButtonBase onClick={handleSubmitOrders}>送出訂單</ButtonBase>}
-    >
-      <Box
-        sx={{
-          flexGrow: "1",
-          display: "flex",
-          flexDirection: "column"
-        }}
-      >
-        {cart.length > 0 ? (
-          <>
-            <Typography variant="h5" sx={{ textAlign: "center", fontWeight: "bold" }}>
-              訂購明細
+      actionButton={
+        <>
+          <Box sx={{ display: "flex", justifyContent: "space-between", alignItems: "center", width: "100%" }}>
+            <Typography variant="h6" sx={{ fontWeight: 900 }}>
+              小記
             </Typography>
-          </>
-        ) : (
-          <Box
-            sx={{
-              display: "flex",
-              flexDirection: "column",
-              alignItems: "center",
-              justifyContent: "center",
-              flexGrow: "1"
-            }}
-          >
-            <Typography>快去點餐囉！</Typography>
+            <Typography variant="h6" sx={{ fontWeight: 900 }}>
+              ${totalAmount}
+            </Typography>
           </Box>
+          <ButtonBase onClick={handleSubmitOrders} disabled={cart.length === 0}>
+            送出訂單
+          </ButtonBase>
+        </>
+      }
+    >
+      <Box sx={{ flexGrow: 1, display: "flex", flexDirection: "column" }}>
+        {cart.length > 0 ? (
+          <List>
+            {cart.map((cartItem, idx) => (
+              <Fragment key={`${cartItem.id}-${idx}`}>
+                <ListItemButton onClick={handleCustomized(cartItem, idx)} sx={{ padding: ".5rem" }}>
+                  <Box sx={{ width: "100%" }}>
+                    <Grid container gap={1} sx={{ justifyContent: "space-between", marginBottom: "1rem" }}>
+                      <Grid item sx={{ position: "relative" }}>
+                        <Box
+                          component="img"
+                          src={cartItem.coverUrl}
+                          alt={`${cartItem.title}-img`}
+                          sx={{ width: "5rem", verticalAlign: "middle" }}
+                        />
+                        {cartItem.recommended && (
+                          <Box
+                            sx={{
+                              position: "absolute",
+                              left: 0,
+                              top: 0,
+                              bgcolor: "primary.main",
+                              display: "flex",
+                              padding: ".1rem"
+                            }}
+                          >
+                            <ThumbUpIcon sx={{ width: "1rem", height: "1rem" }} />
+                          </Box>
+                        )}
+                      </Grid>
+                      <Grid item sx={{ flexGrow: 1 }}>
+                        <Typography sx={{ fontWeight: 700 }}>{cartItem.title}</Typography>
+                        {cartItem.specialties.map((specialty, idx) => (
+                          <Box sx={{ color: "#525252", fontSize: ".8rem" }} key={`${specialty.id}-${idx}`}>
+                            {specialty.type === "single"
+                              ? specialty.items[0]?.title ?? ""
+                              : specialty.items.map((item) => item.title).join("、")}
+                          </Box>
+                        ))}
+                      </Grid>
+                      <Grid item>
+                        <DeleteIcon onClick={handleDeleteCartItem(idx)} sx={{ height: "100%" }} />
+                      </Grid>
+                    </Grid>
+                    <Box
+                      sx={{
+                        display: "flex",
+                        justifyContent: "space-between",
+                        alignItems: "center",
+                        width: "100%"
+                      }}
+                    >
+                      <InputNumber
+                        value={cartItem.amount}
+                        onAdd={() => handleAdd(idx)}
+                        onMinus={() => handleMinus(idx)}
+                      />
+                      <Typography variant="h6" sx={{ fontWeight: 900 }}>
+                        ${cartItem.amount * cartItem.price}
+                      </Typography>
+                    </Box>
+                  </Box>
+                </ListItemButton>
+                <Divider light />
+              </Fragment>
+            ))}
+            <Divider />
+          </List>
+        ) : (
+          <Typography sx={{ textAlign: "center", margin: "auto", color: "text.disabled" }}>快去點餐囉！</Typography>
         )}
       </Box>
     </MobileDialogLayout>
@@ -478,13 +707,35 @@ export const CartDialog = (props: ICartProps) => {
 };
 
 interface IOrderProps {}
+const STATUS = [
+  { value: "UNPAID", title: "未付款" },
+  { value: "SUCCESS", title: "已付款" }
+];
 export const OrderDialog = (props: IOrderProps) => {
   const dispatch = useAppDispatch();
+  const [orderStatus, setOrderStatus] = useState(STATUS[0].value);
+  const [toggleList, setToggleList] = useState<IOrder["id"][]>([]);
   const currentDialog = useAppSelector(({ customerOrder }) => customerOrder.currentDialog);
   const orders = useAppSelector(({ customerOrder }) => customerOrder.orders);
 
+  const showOrders = orders.filter(({ paymentLogs }) => paymentLogs[0].status === orderStatus);
+
   const handleClose = () => {
     dispatch(closeDialog());
+  };
+
+  const handleClickOrderStatus = (orderStatus: IPaymentLog["status"]) => {
+    setOrderStatus(orderStatus);
+  };
+
+  const handleToggleListItem = (orderId: IOrder["id"]) => () => {
+    let newToggleList: IOrder["id"][];
+    if (toggleList.includes(orderId)) {
+      newToggleList = toggleList.filter((id) => id !== orderId);
+    } else {
+      newToggleList = [...toggleList, orderId];
+    }
+    setToggleList(newToggleList);
   };
 
   const handleCheckout = () => {
@@ -494,29 +745,141 @@ export const OrderDialog = (props: IOrderProps) => {
   return (
     <MobileDialogLayout
       title="訂單"
+      titleSize="h2"
       isOpen={currentDialog === ORDER}
       onCloseDialog={handleClose}
-      actionButton={<ButtonBase onClick={handleCheckout}>前往結帳</ButtonBase>}
+      actionButton={
+        orderStatus === "UNPAID" && (
+          <ButtonBase onClick={handleCheckout} disabled={orders.length === 0}>
+            前往結帳
+          </ButtonBase>
+        )
+      }
     >
-      <Box
+      <Tabs
+        value={orderStatus}
+        onChange={(_, value) => handleClickOrderStatus(value)}
         sx={{
-          flexGrow: "1",
-          display: "flex",
-          flexDirection: "column"
+          [`& .${tabsClasses.scrollButtons}`]: {
+            display: "none"
+          },
+          "& .MuiTabs-indicator": {
+            display: "none"
+          },
+          marginBottom: "10px"
         }}
       >
-        {orders.length === 0 && (
-          <Box
-            sx={{
-              display: "flex",
-              flexDirection: "column",
-              alignItems: "center",
-              justifyContent: "center",
-              flexGrow: "1"
-            }}
-          >
-            <Typography>沒有訂單記錄</Typography>
-          </Box>
+        {STATUS.map((status, idx) => (
+          <StyledTab key={`${status.value}-${idx}`} value={status.value} label={status.title} />
+        ))}
+      </Tabs>
+      <Divider />
+      <Box
+        sx={{
+          flexGrow: 1,
+          display: "flex",
+          flexDirection: "column",
+          paddingTop: "1rem",
+          paddingBottom: "10rem"
+        }}
+      >
+        {showOrders.length > 0 ? (
+          <List>
+            {showOrders.map((order) => (
+              <ListItem
+                key={order.id}
+                sx={{
+                  bgcolor: "common.white",
+                  display: "flex",
+                  flexDirection: "column",
+                  padding: ".5rem",
+                  borderRadius: ".5rem",
+                  marginBottom: "1rem"
+                }}
+              >
+                <Box sx={{ width: "100%", borderBottom: "1px solid #D1D1D1" }}>
+                  <Box sx={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+                    <Box sx={{ fontWeight: 700 }}>{order.type === "dine-in" ? "內用訂單" : "外帶訂單"}</Box>
+                    <Box>{`${dayjs(order.createdAt).format("YYYY/MM/DD HH:mm")}`}</Box>
+                  </Box>
+                  <Box
+                    sx={{
+                      display: "flex",
+                      justifyContent: "space-between",
+                      alignItems: "center",
+                      fontSize: "1.25rem",
+                      padding: ".5rem 0"
+                    }}
+                  >
+                    <Box>
+                      <Box component="span" sx={{ color: "#525252" }}>
+                        狀態：
+                      </Box>
+                      <Box component="span" sx={{ fontWeight: 900 }}>
+                        {order.status === "SUCCESS" ? "已完成" : "準備中"}
+                      </Box>
+                    </Box>
+                    <Box sx={{ fontWeight: 900 }}>${order.paymentLogs[0].price}</Box>
+                  </Box>
+                </Box>
+                <Box sx={{ width: "100%", display: toggleList.includes(order.id) ? "block" : "none" }}>
+                  {order.orderMeals.map((meal) => (
+                    <Grid
+                      container
+                      key={meal.id}
+                      sx={{ borderBottom: "1px solid #D1D1D1", fontWeight: 700, padding: ".5rem 0" }}
+                    >
+                      <Grid item xs={2}>
+                        <Checkbox checked={meal.isServed} sx={{ padding: 0 }} />
+                      </Grid>
+                      <Grid item sx={{ flexGrow: 1 }}>
+                        <Box>{meal.mealTitle}</Box>
+                        {meal.specialties.map((specialty) => (
+                          <Box
+                            key={specialty.id}
+                            sx={{ fontSize: ".8rem", fontWeight: 300, color: "#525252", paddingBottom: ".5rem" }}
+                          >
+                            {specialty.items.map((item) => item.title).join(", ")}
+                          </Box>
+                        ))}
+                      </Grid>
+                      <Grid item xs={1.5}>
+                        <Box>x{meal.amount}</Box>
+                      </Grid>
+                      <Grid item sx={{ textAlign: "right" }}>
+                        <Box>${meal.price}</Box>
+                      </Grid>
+                    </Grid>
+                  ))}
+                </Box>
+                <ListItemButton
+                  onClick={handleToggleListItem(order.id)}
+                  sx={{
+                    display: "flex",
+                    justifyContent: "center",
+                    alignItems: "center",
+                    fontSize: ".8rem",
+                    fontWeight: 700,
+                    width: "100%"
+                  }}
+                >
+                  {toggleList.includes(order.id) ? (
+                    <>
+                      <Box>收合</Box>
+                      <ExpandMoreIcon sx={{ rotate: "180deg" }} fontSize="small" />
+                    </>
+                  ) : (
+                    <>
+                      <Box>點擊查看訂單內容</Box>
+                      <ExpandMoreIcon fontSize="small" />
+                    </>
+                  )}
+                </ListItemButton>
+              </ListItem>
+            ))}
+          </List>
+        ) : (
+          <Typography sx={{ textAlign: "center", margin: "auto", color: "text.disabled" }}>沒有訂單記錄</Typography>
         )}
       </Box>
     </MobileDialogLayout>

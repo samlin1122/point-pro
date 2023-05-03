@@ -1,0 +1,163 @@
+{
+  "orders": [
+    {
+      "id": "1",
+      "status": "SUCCESS",
+      "type": "dine-in",
+      "reservationId": "1",
+      "createdAt": 1683109344000,
+      "updatedAt": 1683110815000,
+      "orderMeals": [
+        {
+          "id": "1",
+          "orderId": "1",
+          "meaId": "1",
+          "mealTitle": "魚下巴",
+          "price": 380,
+          "amount": 2,
+          "servedAmount": 1,
+          "isServed": true,
+          "specialties": [
+            {
+              "id": "1",
+              "title": "辣度",
+              "type": "single",
+              "items": [
+                {
+                  "id": "1-1",
+                  "title": "不辣",
+                  "price": null
+                }
+              ]
+            },
+            {
+              "id": "2",
+              "title": "調味",
+              "type": "multiple",
+              "items": [
+                {
+                  "id": "2-1",
+                  "title": "少油",
+                  "price": null
+                },
+                {
+                  "id": "2-2",
+                  "title": "少鹽",
+                  "price": null
+                },
+                {
+                  "id": "2-3",
+                  "title": "無味素",
+                  "price": null
+                },
+                {
+                  "id": "2-4",
+                  "title": "不加蔥",
+                  "price": null
+                }
+              ]
+            },
+            {
+              "id": "3",
+              "title": "加量",
+              "type": "single",
+              "items": [
+                {
+                  "id": "3-2",
+                  "title": "加20元飯",
+                  "price": 20
+                }
+              ]
+            }
+          ],
+          "categories": [
+            {
+              "id": "1",
+              "title": "火烤類"
+            }
+          ]
+        },
+        {
+          "id": "2",
+          "orderId": "1",
+          "meaId": "6",
+          "mealTitle": "烤松阪豬肉",
+          "price": 540,
+          "amount": 3,
+          "servedAmount": 1,
+          "isServed": true,
+          "specialties": [],
+          "categories": [
+            {
+              "id": "1",
+              "title": "火烤類"
+            }
+          ]
+        }
+      ],
+      "paymentLogs": [
+        {
+          "orderId": "1",
+          "paymentNo": "1",
+          "price": 920,
+          "gateway": "linepay",
+          "status": "SUCCESS"
+        }
+      ]
+    },
+    {
+      "id": "2",
+      "status": "SUCCESS",
+      "type": "dine-in",
+      "reservationId": "1",
+      "createdAt": 1683106223000,
+      "updatedAt": 1683107553000,
+      "orderMeals": [
+        {
+          "id": "2",
+          "orderId": "2",
+          "meaId": "11",
+          "mealTitle": "竹筍雞鍋 - 小",
+          "price": 480,
+          "amount": 1,
+          "servedAmount": 1,
+          "isServed": true,
+          "specialties": [
+            {
+              "id": "2",
+              "title": "調味",
+              "type": "multiple",
+              "items": [
+                {
+                  "id": "2-1",
+                  "title": "少油",
+                  "price": null
+                },
+                {
+                  "id": "2-2",
+                  "title": "少鹽",
+                  "price": null
+                }
+              ]
+            }
+          ],
+          "categories": [
+            {
+              "id": "2",
+              "title": "火鍋類"
+            }
+          ]
+        }
+      ],
+      "paymentLogs": [
+        {
+          "orderId": "2",
+          "paymentNo": "1",
+          "price": 480,
+          "gateway": "linepay",
+          "status": "SUCCESS"
+        }
+      ]
+    }
+  ]
+}

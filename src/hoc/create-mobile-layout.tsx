@@ -13,7 +13,9 @@ const withMobileLayout =
           width: "100vw",
           maxWidth: "768px",
           minHeight: "100vh",
-          padding: ".5rem"
+          padding: ".5rem",
+          bgcolor: "background.paper",
+          margin: "auto"
         }}
       >
         <WrappedComponent {...props} />

@@ -12,9 +12,11 @@ import {
   Typography
 } from "@mui/material";
 import CancelIcon from "@mui/icons-material/Cancel";
+import { Variant } from "@mui/material/styles/createTypography";
 
 interface IMobileDialogLayout {
   title?: string;
+  titleSize?: Variant;
   children?: React.ReactNode;
   isOpen: boolean;
   onCloseDialog: () => void;
@@ -27,6 +29,7 @@ interface IMobileDialogLayout {
 export const MobileDialogLayout = (props: IMobileDialogLayout) => {
   const {
     title = "",
+    titleSize = "h4",
     children = null,
     isOpen,
     onCloseDialog,
@@ -37,16 +40,34 @@ export const MobileDialogLayout = (props: IMobileDialogLayout) => {
   } = props;
 
   return (
-    <Dialog {...dialogProps} fullScreen onClose={onCloseDialog} open={isOpen}>
+    <Dialog
+      {...dialogProps}
+      fullScreen
+      onClose={onCloseDialog}
+      open={isOpen}
+      sx={{ bgcolor: "#E1E1E1", width: "100vw", maxWidth: "768px", margin: "0 auto" }}
+    >
       <DialogTitle>
         <Box sx={{ display: "flex" }}>
-          <Typography sx={{ fontWeight: "bold", fontSize: "2rem", flexGrow: "1" }}>{title}</Typography>
-          <CancelIcon sx={{ fontSize: "2rem" }} onClick={onCloseDialog} />
+          <Typography variant={titleSize} sx={{ fontWeight: "900", flexGrow: 1 }}>
+            {title}
+          </Typography>
+          <CancelIcon sx={{ fontSize: "2.5rem" }} onClick={onCloseDialog} />
         </Box>
       </DialogTitle>
 
       <DialogContent {...dialogContentProps}>
-        <Box sx={{ display: "flex", flexDirection: "column", width: "100%", flexGrow: "1" }}>{children}</Box>
+        <Box
+          sx={{
+            display: "flex",
+            flexDirection: "column",
+            width: "100%",
+            height: "100%",
+            flexGrow: 1
+          }}
+        >
+          {children}
+        </Box>
       </DialogContent>
 
       {actionButton && (
@@ -57,7 +78,16 @@ export const MobileDialogLayout = (props: IMobileDialogLayout) => {
             flexDirection: "column",
             alignItems: "center",
             gap: "1rem",
-            "& .MuiButtonBase-root": { width: "100%", margin: 0, bgcolor: "#F7E252" }
+            padding: "1rem",
+            bgcolor: "common.white",
+            "& .MuiButtonBase-root": {
+              width: "100%",
+              margin: 0,
+              bgcolor: "primary.main",
+              color: "common.black",
+              fontWeight: 700,
+              fontSize: "1.25rem"
+            }
           }}
         >
           {actionButton}
