@@ -1,21 +1,28 @@
-import { useState } from "react";
+import { memo, useRef, useState } from "react";
+import { useLocation } from "react-router-dom";
 // Components
-import { Box, Button, Badge, AppBar, Toolbar, IconButton, Typography, Drawer, CssBaseline } from "@mui/material";
+import { Box, Button, Badge, AppBar, Toolbar, IconButton, Typography, Drawer } from "@mui/material";
 import { AccountCircle, DoubleArrow, NotificationsNone } from "@mui/icons-material";
 import SideBar from "~/components/side-bar";
 // Libs
 import HeaderLogo from "~/assets/images/header-logo.svg";
 import dayjs from "dayjs";
-import { RouterProps } from "~/types";
 
 const drawerWidth = "335px";
 
-const Header: React.FC<RouterProps> = ({ location }) => {
+const Header: React.FC = () => {
   const [open, setOpen] = useState(false);
+  const location = useLocation();
+
+  let countRef = useRef(0);
+  console.log("header", countRef);
+  if (countRef.current === null) {
+    countRef.current = 0;
+  }
+  countRef.current++;
 
   return (
     <Box sx={{ display: "flex" }}>
-      <CssBaseline />
       <AppBar
         position="static"
         sx={{
@@ -88,17 +95,20 @@ const Header: React.FC<RouterProps> = ({ location }) => {
 
       <Drawer
         open={open}
-        onClose={() => setOpen(false)}
+        onClose={() => {
+          setOpen(false);
+          console.log("close");
+        }}
         sx={{
           width: drawerWidth,
           flexShrink: 0,
           [`& .MuiDrawer-paper`]: { width: drawerWidth, boxSizing: "border-box" }
         }}
       >
-        <SideBar />
+        <SideBar path={location.pathname} />
       </Drawer>
     </Box>
   );
 };
 
-export default Header;
+export default memo(Header);
