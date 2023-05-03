@@ -7,18 +7,17 @@ import {
   Typography,
   Button,
   Pagination,
-  useMediaQuery,
-  useTheme,
   List,
   ListItem,
   ListItemText,
-  Box
+  Box,
+  Container
 } from "@mui/material"
 import { GlobalStyles, css } from "@mui/system"
 import { Row } from "../../components/layout"
 import { useDeviceType } from "./slice"
 import { AnimatedCard } from "./PricingSection.styles"
-import { Title } from "./index.styles"
+import { CallToActionButton, Title } from "./index.styles"
 
 const pricingData = [
   {
@@ -74,8 +73,11 @@ const globalStyles = css`
     }
   }
 `
-
-const PricingSection = () => {
+interface Props
+{
+  openModal: () => void
+}
+const PricingSection: React.FC<Props> = ({openModal}) => {
   const [cards, setCards] = useState(pricingData)
   const [currentPage, setCurrentPage] = useState(1)
   const [centerCardIndex, setCenterCardIndex] = useState(1)
@@ -128,6 +130,7 @@ const PricingSection = () => {
   if (deviceType === "tablet") {
     return (
       <Box bgcolor={"white"} py={15}>
+        <Container>
         <Row
           sx={{
             alignItems: "flex-start",
@@ -142,7 +145,8 @@ const PricingSection = () => {
           <Typography component={"h3"} fontSize={deviceType === "tablet" ? 48 : 32} fontWeight={900}>
             無論您是新創餐廳還是連鎖品牌， PointPro 都能為您提供最適合的解決方案。
           </Typography>
-        </Row>
+          </Row>
+          </Container>
         <Grid container spacing={2}>
           <GlobalStyles styles={globalStyles} />
           {cards.map((card, index) => (
@@ -158,7 +162,7 @@ const PricingSection = () => {
                   src={card.imgUrl}
                   title={card.title}
                 />
-                <Box pt={3} px={4} pb={2} borderRadius={5} sx={{ backgroundColor: "white" }}>
+                <Box pt={deviceType === "tablet" ? 5 : 4} px={deviceType === "tablet" ? 4 : 3} pb={deviceType === "tablet" ? 3 : 2} borderRadius={5} bgcolor={"background.paper"}>
                   <Row sx={{ justifyContent: "space-between" }} mb={5}>
                     <Typography variant="h5" component="h2" sx={{ fontWeight: 900 }}>
                       {card.title}
@@ -167,23 +171,14 @@ const PricingSection = () => {
                       {card.price}
                     </Typography>
                   </Row>
-                  <List>
+                  <List sx={{marginBottom: "2.5rem"}}>
                     {card.content.map((content, index) => (
                       <ListItem key={`content-${index}`} sx={{ paddingTop: 0 }}>
                         <ListItemText primary={content} />
                       </ListItem>
                     ))}
                   </List>
-                  <Button
-                    variant="contained"
-                    color="primary"
-                    sx={{
-                      margin: "1rem",
-                      pointerEvents: index === 1 ? "auto" : "none"
-                    }}
-                  >
-                    選擇方案
-                  </Button>
+                  <CallToActionButton content="立即詢問" handleOnClick={() => openModal()} />
                 </Box>
               </AnimatedCard>
             </Grid>

@@ -1,6 +1,6 @@
 import { useMediaQuery, useTheme } from "@mui/material";
-import { createSlice } from "@reduxjs/toolkit";
-import type { PayloadAction } from "@reduxjs/toolkit";
+import { createSlice, PayloadAction } from "@reduxjs/toolkit";
+
 
 export interface CounterState {
   value: number;

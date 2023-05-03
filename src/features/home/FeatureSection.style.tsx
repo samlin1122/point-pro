@@ -10,13 +10,13 @@ interface  FeatureCardProps {
 const FeatureCard: React.FC<FeatureCardProps> =({ children, title, description }) => {
   return (
     <Grid container>
-      <Grid item xs={9}>
+      <Grid item xs={9} flex={1}>
         <Column paddingLeft={'3rem'} paddingY={2.5} bgcolor={'white'} borderRadius={'2.5rem'} height={'100%'} justifyContent={'center'}>
-          <Typography variant="h6" fontWeight={900} component="h2" mb={1}>{title}</Typography>
-          <Typography variant="body1" component="p" dangerouslySetInnerHTML={{ __html: description }} />
+          <Typography variant="h6" lineHeight={"1rem"} fontWeight={900} component="h2" mb={1}>{title}</Typography>
+          <Typography variant="body1" component="p" color={"common.black_80"} dangerouslySetInnerHTML={{ __html: description }} />
         </Column>
       </Grid>
-      <Grid item xs={3}>
+      <Grid item flex={1} maxHeight={"7rem"} maxWidth={"7rem"}>
         <Box
           padding="0.5rem"
           borderRadius={'2.5rem'}

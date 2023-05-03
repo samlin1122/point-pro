@@ -23,7 +23,7 @@ const AboutUsAvatarCard = ({ name, title, imgUrl }: AboutUsAvatarCardProps) => {
       <Grid item xs={7}>
         <Column paddingLeft={'2rem'} bgcolor={'white'} borderRadius={'2.5rem'} height={'100%'} justifyContent={'center'}>
           <Typography variant="body1" fontWeight={700} component="h2" mb={0.5}>{name}</Typography>
-          <Typography variant="small" component="p">{title}</Typography>
+          <Typography variant="small" color="common.black_80" component="p">{title}</Typography>
         </Column>
       </Grid>
     </Grid>

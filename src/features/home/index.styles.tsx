@@ -1,11 +1,14 @@
 import { useSelector, useDispatch } from "react-redux"
-import { Box, SxProps, Typography, styled } from "@mui/material"
+import { Box, Button, Icon, SxProps, Typography } from "@mui/material"
 import { Circle } from "@mui/icons-material"
+import FingerprintIcon from '@mui/icons-material/Fingerprint';
+import ArrowForwardIcon from '@mui/icons-material/ArrowForward';
 
 import type { RootState } from "../../app/store"
 import { decrement, increment } from "./slice"
 
 import { ButtonBase } from "../../components/buttons";
+import { useState } from "react";
 
 interface CounterButton {}
 
@@ -51,8 +54,54 @@ export const Title: React.FC<Title> = ({ title, subtitle, sx }) => {
         </Typography>
       </Box>
       <Box ml={3}>
-        <Typography component={"h4"}>{subtitle}</Typography>
+        <Typography component={"h4"} color={"common.black_80"}>{subtitle}</Typography>
       </Box>
     </Box>
+  )
+}
+
+interface CallToActionProps
+{
+  content: string,
+  handleOnClick: () => void,
+}
+
+export const CallToActionButton: React.FC<CallToActionProps> = ({ content, handleOnClick }) =>
+{
+  const [isHover, setIsHover] = useState(false);
+  return (
+    <Button variant="contained" size="large" sx={{
+      display: "flex",
+      justifyContent: "space-between",
+      alignItems: "center",
+      borderRadius: "5rem",
+      padding: isHover ? "0.5rem 0.5rem 0.5rem 2rem" : "1.5rem 1.5rem 1.5rem 2rem",
+      minWidth: "13rem",
+      minHeight: "5rem",
+    }} onClick={handleOnClick} onMouseEnter={() => setIsHover(true)} onMouseLeave={() => setIsHover(false)}>
+      <Typography variant="h6" lineHeight={1.2} fontWeight={900} component="span" mr={isHover ? 3 : 5}>
+        {content}
+      </Typography>
+      <Box borderRadius={"50%"} height={"2rem"} width={"2rem"} component={"div"}
+        sx={{
+          display: "grid", placeContent: "center",
+          backgroundColor: isHover ? "common.black" : "#00000014",
+          color: isHover ? "common.white" : "common.black",
+          transition: "all 0.3s ease",
+          transformOrigin: "right center",
+          transform: isHover ? "scale(2)" : "scale(1)",
+        }}>
+        {
+          isHover ?
+            <Icon sx={{ display: "grid", placeContent: "center", fontSize: "1.5rem", color: "white" }}>
+              <ArrowForwardIcon />
+            </Icon>
+            :
+            <Icon sx={{ display: "grid", placeContent: "center", fontSize: "1.5rem", color: "common.black" }}>
+              <FingerprintIcon />
+            </Icon>
+        }
+      </Box>
+    </Button>
   )
 }

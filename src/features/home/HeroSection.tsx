@@ -1,21 +1,26 @@
-import { Container, Box, Typography, useMediaQuery, useTheme } from "@mui/material"
 import { useEffect, useRef, useState } from "react"
+import { Container, Box, Typography, useMediaQuery, useTheme, Icon, Button } from "@mui/material"
+
+import { CallToActionButton } from "./index.styles"
+
 
 const rootStyle = {
   position: "relative",
-  height: "80vh",
+  height: "100%",
   overflow: "hidden",
   display: "flex",
   alignItems: "center",
   justifyContent: "center",
   borderRadius: "0 0 50% 50% / 0 0 8rem 8rem",
-  backgroundColor: "rgba(0, 0, 0, 0.2)"
 } as const
 const videoStyle = {
   position: "absolute",
-  top: "50%",
-  left: "50%",
-  transform: "translate(-50%, -50%)",
+  top: 0,
+  left: 0,
+  width: "100%",
+  height: "1080px",
+  objectFit: "cover",
+  objectPosition: "50% 50%",
 } as const
 const curveContainerStyle = {
   position: "absolute",
@@ -37,7 +42,12 @@ const getCurvePath = (width: number, height: number, borderRadius: number): stri
   return `M ${startX} ${startY} Q ${controlX} ${controlY} ${endX} ${endY}`
 }
 
-const HeroSection = () =>
+interface Props
+{
+  openModal: () => void
+}
+
+const HeroSection: React.FC<Props> = ({openModal}) =>
 {
   const heroSectionRef = useRef<HTMLDivElement | null>(null)
   const [ curvePath, setCurvePath ] = useState("")
@@ -53,23 +63,24 @@ const HeroSection = () =>
   }, [isTablet])
 
   return (
-    <Box ref={heroSectionRef} sx={rootStyle}>
+    <Box bgcolor={"background.paper"}>
+      <Box ref={heroSectionRef} sx={{ ...rootStyle, minHeight: isTablet ? "67.5rem" : "50.75rem" }}>
       <video
         style={videoStyle}
-        width="auto"
-        height="100%"
         src="src/assets/pexels-kampus-production-hero-section.mp4"
         autoPlay={true}
         muted={true}
         loop={true}
-      />
-      <Container sx={curveContainerStyle}>
-        <Typography variant="h1" sx={{ color: "white" }} component="h1">
-          客製化服務， 提供獨特的餐飲體驗
-          <Typography variant="h2" sx={{ display: "block" }} component="span">
+        />
+        <Box sx={{width: "100%", height: "100%",position: "absolute",  top: 0,  left: 0,  backgroundImage: "linear-gradient(0deg, rgba(0, 0, 0, 0.08), rgba(0, 0, 0, 0.08))"}} />
+      <Container sx={{zIndex: 10, display: "flex", flexDirection: "column", justifyContent: "center", alignItems: "start" }}>
+        <Typography variant={isTablet ? "display2" : "h1"} lineHeight={1.2} color="white" component="h1" mb={5}>
+          客製化服務， <br />提供獨特的餐飲體驗
+          <Typography variant={ isTablet ? "h1": "h5"} sx={{ display: "block" }} component="span" mt={isTablet ? 3 : 5}>
             特別的餐飲體驗, 來自於我們與您的專屬互動
           </Typography>
-        </Typography>
+          </Typography>
+          <CallToActionButton content="立即詢問" handleOnClick={() => openModal()} />
         {isTablet && (
           <Box
             component="svg"
@@ -81,18 +92,21 @@ const HeroSection = () =>
               right: 0,
               marginLeft: "auto",
               marginRight: "auto",
-              width: "100%"
+              width: "100%",
+              zIndex: -1,
+              transform: "translateY(10%)",
             }}
           >
             <path id="curve" d={curvePath} fill="none" />
             <text width="1000" fill="white" dy="8rem">
-              <textPath href="#curve" startOffset="30%">
+              <textPath href="#curve" startOffset="36%">
                 立即開啟PointPro餐飲POS系統,掌握每一次點餐,提升顧客滿意度
               </textPath>
             </text>
           </Box>
         )}
       </Container>
+      </Box>
     </Box>
   )
 }
