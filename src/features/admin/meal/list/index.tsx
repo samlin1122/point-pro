@@ -1,4 +1,4 @@
-import { useState, FC, ChangeEvent } from "react";
+import { useState, FC, MouseEvent } from "react";
 
 import {
   List,
@@ -14,7 +14,6 @@ import {
   FormControlLabel
 } from "@mui/material";
 import Select, { SelectChangeEvent } from "@mui/material/Select";
-import {} from "@mui/material/Switch";
 import { Base } from "~/components/layout";
 
 import AddIcon from "@mui/icons-material/Add";
@@ -30,7 +29,7 @@ export const MealListContainer: FC<RouterProps> = ({ navigate }) => {
     setCategory(event.target.value as string);
   };
 
-  const handleSwitchClick = (event: ChangeEvent<HTMLInputElement>) => {
+  const handleSwitchClick = (event: MouseEvent<HTMLButtonElement>) => {
     event.stopPropagation();
     console.log(event.target.checked);
   };
@@ -80,7 +79,7 @@ export const MealListContainer: FC<RouterProps> = ({ navigate }) => {
           >
             <ListItem>
               <ListItemText primary={"青椒炒肉絲"} />
-              <FormControlLabel onClick={handleSwitchClick} control={<SwitchBase sx={{ mx: 1 }} />} label="上架中" />
+              <FormControlLabel control={<SwitchBase sx={{ mx: 1 }} onClick={handleSwitchClick} />} label="上架中" />
             </ListItem>
           </ListItemButton>
         ))}
