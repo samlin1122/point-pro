@@ -1,7 +1,7 @@
-import { TextField } from "@mui/material";
+import { OutlinedInput } from "@mui/material";
 import { styled } from "@mui/material/styles";
 
-const InputText = styled(TextField)(({ theme }) => ({
+const InputText = styled(OutlinedInput)(({ theme }) => ({
   // your custom styles go here
 }));
 

@@ -18,7 +18,7 @@ import { Row } from "../../components/layout"
 import { useDeviceType } from "./slice"
 
 import { CallToActionButton, Title } from "./index.styles"
-import { AnimatedCard } from "./pricingSection.styles"
+import { AnimatedCard } from "./PricingSection.styles"
 
 const pricingData = [
   {

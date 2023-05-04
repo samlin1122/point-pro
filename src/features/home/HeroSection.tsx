@@ -48,7 +48,6 @@ interface Props
   openModal: () => void
 }
 
-
 const HeroSection: React.FC<Props> = ({openModal}) =>
 {
   const heroSectionRef = useRef<HTMLDivElement | null>(null)
