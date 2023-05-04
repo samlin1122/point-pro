@@ -18,6 +18,7 @@ interface HomeContainerProps { }
 const HomeContainer: React.FC<HomeContainerProps> = ({ ...rest }) =>
 {
   const [isOpen, setIsOpen] = useState(false);
+
   const handleOpenModal = () =>
   {
     console.log("handleOpenModal");
