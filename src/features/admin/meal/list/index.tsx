@@ -29,8 +29,7 @@ export const MealListContainer: FC<RouterProps> = ({ navigate }) => {
     setCategory(event.target.value as string);
   };
 
-  const handleSwitchClick = (event: ChangeEvent<HTMLInputElement>) => {
-    event.stopPropagation();
+  const handleSwitchChange = (event: ChangeEvent<HTMLInputElement>) => {
     console.log(event.target.checked);
   };
 
@@ -79,7 +78,11 @@ export const MealListContainer: FC<RouterProps> = ({ navigate }) => {
           >
             <ListItem>
               <ListItemText primary={"青椒炒肉絲"} />
-              <FormControlLabel control={<SwitchBase sx={{ mx: 1 }} onClick={handleSwitchClick} />} label="上架中" />
+              <FormControlLabel
+                onClick={(eve) => eve.stopPropagation()}
+                control={<SwitchBase sx={{ mx: 1 }} onChange={handleSwitchChange} />}
+                label="上架中"
+              />
             </ListItem>
           </ListItemButton>
         ))}
