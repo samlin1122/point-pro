@@ -16,8 +16,9 @@ import {
 import { GlobalStyles, css } from "@mui/system"
 import { Row } from "../../components/layout"
 import { useDeviceType } from "./slice"
-import { AnimatedCard } from "./PricingSection.styles"
+
 import { CallToActionButton, Title } from "./index.styles"
+import { AnimatedCard } from "./pricingSection.styles"
 
 const pricingData = [
   {
