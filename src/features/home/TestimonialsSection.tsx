@@ -59,7 +59,7 @@ const TestimonialsSection = () => {
           </Column>
       <Swiper
           spaceBetween={deviceType === "tablet" ? 30 : 16}
-          slidesPerView={deviceType === "tablet" ? 3 : 1}
+          slidesPerView={deviceType === "tablet" ? 3 : 1.2}
           centeredSlides={true}
           grabCursor={true}
           loop={true}

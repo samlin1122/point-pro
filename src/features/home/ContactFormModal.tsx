@@ -19,7 +19,17 @@ import {
   TextField,
 } from '@mui/material';
 import { Row } from '~/components/layout';
+import Slide from '@mui/material/Slide';
+import { TransitionProps } from '@mui/material/transitions';
 
+const Transition = React.forwardRef(function Transition(
+  props: TransitionProps & {
+    children: React.ReactElement<any, any>;
+  },
+  ref: React.Ref<unknown>,
+) {
+  return <Slide direction="up" ref={ref} {...props} />;
+});
 interface ContactFormModalProps {
   open: boolean;
   onClose: () => void;
@@ -74,7 +84,12 @@ const ContactFormModal: React.FC<ContactFormModalProps> = ({ open, onClose }) =>
   };
 
   return (
-    <Dialog open={open} onClose={onClose}>
+    <Dialog
+      open={open}
+      onClose={onClose}
+      TransitionComponent={Transition}
+      keepMounted
+    >
       <DialogTitle>聯絡資訊</DialogTitle>
       <DialogContent>
         <Row>

@@ -11,7 +11,7 @@ const rootStyle = {
   display: "flex",
   alignItems: "center",
   justifyContent: "center",
-  borderRadius: "0 0 50% 50% / 0 0 8rem 8rem",
+  borderRadius: "0 0 50% 50% / 80% 80% 20% 20%",
 } as const
 const videoStyle = {
   position: "absolute",
@@ -21,6 +21,7 @@ const videoStyle = {
   height: "1080px",
   objectFit: "cover",
   objectPosition: "50% 50%",
+  zIndex: 0,
 } as const
 const curveContainerStyle = {
   position: "absolute",
@@ -47,6 +48,7 @@ interface Props
   openModal: () => void
 }
 
+
 const HeroSection: React.FC<Props> = ({openModal}) =>
 {
   const heroSectionRef = useRef<HTMLDivElement | null>(null)
@@ -54,11 +56,24 @@ const HeroSection: React.FC<Props> = ({openModal}) =>
   const theme = useTheme()
   const isTablet = useMediaQuery(theme.breakpoints.up("sm"))
 
-  useEffect(() => {
-    if (isTablet && heroSectionRef.current) {
-      const { clientWidth, clientHeight } = heroSectionRef.current
-      const borderRadius = clientHeight / 2
-      setCurvePath(getCurvePath(clientWidth, clientHeight, borderRadius))
+  useEffect(() =>
+  {
+    const handleSetCurvePath = () => {
+      if (isTablet && heroSectionRef.current) {
+        const { clientWidth, clientHeight } = heroSectionRef.current
+        const borderRadius = clientHeight / 2
+        setCurvePath(getCurvePath(clientWidth, clientHeight, borderRadius))
+
+      }
+    }
+    handleSetCurvePath()
+    window.addEventListener("resize", () =>
+    {
+      handleSetCurvePath()
+    })
+    return () =>
+    {
+      window.removeEventListener("resize", () => handleSetCurvePath())
     }
   }, [isTablet])
 
@@ -72,7 +87,6 @@ const HeroSection: React.FC<Props> = ({openModal}) =>
         muted={true}
         loop={true}
         />
-        <Box sx={{width: "100%", height: "100%",position: "absolute",  top: 0,  left: 0,  backgroundImage: "linear-gradient(0deg, rgba(0, 0, 0, 0.08), rgba(0, 0, 0, 0.08))"}} />
       <Container sx={{zIndex: 10, display: "flex", flexDirection: "column", justifyContent: "center", alignItems: "start" }}>
         <Typography variant={isTablet ? "display2" : "h1"} lineHeight={1.2} color="white" component="h1" mb={5}>
           客製化服務， <br />提供獨特的餐飲體驗
@@ -98,9 +112,9 @@ const HeroSection: React.FC<Props> = ({openModal}) =>
             }}
           >
             <path id="curve" d={curvePath} fill="none" />
-            <text width="1000" fill="white" dy="8rem">
-              <textPath href="#curve" startOffset="36%">
-                立即開啟PointPro餐飲POS系統,掌握每一次點餐,提升顧客滿意度
+            <text width="100ch" fill="white" dy="8rem" fontSize="1.25rem">
+                <textPath href="#curve" textAnchor="middle" startOffset="50%">
+                  立即開啟PointPro餐飲POS系統,掌握每一次點餐,提升顧客滿意度
               </textPath>
             </text>
           </Box>

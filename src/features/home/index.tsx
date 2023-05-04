@@ -11,6 +11,9 @@ import PricingSection from "./PricingSection"
 import SiteMapSection from "./SiteMapSection"
 import SubscribedSection from "./SubscribedSection"
 import TestimonialsSection from "./TestimonialsSection"
+import Footer from "~/components/footer"
+import { HeaderNavBar } from "./HeaderNavBar"
+import { Box } from "@mui/material"
 
 interface HomeContainerProps { }
 
@@ -31,6 +34,9 @@ const HomeContainer: React.FC<HomeContainerProps> = ({ ...rest }) =>
   };
   return (
     <>
+      <Box style={{ position: "fixed", top: 0, width: "100%", zIndex: 999 }}>
+        <HeaderNavBar />
+      </Box>
       <section id="hero-section">
         <HeroSection openModal={handleOpenModal} />
       </section>
@@ -40,13 +46,14 @@ const HomeContainer: React.FC<HomeContainerProps> = ({ ...rest }) =>
       <section id="pricing">
       <PricingSection openModal={handleOpenModal} />
       </section>
-      {/* <TestimonialsSection /> */}
+      <TestimonialsSection />
       <SubscribedSection />
       <section id="about">
       <AboutUsSection />
       </section>
       <MapSection />
       <SiteMapSection />
+      <Footer />
       <ContactFormModal open={isOpen} onClose={handleCloseModal} />
       <BackToTopButton position={{bottom: 50, right: 50}} />
     </>
