@@ -1,6 +1,6 @@
 // Libs
 // Components
-import HomeContainer from "../../features/home";
+import HomeContainer from "~/features/home";
 // Styles
 
 interface HomeProps {}

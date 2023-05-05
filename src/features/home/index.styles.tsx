@@ -4,10 +4,10 @@ import { Circle } from "@mui/icons-material"
 import FingerprintIcon from '@mui/icons-material/Fingerprint';
 import ArrowForwardIcon from '@mui/icons-material/ArrowForward';
 
-import type { RootState } from "../../app/store"
+import type { RootState } from "~/app/store";
 import { decrement, increment } from "./slice"
 
-import { ButtonBase } from "../../components/buttons";
+import { ButtonBase } from "~/components/buttons";
 import { useState } from "react";
 
 interface CounterButton {}

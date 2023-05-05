@@ -1,7 +1,7 @@
-import React, { useEffect, useState } from 'react';
-import { IconButton, Typography, styled } from '@mui/material';
-import ArrowUpwardIcon from '@mui/icons-material/ArrowUpward';
-import { useDeviceType } from './slice';
+import React, { useEffect, useState } from "react";
+import { IconButton, Typography, styled } from "@mui/material";
+import ArrowUpwardIcon from "@mui/icons-material/ArrowUpward";
+import { useDeviceType } from "./slice";
 
 interface BackToTopButtonProps {
   position: {
@@ -36,53 +36,47 @@ const fadeInOut = (isVisible: boolean) => `
   }
 `;
 
-const BackToTopButton: React.FC<BackToTopButtonProps> = ({ position }) =>
-{
+const BackToTopButton: React.FC<BackToTopButtonProps> = ({ position }) => {
   const deviceType = useDeviceType();
-  const [ isVisible, setIsVisible ] = useState(false);
+  const [isVisible, setIsVisible] = useState(false);
 
   const handleScroll = () => {
     const currentScrollPosition = window.scrollY;
-  const windowHeight = window.innerHeight;
-  setIsVisible(currentScrollPosition > windowHeight * 0.1);
+    const windowHeight = window.innerHeight;
+    setIsVisible(currentScrollPosition > windowHeight * 0.1);
   };
 
   useEffect(() => {
-    window.addEventListener('scroll', handleScroll);
+    window.addEventListener("scroll", handleScroll);
     return () => {
-      window.removeEventListener('scroll', handleScroll);
+      window.removeEventListener("scroll", handleScroll);
     };
   }, []);
 
-
   const handleClick = () => {
-    window.scrollTo({ top: 0, behavior: 'smooth' });
+    window.scrollTo({ top: 0, behavior: "smooth" });
   };
 
-  const buttonSize = deviceType === 'tablet'
-    ? { width: 120, height: 120 }
-    : { width: 150, height: 48 };
-  
+  const buttonSize = deviceType === "tablet" ? { width: 120, height: 120 } : { width: 150, height: 48 };
+
   const buttonScale = isVisible ? 1 : 0;
   const buttonOpacity = isVisible ? 1 : 0;
 
   return (
     <BackToTopStyleButton
-    onClick={handleClick}
-    sx={{
-      ...buttonSize,
-      position: 'fixed',
-      ...position,
-      flexDirection: deviceType === 'tablet' ? 'column' : 'row',
-      transform: `scale(${buttonScale})`,
+      onClick={handleClick}
+      sx={{
+        ...buttonSize,
+        position: "fixed",
+        ...position,
+        flexDirection: deviceType === "tablet" ? "column" : "row",
+        transform: `scale(${buttonScale})`,
         opacity: buttonOpacity,
-        transition: 'transform 0.3s ease, opacity 0.3s ease',
-    }}
+        transition: "transform 0.3s ease, opacity 0.3s ease"
+      }}
     >
-      <ArrowUpwardIcon fontSize='large' />
-      <Typography variant="small">
-        Back to Top
-      </Typography>
+      <ArrowUpwardIcon fontSize="large" />
+      <Typography variant="small">Back to Top</Typography>
     </BackToTopStyleButton>
   );
 };

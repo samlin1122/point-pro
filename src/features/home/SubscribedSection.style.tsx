@@ -1,5 +1,4 @@
-import
-  { Box, InputBase, styled, IconButton } from '@mui/material';
+import { Box, InputBase, styled, IconButton } from "@mui/material";
 
 const SubscribeSectionStyledCard = styled(Box)`
   && {
@@ -32,15 +31,14 @@ const SubscribeSectionInputBase = styled(InputBase)`
 const SubscribeSectionIconButton = styled(IconButton)`
   && {
     transition: all 0.3s ease-in-out;
-    &:disabled { background-color: #00000014;
+    &:disabled {
+      background-color: #00000014;
     }
     background-color: ${(props) => props.theme.palette.primary.main};
   }
 `;
 
-
-export
-{
+export {
   SubscribeSectionStyledCard,
   SubscribeSectionInputContainer,
   SubscribeSectionInputBase,

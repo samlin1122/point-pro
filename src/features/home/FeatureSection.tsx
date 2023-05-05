@@ -4,38 +4,40 @@ import { Title } from "./index.styles"
 import { useDeviceType } from "./slice"
 import FeatureCard from "./FeatureSection.style"
 import { Assignment, MoreTime, ChromeReaderMode, MenuBook } from "@mui/icons-material"
+import { useGetImageUrl } from "~/hooks/useGetImageUrl";
+import { ReactComponent as FeatureIllustration } from "~/assets/featureIllustration.svg";
 
 interface FeatureData {
-  title: string
+  title: string;
   content: {
-    imgUrl?: string
-    icon?: JSX.Element
-    title: string
-    description: string
-  }[]
+    imgUrl?: string;
+    icon?: JSX.Element;
+    title: string;
+    description: string;
+  }[];
 }
 
-const featureData: FeatureData[]  = [
+const featureData: FeatureData[] = [
   {
     title: "個性化、貼心、無微不至的餐飲服務",
     content: [
       {
-        imgUrl: "/src/assets/images/feature01.jpg",
+        imgUrl: useGetImageUrl("feature01.jpg"),
         title: "客製化菜單",
         description: "提供客人個性化的餐飲選擇，讓他們品嚐到獨特的體驗"
       },
       {
-        imgUrl: "/src/assets/images/feature02.jpg",
+        imgUrl: useGetImageUrl("feature02.jpg"),
         title: "溫馨提醒",
         description: "智能POS助顧客餐點補充，感受關懷與新鮮度。"
       },
       {
-        imgUrl: "/src/assets/images/feature03.jpg",
+        imgUrl: useGetImageUrl("feature03.jpg"),
         title: "科技提升體驗",
         description: "智能點餐、雲端支付,顧客享受便利與舒適。"
       },
       {
-        imgUrl: "/src/assets/images/feature04.jpg",
+        imgUrl: useGetImageUrl("feature04.jpg"),
         title: "客人回饋",
         description: "定期收集意見,解決問題，顧客感受尊重。"
       }
@@ -66,88 +68,107 @@ const featureData: FeatureData[]  = [
       }
     ]
   }
-]
+];
 
-const FeatureSection = () =>
-{
-  const deviceType = useDeviceType()
+const FeatureSection = () => {
+  const deviceType = useDeviceType();
   return (
-  <Box pt={20} pb={deviceType === "tablet" ? "7.5rem" : "5rem"} bgcolor={"background.paper"}>
-    <Container>
-      <Column sx={{ gap: deviceType === "tablet" ? "5rem" : "2.5rem" }}>
-        <Box display={"flex"} flexDirection={deviceType === "tablet" ? "row" : "column"} gap={deviceType === "tablet" ? "6rem" : "2.5rem" }>
-          <Title
-            title="產品功能特色"
-            subtitle="為您的餐廳帶來卓越的管理體驗，PointPro POS 系統專為提升營運效率而設計"
-          />
-          <Typography component={"h3"} fontSize={deviceType === "tablet" ? 48 : 32} fontWeight={900}>
-            {featureData[0].title}
-          </Typography>
-        </Box>
-        <Grid container spacing={deviceType === "tablet" ? 3 : 2}>
-          {featureData[0].content.map((feature, index) => {
-            return (
-              <Grid item xs={12} md={3} key={feature.title}>
-                <img
-                  src={feature.imgUrl}
-                  alt=""
-                  style={{
-                    borderRadius: "2.5rem",
-                    width: "100%",
-                    maxHeight: deviceType === "tablet" ? "17.625rem" : "21.9375rem",
-                    aspectRatio: deviceType === "tablet" ? "51/47" : "1/1",
-                    objectFit: "cover"
-                  }}
-                />
-                <Box
-                  flex={"column"}
-                  px={deviceType === "tablet" ? 3 : 2}
-                  pt={deviceType === "tablet" ? 4 : 3}
-                  pb={3}
-                  textAlign={"center"}
-                >
-                  <Typography variant="h6" component={"h3"} fontSize={24} fontWeight={900} mb={2}>
-                    {feature.title}
-                  </Typography>
-                  <Typography variant="body1" component={"p"} color={"common.black_80"} fontSize={deviceType === "tablet" ? 24 : 16}>
-                    {feature.description}
-                  </Typography>
-                </Box>
-              </Grid>
-            )
-          })}
-        </Grid>
-        <Grid container spacing={deviceType === "tablet" ? 3 : 5} justifyContent={"space-between"} alignItems={"stretch"}>
-          <Grid item xs={12} md={5} display={"flex"} flexDirection={"column"} justifyContent={"space-between"}>
-            <Typography component={"h3"} variant={deviceType === "tablet" ? "h1" : "h3"} fontWeight={900} sx={{maxWidth: "32rem"}}>
-              {featureData[ 1 ].title}
+    <Box pt={20} pb={deviceType === "tablet" ? "7.5rem" : "5rem"} bgcolor={"background.paper"}>
+      <Container>
+        <Column sx={{ gap: deviceType === "tablet" ? "5rem" : "2.5rem" }}>
+          <Box
+            display={"flex"}
+            flexDirection={deviceType === "tablet" ? "row" : "column"}
+            gap={deviceType === "tablet" ? "6rem" : "2.5rem"}
+          >
+            <Title
+              title="產品功能特色"
+              subtitle="為您的餐廳帶來卓越的管理體驗，PointPro POS 系統專為提升營運效率而設計"
+            />
+            <Typography component={"h3"} fontSize={deviceType === "tablet" ? 48 : 32} fontWeight={900}>
+              {featureData[0].title}
             </Typography>
-            {
-              deviceType === "tablet" && <Box mt={'auto'} ml={'auto'}>
-                <img src="/src/assets/featureIllustration.svg" alt="" />
-              </Box>
-            }
+          </Box>
+          <Grid container spacing={deviceType === "tablet" ? 3 : 2}>
+            {featureData[0].content.map((feature, index) => {
+              return (
+                <Grid item xs={12} md={3} key={feature.title}>
+                  <img
+                    src={feature.imgUrl}
+                    alt=""
+                    style={{
+                      borderRadius: "2.5rem",
+                      width: "100%",
+                      maxHeight: deviceType === "tablet" ? "17.625rem" : "21.9375rem",
+                      aspectRatio: deviceType === "tablet" ? "51/47" : "1/1",
+                      objectFit: "cover"
+                    }}
+                  />
+                  <Box
+                    flex={"column"}
+                    px={deviceType === "tablet" ? 3 : 2}
+                    pt={deviceType === "tablet" ? 4 : 3}
+                    pb={3}
+                    textAlign={"center"}
+                  >
+                    <Typography variant="h6" component={"h3"} fontSize={24} fontWeight={900} mb={2}>
+                      {feature.title}
+                    </Typography>
+                    <Typography
+                      variant="body1"
+                      component={"p"}
+                      color={"common.black_80"}
+                      fontSize={deviceType === "tablet" ? 24 : 16}
+                    >
+                      {feature.description}
+                    </Typography>
+                  </Box>
+                </Grid>
+              );
+            })}
           </Grid>
-          <Grid item xs={12} md={5} display={"flex"} flexDirection={"column"} gap={deviceType === "tablet" ? "1rem" : "0.5rem"}>
-            {
-              featureData[ 1 ].content.map((feature, index) =>
-              {
+          <Grid
+            container
+            spacing={deviceType === "tablet" ? 3 : 5}
+            justifyContent={"space-between"}
+            alignItems={"stretch"}
+          >
+            <Grid item xs={12} md={5} display={"flex"} flexDirection={"column"} justifyContent={"space-between"}>
+              <Typography
+                component={"h3"}
+                variant={deviceType === "tablet" ? "h1" : "h3"}
+                fontWeight={900}
+                sx={{ maxWidth: "32rem" }}
+              >
+                {featureData[1].title}
+              </Typography>
+              {deviceType === "tablet" && (
+                <Box mt={"auto"} ml={"auto"}>
+                  <FeatureIllustration />
+                </Box>
+              )}
+            </Grid>
+            <Grid
+              item
+              xs={12}
+              md={5}
+              display={"flex"}
+              flexDirection={"column"}
+              gap={deviceType === "tablet" ? "1rem" : "0.5rem"}
+            >
+              {featureData[1].content.map((feature, index) => {
                 return (
-                  <FeatureCard
-                  key={feature.title}
-                  description={feature.description}
-                  title={feature.title}>
+                  <FeatureCard key={feature.title} description={feature.description} title={feature.title}>
                     {feature.icon}
                   </FeatureCard>
-                )
-              }
-              )}
+                );
+              })}
+            </Grid>
           </Grid>
-        </Grid>
-      </Column>
-    </Container>
-  </Box>
-  )
-}
+        </Column>
+      </Container>
+    </Box>
+  );
+};
 
 export default FeatureSection
