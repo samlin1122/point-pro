@@ -158,7 +158,7 @@ export const HeaderNavBar = () => {
   const deviceType = useDeviceType();
 
   const [isHidden, setIsHidden] = useState(false);
-  const [scrollTimeout, setScrollTimeout] = useState<NodeJS.Timeout | null>(null);
+  const [scrollTimeout, setScrollTimeout] = useState<number | null>(null);
 
   useEffect(() => {
     const handleScroll = () => {
