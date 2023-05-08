@@ -1,17 +1,21 @@
 // Libs
 import { PayloadAction, createSlice } from "@reduxjs/toolkit";
-import axios from "axios";
 
 // Others
 import { createAppAsyncThunk } from "~/app/hook";
-import { ICartItem, IMeal, IMenuCategory, IMobileSlice, IOrder, ISpecialty, ISpecialtyOption } from "~/types";
-
-export const CUSTOMIZED = "CUSTOMIZED";
-export const CART = "CART";
-export const ORDER = "ORDER";
+import {
+  ICartItem,
+  ICustomerOrderSliceState,
+  IMeal,
+  IMenuCategory,
+  IOrder,
+  ISpecialty,
+  ISpecialtyOption
+} from "~/types";
+import { CustomerOrderDialog, MobileModal } from "~/types/common";
 
 const name = "customerOrder";
-const initialState: IMobileSlice = {
+const initialState: ICustomerOrderSliceState = {
   categories: [],
   meals: [],
   combinedMenu: [],
@@ -22,6 +26,7 @@ const initialState: IMobileSlice = {
   currentMealAmount: 1,
   currentSpecialty: [],
   currentDialog: "",
+  currentModal: "",
   modifiedCartItemIndex: 0,
   isModifiedCartItem: false,
   isLoading: false
@@ -76,15 +81,15 @@ export const customerOrderSlice = createSlice({
   name,
   initialState,
   reducers: {
-    openDialog: (state, action: PayloadAction<IMobileSlice["currentDialog"]>) => {
+    openDialog: (state, action: PayloadAction<ICustomerOrderSliceState["currentDialog"]>) => {
       state.currentDialog = action.payload;
     },
     closeDialog: (state) => {
       state.currentDialog = initialState.currentDialog;
     },
-    openCustomizeDialog: (state, action: PayloadAction<IMobileSlice["currentMealId"]>) => {
+    openCustomizeDialog: (state, action: PayloadAction<ICustomerOrderSliceState["currentMealId"]>) => {
       state.currentMealId = action.payload;
-      state.currentDialog = CUSTOMIZED;
+      state.currentDialog = CustomerOrderDialog.CUSTOMIZED;
     },
     closeCustomizeDialog: (state) => {
       state.currentMealId = initialState.currentMealId;
@@ -94,7 +99,7 @@ export const customerOrderSlice = createSlice({
       state.modifiedCartItemIndex = initialState.modifiedCartItemIndex;
       state.isModifiedCartItem = initialState.isModifiedCartItem;
     },
-    setCurrentCategory: (state, action: PayloadAction<IMobileSlice["currentCategory"]>) => {
+    setCurrentCategory: (state, action: PayloadAction<ICustomerOrderSliceState["currentCategory"]>) => {
       state.currentCategory = action.payload;
     },
     updateSpecialty: (
@@ -145,7 +150,7 @@ export const customerOrderSlice = createSlice({
       state.currentMealId = id;
       state.currentMealAmount = amount;
       state.currentSpecialty = specialties;
-      state.currentDialog = CUSTOMIZED;
+      state.currentDialog = CustomerOrderDialog.CUSTOMIZED;
       state.modifiedCartItemIndex = idx;
       state.isModifiedCartItem = true;
     },
@@ -164,7 +169,7 @@ export const customerOrderSlice = createSlice({
       };
       state.cart.splice(state.modifiedCartItemIndex, 1, newItem);
       customerOrderSlice.caseReducers.closeCustomizeDialog(state);
-      state.currentDialog = CART;
+      state.currentDialog = CustomerOrderDialog.CART;
     },
     deleteCartItem: (state, action: PayloadAction<number>) => {
       state.cart.splice(action.payload, 1);
@@ -176,6 +181,12 @@ export const customerOrderSlice = createSlice({
     decreaseCartItemAmount: (state, action: PayloadAction<number>) => {
       const theCartItem = state.cart.find((cartItem, idx) => idx === action.payload) as ICartItem;
       if (theCartItem.amount > 1) theCartItem.amount--;
+    },
+    openModal: (state, action: PayloadAction<MobileModal>) => {
+      state.currentModal = action.payload;
+    },
+    closeModal: (state) => {
+      state.currentModal = initialState.currentModal;
     }
   },
   extraReducers: (builder) => {
@@ -191,7 +202,7 @@ export const customerOrderSlice = createSlice({
         state.currentCategory = categories[0]?.id ?? "";
         state.isLoading = false;
       })
-      .addCase(getMenu.rejected, (state, action) => {
+      .addCase(getMenu.rejected, (state) => {
         // [TODO]: handle error
         state.isLoading = false;
       })
@@ -204,19 +215,19 @@ export const customerOrderSlice = createSlice({
         state.orders = orders;
         state.isLoading = false;
       })
-      .addCase(getOrders.rejected, (state, action) => {
+      .addCase(getOrders.rejected, (state) => {
         // [TODO]: handle error
         state.isLoading = false;
       })
 
-      .addCase(postOrder.pending, (state, action) => {
+      .addCase(postOrder.pending, (state) => {
         state.isLoading = true;
       })
       .addCase(postOrder.fulfilled, (state, action) => {
         // [TODO]: handle order data
         state.isLoading = false;
       })
-      .addCase(postOrder.rejected, (state, action) => {
+      .addCase(postOrder.rejected, (state) => {
         // [TODO]: handle error
         state.isLoading = false;
       });
@@ -237,5 +248,7 @@ export const {
   updateCartItem,
   deleteCartItem,
   increaseCartItemAmount,
-  decreaseCartItemAmount
+  decreaseCartItemAmount,
+  openModal,
+  closeModal
 } = customerOrderSlice.actions;

@@ -10,13 +10,18 @@ import {
   AdminSeat,
   AdminMealList,
   AdminMealDetail,
-  AdminMealSetting
+  AdminMealSetting,
+  Booking
 } from "../pages";
 
 const router = createBrowserRouter([
   {
     path: "/",
     element: <Home />
+  },
+  {
+    path: "booking",
+    element: <Booking />
   },
   {
     path: "orders",

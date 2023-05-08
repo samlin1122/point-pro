@@ -1,0 +1,119 @@
+{
+  "availableBookings": [
+    {
+      "date": 1685548800000,
+      "availablePeriods": [
+        {
+          "startedAt": 1685613600000,
+          "endAt": 1685620800000,
+          "bookedAmount": 5,
+          "peopleAmount": 10
+        },
+        {
+          "startedAt": 1685620800000,
+          "endAt": 1685628000000,
+          "bookedAmount": 3,
+          "peopleAmount": 8
+        },
+        {
+          "startedAt": 1685628000000,
+          "endAt": 1685635200000,
+          "bookedAmount": 1,
+          "peopleAmount": 4
+        }
+      ]
+    },
+    {
+      "date": 1685635200000,
+      "availablePeriods": [
+        {
+          "startedAt": 1685700000000,
+          "endAt": 1685707200000,
+          "bookedAmount": 14,
+          "peopleAmount": 0
+        },
+        {
+          "startedAt": 1685707200000,
+          "endAt": 1685714400000,
+          "bookedAmount": 0,
+          "peopleAmount": 10
+        },
+        {
+          "startedAt": 1685714400000,
+          "endAt": 1685721600000,
+          "bookedAmount": 3,
+          "peopleAmount": 12
+        }
+      ]
+    },
+    {
+      "date": 1685721600000,
+      "availablePeriods": [
+        {
+          "startedAt": 1685786400000,
+          "endAt": 1685793600000,
+          "bookedAmount": 9,
+          "peopleAmount": 2
+        },
+        {
+          "startedAt": 1685793600000,
+          "endAt": 1685800800000,
+          "bookedAmount": 5,
+          "peopleAmount": 4
+        },
+        {
+          "startedAt": 1685800800000,
+          "endAt": 1685808000000,
+          "bookedAmount": 2,
+          "peopleAmount": 6
+        }
+      ]
+    },
+    {
+      "date": 1685808000000,
+      "availablePeriods": [
+        {
+          "startedAt": 1685786400000,
+          "endAt": 1685793600000,
+          "bookedAmount": 7,
+          "peopleAmount": 0
+        },
+        {
+          "startedAt": 1685793600000,
+          "endAt": 1685800800000,
+          "bookedAmount": 2,
+          "peopleAmount": 0
+        },
+        {
+          "startedAt": 1685800800000,
+          "endAt": 1685808000000,
+          "bookedAmount": 6,
+          "peopleAmount": 2
+        }
+      ]
+    },
+    {
+      "date": 1685894400000,
+      "availablePeriods": [
+        {
+          "startedAt": 1685959200000,
+          "endAt": 1685966400000,
+          "bookedAmount": 7,
+          "peopleAmount": 4
+        },
+        {
+          "startedAt": 1685966400000,
+          "endAt": 1685973600000,
+          "bookedAmount": 2,
+          "peopleAmount": 2
+        },
+        {
+          "startedAt": 1685973600000,
+          "endAt": 1685980800000,
+          "bookedAmount": 6,
+          "peopleAmount": 8
+        }
+      ]
+    }
+  ]
+}

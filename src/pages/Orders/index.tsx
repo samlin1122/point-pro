@@ -10,4 +10,4 @@ const Orders: FC<IOrderProps> = (props) => {
   return <OrdersPage {...props} />;
 };
 
-export default withMobileLayout(Orders);
+export default withMobileLayout(OrdersPage);
