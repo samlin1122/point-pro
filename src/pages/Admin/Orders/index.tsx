@@ -1,13 +1,12 @@
 // Libs
+import { FC } from "react";
 // Components
-import React from "react";
 import OrderContainer from "~/features/admin/orders";
 import withMainLayout from "~/hoc/create-main-layout";
-// Styles
 
 interface IAdminOrderProps {}
 
-const OrdersPage: React.FC<IAdminOrderProps> = (props) => {
+const OrdersPage: FC<IAdminOrderProps> = (props) => {
   return <OrderContainer {...props} />;
 };
 

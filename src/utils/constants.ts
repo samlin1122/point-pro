@@ -8,6 +8,7 @@ export const genderList = [
 import RestaurantMenuIcon from "@mui/icons-material/RestaurantMenu";
 import StickyNote2Icon from "@mui/icons-material/StickyNote2";
 import MenuBookIcon from "@mui/icons-material/MenuBook";
+import EventSeatIcon from "@mui/icons-material/EventSeat";
 
 export const sideBarItemList = [
   {
@@ -21,6 +22,12 @@ export const sideBarItemList = [
     name: "訂單系統",
     src: StickyNote2Icon,
     path: "menu"
+  },
+  {
+    id: "seat",
+    name: "座位系統",
+    src: EventSeatIcon,
+    path: "seat"
   },
   {
     id: "meal",
