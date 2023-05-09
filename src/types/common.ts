@@ -50,3 +50,8 @@ export const enum MobileModal {
   PAYMENT = "PAYMENT",
   COUNTER_REMINDER = "COUNTER_REMINDER"
 }
+
+export const enum MemberRole {
+  MERCHANT = "MERCHANT",
+  CUSTOMER = "CUSTOMER"
+}

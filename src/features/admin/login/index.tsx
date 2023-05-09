@@ -1,4 +1,7 @@
-import { useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
+
+import Visibility from "@mui/icons-material/Visibility";
+import VisibilityOff from "@mui/icons-material/VisibilityOff";
 
 import {
   Box,
@@ -11,24 +14,32 @@ import {
   Button
 } from "@mui/material";
 import HeaderLogo from "~/assets/images/header-logo.svg";
-
-import Visibility from "@mui/icons-material/Visibility";
-import VisibilityOff from "@mui/icons-material/VisibilityOff";
+import { useAppDispatch, useAppSelector } from "~/app/hook";
+import { useNavigate } from "react-router-dom";
+import { login } from "../slice";
 
 export const LoginContainer = () => {
+  const dispatch = useAppDispatch();
+  const isAuthenticated = useAppSelector(({ auth }) => auth.isAuthenticated);
   const accountRef = useRef<HTMLInputElement>(null);
   const passwordRef = useRef<HTMLInputElement>(null);
 
   const [showPassword, setShowPassword] = useState(false);
 
   const handleClickShowPassword = () => setShowPassword((show) => !show);
+  const navigate = useNavigate();
 
   const handleConfirm = () => {
     if (accountRef.current && passwordRef.current) {
-      console.log(accountRef.current.value);
-      console.log(passwordRef.current.value);
+      dispatch(login({ account: accountRef.current.value, password: passwordRef.current.value }));
     }
   };
+
+  useEffect(() => {
+    if (isAuthenticated) {
+      navigate("/admin/orders");
+    }
+  }, [isAuthenticated]);
 
   return (
     <Box

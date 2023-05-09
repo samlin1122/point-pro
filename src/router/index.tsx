@@ -13,6 +13,7 @@ import {
   AdminMealSetting,
   Booking
 } from "../pages";
+import { ProtectedRoute } from "./protected";
 
 const router = createBrowserRouter([
   {
@@ -29,11 +30,12 @@ const router = createBrowserRouter([
   },
   {
     path: "admin",
+    element: <AdminLogin />
+  },
+  {
+    element: <ProtectedRoute />,
+    path: "admin",
     children: [
-      {
-        path: "login",
-        element: <AdminLogin />
-      },
       {
         path: "orders",
         element: <AdminOrders />
