@@ -1,11 +1,12 @@
 // Libs
+import { FC } from "react";
 // Components
 import MealDetailContainer from "~/features/admin/meal/detail";
 import withMainLayout from "~/hoc/create-main-layout";
-// Styles
+
 import { RouterProps } from "~/types";
 
-const MealDetailPage: React.FC<RouterProps> = (props) => {
+const MealDetailPage: FC<RouterProps> = (props) => {
   return <MealDetailContainer {...props} />;
 };
 

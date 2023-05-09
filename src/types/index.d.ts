@@ -1,14 +1,23 @@
 import { Params, NavigateFunction, Location } from "react-router-dom";
-export interface Props {}
+import {
+  BookingModal,
+  BookingStepType,
+  BookingType,
+  Gender,
+  CustomerOrderDialog,
+  OrderStatus,
+  OrderType,
+  PaymentGateway,
+  SpecialtyType
+} from "./common";
 
-export interface IMenuCategory {
-  id: string;
-  title: string;
-}
+export type IBasicKey = Record<"id" | "title", string>;
 
-export interface IMeal {
-  id: string;
-  title: string;
+export type Timestamp = number;
+
+export interface IMenuCategory extends IBasicKey {}
+
+export interface IMeal extends IBasicKey {
   coverUrl: string;
   description: string;
   price: number;
@@ -22,41 +31,31 @@ export interface ICombineMenu extends IMenuCategory {
   allMeals: IMeal[];
 }
 
-export interface ISpecialty {
-  id: string;
-  title: string;
-  type: "single" | "multiple";
+export interface ISpecialty extends IBasicKey {
+  type: SpecialtyType;
   items: ISpecialtyOption[];
 }
 
-export interface ISpecialtyOption {
-  id: string;
-  title: string;
+export interface ISpecialtyOption extends IBasicKey {
   price?: number;
 }
 
 export interface ISelectedSpecialty {
   id: string;
-  value: string[];
+  value: ISpecialtyOption["id"][];
 }
 
-export interface ICartItem {
-  id: IMeal["id"];
-  title: IMeal["title"];
-  coverUrl: IMeal["coverUrl"];
-  price: Imeal["price"];
-  recommended: IMeal["recommended"];
-  specialties: IMeal["specialties"];
+export interface ICartItem extends Pick<IMeal, "id" | "title" | "coverUrl" | "price" | "recommended" | "specialties"> {
   amount: number;
 }
 
 export interface IOrder {
   id: string;
-  status: "UNPAID" | "SUCCESS" | "CANCEL" | "PENDING";
-  type: "dine-in" | "checkout";
-  reservationId: string;
-  createdAt: number;
-  updatedAt: number;
+  status: OrderStatus;
+  type: OrderType;
+  reservationId: IBookingInfo["id"];
+  createdAt: Timestamp;
+  updatedAt: Timestamp;
   orderMeals: OrderMeal[];
   paymentLogs: IPaymentLog[];
 }
@@ -65,8 +64,8 @@ export interface IPaymentLog {
   orderId: IOrder["id"];
   paymentNo: string;
   price: number;
-  gateway: "linepay" | "cash" | "card";
-  status: "UNPAID" | "SUCCESS";
+  gateway: PaymentGateway;
+  status: OrderStatus.UNPAID | OrderStatus.SUCCESS;
 }
 
 export interface OrderMeal {
@@ -82,21 +81,66 @@ export interface OrderMeal {
   categories: IMenuCategory[];
 }
 
-export interface IMobileSlice {
+export interface ICustomerOrderSliceState {
   categories: IMenuCategory[];
   meals: IMeal[];
   combinedMenu: ICombineMenu[];
   cart: ICartItem[];
   orders: IOrder[];
-  currentCategory: string;
-  currentMealId: string;
+  currentCategory: IMenuCategory["id"];
+  currentMealId: IMeal["id"];
   currentMealAmount: number;
   currentSpecialty: ISpecialty[];
   currentDialog: string;
+  currentModal: string;
   modifiedCartItemIndex: number;
   isModifiedCartItem: boolean;
   isLoading: boolean;
 }
+
+export interface IBookingInfo {
+  id: string;
+  reservedAt: Timestamp;
+  name: string;
+  gender: Gender;
+  type: BookingType;
+  phone: string;
+  email: string;
+  remark: string;
+  adults: number;
+  children: number;
+}
+
+export interface IAvailableBookingPeriod {
+  startedAt: Timestamp;
+  endAt: Timestamp;
+  bookedAmount: number;
+  peopleAmount: number;
+}
+
+export interface IAvailableBooking {
+  date: Timestamp;
+  availablePeriods: IAvailableBookingPeriod[];
+}
+
+export interface ICreateBookingParams {
+  id: IBookingInfo["id"];
+  reservedAt: IBookingInfo["reservedAt"];
+  user: Omit<IBookingInfo, "id" | "reservedAt">;
+}
+
+export interface ICustomerBookingSliceState {
+  step: number;
+  availableBookings: IAvailableBooking[];
+  choosedDate: Timestamp;
+  availablePeriod: IAvailableBookingPeriod[];
+  bookingParams: ICreateBookingParams;
+  queryString: string;
+  dialog: CustomerBookingDialog;
+  isAgreedPrivacyPolicy: boolean;
+  isLoading: boolean;
+}
+
 export interface RouterProps {
   location: Location;
   navigate: NavigateFunction;

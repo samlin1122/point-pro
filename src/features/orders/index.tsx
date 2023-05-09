@@ -9,15 +9,15 @@ import {
   Footer,
   CustomizedDialog,
   CartDialog,
-  OrderDialog
+  OrderDialog,
+  PaymentModal,
+  CounterReminderModal
 } from "./index.styles";
 // Others
 import { useAppDispatch } from "~/app/hook";
 import { getMenu, getOrders } from "./slice";
 
-interface IMenuProps {}
-
-const CustomerOrder = (props: IMenuProps) => {
+const Order = () => {
   const dispatch = useAppDispatch();
 
   useEffect(() => {
@@ -36,8 +36,11 @@ const CustomerOrder = (props: IMenuProps) => {
       <CustomizedDialog />
       <CartDialog />
       <OrderDialog />
+
+      <PaymentModal />
+      <CounterReminderModal />
     </>
   );
 };
 
-export default CustomerOrder;
+export default Order;

@@ -6,5 +6,7 @@ export { default as AdminLogin } from "./Admin/Login";
 export { default as AdminMealList } from "./Admin/Meal/List";
 export { default as AdminMealDetail } from "./Admin/Meal/Detail";
 export { default as AdminMealSetting } from "./Admin/Meal/Settings";
+export { default as AdminSeat } from "./Admin/Seat";
 // Customer page
 export { default as Orders } from "./Orders";
+export { default as Booking } from "./Booking";

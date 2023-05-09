@@ -1,11 +1,11 @@
 // Libs
+import { FC } from "react";
 // Components
 import LoginContainer from "~/features/admin/login";
-// Styles
 
 interface LoginProps {}
 
-const LoginPage: React.FC<LoginProps> = (props) => {
+const LoginPage: FC<LoginProps> = (props) => {
   return <LoginContainer {...props} />;
 };
 

@@ -3,14 +3,17 @@ import { createBrowserRouter } from "react-router-dom";
 // Components
 import {
   Home,
-  AdminMenu,
-  AdminOrders,
+  Orders,
   AdminLogin,
+  AdminOrders,
+  AdminMenu,
+  AdminSeat,
   AdminMealList,
   AdminMealDetail,
   AdminMealSetting,
-  Orders
+  Booking
 } from "../pages";
+import { ProtectedRoute } from "./protected";
 
 const router = createBrowserRouter([
   {
@@ -18,23 +21,32 @@ const router = createBrowserRouter([
     element: <Home />
   },
   {
+    path: "booking",
+    element: <Booking />
+  },
+  {
     path: "orders",
     element: <Orders />
   },
   {
     path: "admin",
+    element: <AdminLogin />
+  },
+  {
+    element: <ProtectedRoute />,
+    path: "admin",
     children: [
-      {
-        path: "menu",
-        element: <AdminMenu />
-      },
       {
         path: "orders",
         element: <AdminOrders />
       },
       {
-        path: "login",
-        element: <AdminLogin />
+        path: "menu",
+        element: <AdminMenu />
+      },
+      {
+        path: "seat",
+        element: <AdminSeat />
       },
       {
         path: "meal",

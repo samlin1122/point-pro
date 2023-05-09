@@ -1,11 +1,11 @@
 // Libs
+import { FC } from "react";
 // Components
 import HomeContainer from "~/features/home";
-// Styles
 
 interface HomeProps {}
 
-const HomePage: React.FC<HomeProps> = (props) => {
+const HomePage: FC<HomeProps> = (props) => {
   return <HomeContainer {...props} />;
 };
 

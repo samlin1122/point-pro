@@ -1,13 +1,13 @@
 // Libs
+import { FC } from "react";
 // Components
 import withMobileLayout from "~/hoc/create-mobile-layout";
 import OrdersPage from "~/features/orders";
-// Styles
 
 interface IOrderProps {}
 
-const Orders = (props: IOrderProps) => {
+const Orders: FC<IOrderProps> = (props) => {
   return <OrdersPage {...props} />;
 };
 
-export default withMobileLayout(Orders);
+export default withMobileLayout(OrdersPage);

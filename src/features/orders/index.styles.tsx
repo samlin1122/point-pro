@@ -1,8 +1,11 @@
 // Libs
 import { Fragment, SyntheticEvent, useCallback, useEffect, useMemo, useState } from "react";
+import { useLocation } from "react-router-dom";
+import * as dayjs from "dayjs";
 import {
   BottomNavigation,
   BottomNavigationAction,
+  BottomNavigationActionProps,
   Box,
   Breadcrumbs,
   Button,
@@ -29,10 +32,11 @@ import ThumbUpIcon from "@mui/icons-material/ThumbUp";
 import AddIcon from "@mui/icons-material/Add";
 import RemoveIcon from "@mui/icons-material/Remove";
 import DeleteIcon from "@mui/icons-material/Delete";
-
+import MoneyIcon from "@mui/icons-material/Money";
+import CreditCardIcon from "@mui/icons-material/CreditCard";
 // Components
-import { ButtonBase } from "~/components/buttons";
 import { MobileDialogLayout } from "~/components/dialog";
+import { ModalBase } from "~/components/modals";
 import { CheckboxBase } from "~/components/checkbox";
 // Others
 import { useAppDispatch, useAppSelector } from "~/app/hook";
@@ -46,34 +50,37 @@ import {
   increaseMealAmount,
   decreaseMealAmount,
   createCartItem,
-  CART,
-  ORDER,
-  CUSTOMIZED,
   viewCartItemCustomized,
   deleteCartItem,
   updateCartItem,
   increaseCartItemAmount,
-  decreaseCartItemAmount
+  decreaseCartItemAmount,
+  openModal,
+  closeModal
 } from "./slice";
-import { ICartItem, IOrder, IPaymentLog, ISpecialty, ISpecialtyOption } from "~/types";
 import usePrevious from "~/hooks/usePrevious";
-import * as dayjs from "dayjs";
+import linePay from "~/assets/images/line-pay.png";
+import { ICartItem, IOrder, IPaymentLog, ISpecialty, ISpecialtyOption } from "~/types";
+import { CustomerOrderDialog, MobileModal, OrderStatus } from "~/types/common";
 
-interface IHeaderProps {}
-export const Header = (props: IHeaderProps) => {
+export const Header = () => {
+  const { pathname } = useLocation();
+
   return (
     <>
       <Breadcrumbs separator=">">
         <Link href="/" underline="hover" color="inherit">
-          港都熱炒
+          首頁
         </Link>
-        <Typography sx={{ fontWeight: 500, color: "common.black" }}>我要點餐</Typography>
+        <Typography fontWeight={500} color="common.black">
+          {pathname === "/orders" ? "我要點餐" : "我要預約"}
+        </Typography>
       </Breadcrumbs>
       <Typography
         variant="h1"
+        fontWeight={900}
         sx={{
           padding: ".5rem 0 1rem",
-          fontWeight: 900,
           position: "sticky",
           top: 0,
           zIndex: 2,
@@ -86,13 +93,12 @@ export const Header = (props: IHeaderProps) => {
   );
 };
 
-interface ISeatInfoProps {}
-export const SeatInfo = (props: ISeatInfoProps) => {
+export const SeatInfo = () => {
   return (
     <>
       {true && (
         <Box sx={{ padding: "0 0 1rem" }}>
-          <Typography variant="h3" sx={{ fontWeight: 900, paddingBottom: "1rem" }}>
+          <Typography variant="h3" fontWeight={900} sx={{ paddingBottom: "1rem" }}>
             內用資訊
           </Typography>
           <Grid
@@ -100,17 +106,17 @@ export const SeatInfo = (props: ISeatInfoProps) => {
             sx={{
               padding: "1rem 0",
               borderRadius: "5px",
-              bgcolor: "#F2F2F2",
-              color: "#919191"
+              bgcolor: "common.black_20",
+              color: "common.black_60"
             }}
           >
             <Grid item xs={6} sx={{ padding: "0 1rem" }}>
-              <Box sx={{ color: "#919191", fontWeight: 500 }}>座位</Box>
-              <Box sx={{ fontSize: "1.5rem", fontWeight: 900, color: "common.black" }}>{"A03-1"}</Box>
+              <Box sx={{ color: "common.black_60", fontWeight: 500 }}>座位</Box>
+              <Box sx={{ fontSize: "h5.fontSize", fontWeight: 900, color: "common.black" }}>{"A03-1"}</Box>
             </Grid>
-            <Grid item xs={6} sx={{ padding: "0 1rem", borderLeft: "1px solid #D1D1D1" }}>
-              <Box sx={{ color: "#919191", fontWeight: 500 }}>入座時間</Box>
-              <Box sx={{ fontSize: "1.5rem", fontWeight: 900, color: "common.black" }}>{"17:30"}</Box>
+            <Grid item xs={6} sx={{ padding: "0 1rem", borderLeft: "1px solid", borderColor: "common.black_40" }}>
+              <Box sx={{ color: "common.black_60", fontWeight: 500 }}>入座時間</Box>
+              <Box sx={{ fontSize: "h5.fontSize", fontWeight: 900, color: "common.black" }}>{"17:30"}</Box>
             </Grid>
           </Grid>
         </Box>
@@ -120,7 +126,7 @@ export const SeatInfo = (props: ISeatInfoProps) => {
 };
 
 export const StyledTab = styled(Tab)(({ theme }) => ({
-  backgroundColor: "#F2F2F2",
+  backgroundColor: theme.palette.common.black_20,
   borderRadius: "5rem",
   margin: ".2rem",
   fontSize: "1rem",
@@ -135,8 +141,7 @@ export const StyledTab = styled(Tab)(({ theme }) => ({
   }
 }));
 
-interface ICategoryNavbarProps {}
-export const CategoryNavbar = (props: ICategoryNavbarProps) => {
+export const CategoryNavbar = () => {
   const dispatch = useAppDispatch();
 
   const [isShowDropdown, setIsShowDropdown] = useState(false);
@@ -164,7 +169,7 @@ export const CategoryNavbar = (props: ICategoryNavbarProps) => {
           top: "4.5rem",
           zIndex: 2,
           bgcolor: "background.paper",
-          transform: "translateY(10%)" // [FIX]: sticky jumping when scroll in mobile
+          transform: "translateY(10%)" // sticky jumping when scroll in mobile
         }}
         id="category-tabs"
       >
@@ -208,7 +213,7 @@ export const CategoryNavbar = (props: ICategoryNavbarProps) => {
           sx={{
             display: isShowDropdown ? "block" : "none",
             maxHeight: "60vh",
-            border: "1px solid #F2F2F2",
+            border: "1px solid common.black_20",
             position: "absolute",
             overflowY: "scroll",
             zIndex: 2,
@@ -232,11 +237,10 @@ export const CategoryNavbar = (props: ICategoryNavbarProps) => {
   );
 };
 
-interface IMealsProps {}
 const subHeaderHeight = 48;
 const stickyTopOffset = 128;
 
-export const Meals = (props: IMealsProps) => {
+export const Meals = () => {
   const dispatch = useAppDispatch();
 
   const combinedMenu = useAppSelector(({ customerOrder }) => customerOrder.combinedMenu);
@@ -271,7 +275,7 @@ export const Meals = (props: IMealsProps) => {
           <li key={category.id}>
             <ul>
               <ListSubheader sx={{ padding: ".5rem 0", color: "common.black", top: stickyTopOffset }}>
-                <Typography variant="h6" sx={{ fontWeight: 900 }}>
+                <Typography variant="h6" fontWeight={900}>
                   {category.title}
                 </Typography>
               </ListSubheader>
@@ -338,16 +342,16 @@ export const Meals = (props: IMealsProps) => {
   );
 };
 
-interface IStyledBottomNavigationActionProps {
+interface IStyledBottomNavigationActionProps extends BottomNavigationActionProps {
   amount?: number;
 }
-const StyledBottomNavigationAction = styled(BottomNavigationAction)(
-  ({ amount }: IStyledBottomNavigationActionProps) => ({
+const StyledBottomNavigationAction = styled(BottomNavigationAction)<IStyledBottomNavigationActionProps>(
+  ({ theme, amount }) => ({
     borderRadius: ".6rem",
     minWidth: "auto",
     padding: "0",
     gap: ".3rem",
-    backgroundColor: "#F2F2F2",
+    backgroundColor: theme.palette.common.black_20,
     "&:focus": { outline: "none" },
     "&.Mui-selected": { color: "#F0F0F0" },
     "&.MuiBottomNavigationAction-root::after": {
@@ -360,16 +364,15 @@ const StyledBottomNavigationAction = styled(BottomNavigationAction)(
       right: 0,
       width: "1.5rem",
       height: "1.5rem",
-      fontSize: ".8rem",
-      color: "#020202",
+      fontSize: "small.fontSize",
+      color: theme.palette.common.black,
       borderRadius: "0 .6rem 0 0",
-      backgroundColor: "#F7C324"
+      backgroundColor: theme.palette.primary.main
     }
   })
 );
 
-interface IFooterProps {}
-export const Footer = (props: IFooterProps) => {
+export const Footer = () => {
   const dispatch = useAppDispatch();
 
   const currentDialog = useAppSelector(({ customerOrder }) => customerOrder.currentDialog);
@@ -397,7 +400,7 @@ export const Footer = (props: IFooterProps) => {
         borderRadius: ".6rem",
         height: "4.5rem",
         display: "flex",
-        width: "220px",
+        width: "14rem",
         bgcolor: "common.white"
       }}
     >
@@ -411,14 +414,19 @@ export const Footer = (props: IFooterProps) => {
           width: "100%",
           bgcolor: "common.white",
           "& .Mui-selected": { bgcolor: "common.black" },
-          "& .MuiSvgIcon-root": { fontSize: "1rem" }
+          "& .MuiSvgIcon-root": { fontSize: "body1.fontSize" }
         }}
       >
         <StyledBottomNavigationAction label="菜單" value="" icon={<RestaurantMenuIcon />} />
-        <StyledBottomNavigationAction label="購物車" value={CART} icon={<CartIcon />} amount={cartAmount} />
+        <StyledBottomNavigationAction
+          label="購物車"
+          value={CustomerOrderDialog.CART}
+          icon={<CartIcon />}
+          amount={cartAmount}
+        />
         <StyledBottomNavigationAction
           label="訂單"
-          value={ORDER}
+          value={CustomerOrderDialog.ORDER}
           icon={<StickyNote2Icon />}
           amount={unPaidOrderAmount}
         />
@@ -444,7 +452,7 @@ export const InputNumber = (props: IInputNumberProps) => {
         display: "flex",
         justifyContent: "space-between",
         alignItems: "center",
-        border: "1px solid #F2F2F2",
+        border: "1px solid common.black_20",
         borderRadius: ".5rem",
         bgcolor: "common.white"
       }}
@@ -463,7 +471,7 @@ export const InputNumber = (props: IInputNumberProps) => {
       >
         <RemoveIcon />
       </Button>
-      <Typography variant="h6" sx={{ fontWeight: 900, minWidth: "2rem", textAlign: "center" }}>
+      <Typography variant="h6" fontWeight={900} sx={{ minWidth: "2rem", textAlign: "center" }}>
         {value}
       </Typography>
       <Button
@@ -483,8 +491,7 @@ export const InputNumber = (props: IInputNumberProps) => {
   );
 };
 
-interface ICustomizedDialog {}
-export const CustomizedDialog = (props: ICustomizedDialog) => {
+export const CustomizedDialog = () => {
   const dispatch = useAppDispatch();
 
   const meals = useAppSelector(({ customerOrder }) => customerOrder.meals);
@@ -524,20 +531,20 @@ export const CustomizedDialog = (props: ICustomizedDialog) => {
   return (
     <MobileDialogLayout
       title={currentMeal?.title}
-      isOpen={currentDialog === CUSTOMIZED}
+      isOpen={currentDialog === CustomerOrderDialog.CUSTOMIZED}
       onCloseDialog={handleClose}
       actionButton={
         <>
           <Box sx={{ display: "flex", justifyContent: "space-between", alignItems: "center", width: "100%" }}>
             <InputNumber value={currentMealAmount} onAdd={handleAdd} onMinus={handleMinus} />
-            <Typography variant="h5" sx={{ fontWeight: 900 }}>
+            <Typography variant="h5" fontWeight={900}>
               ${currentMealAmount * (currentMeal?.price ?? 0)}
             </Typography>
           </Box>
           {isModifiedCartItem ? (
-            <ButtonBase onClick={handleUpdateCartItem}>確認修改</ButtonBase>
+            <Button onClick={handleUpdateCartItem}>確認修改</Button>
           ) : (
-            <ButtonBase onClick={handleAddToCart}>加入購物車</ButtonBase>
+            <Button onClick={handleAddToCart}>加入購物車</Button>
           )}
         </>
       }
@@ -548,7 +555,7 @@ export const CustomizedDialog = (props: ICustomizedDialog) => {
             <li key={specialty.id}>
               <ul>
                 <ListSubheader sx={{ padding: "1rem 0", color: "common.black" }} disableSticky>
-                  <Typography variant="h6" sx={{ fontWeight: 900 }}>
+                  <Typography variant="h6" fontWeight={900}>
                     {specialty.title}
                   </Typography>
                 </ListSubheader>
@@ -574,8 +581,7 @@ export const CustomizedDialog = (props: ICustomizedDialog) => {
   );
 };
 
-interface ICartProps {}
-export const CartDialog = (props: ICartProps) => {
+export const CartDialog = () => {
   const dispatch = useAppDispatch();
 
   const currentDialog = useAppSelector(({ customerOrder }) => customerOrder.currentDialog);
@@ -605,6 +611,7 @@ export const CartDialog = (props: ICartProps) => {
   };
 
   const handleSubmitOrders = () => {
+    // [TODO]: api post new order
     console.log("handleSubmitOrders");
   };
 
@@ -612,21 +619,21 @@ export const CartDialog = (props: ICartProps) => {
     <MobileDialogLayout
       title="購物車"
       titleSize="h2"
-      isOpen={currentDialog === CART}
+      isOpen={currentDialog === CustomerOrderDialog.CART}
       onCloseDialog={handleClose}
       actionButton={
         <>
           <Box sx={{ display: "flex", justifyContent: "space-between", alignItems: "center", width: "100%" }}>
-            <Typography variant="h6" sx={{ fontWeight: 900 }}>
-              小記
+            <Typography variant="h6" fontWeight={900}>
+              小計
             </Typography>
-            <Typography variant="h6" sx={{ fontWeight: 900 }}>
+            <Typography variant="h6" fontWeight={900}>
               ${totalAmount}
             </Typography>
           </Box>
-          <ButtonBase onClick={handleSubmitOrders} disabled={cart.length === 0}>
+          <Button onClick={handleSubmitOrders} disabled={cart.length === 0}>
             送出訂單
-          </ButtonBase>
+          </Button>
         </>
       }
     >
@@ -661,9 +668,12 @@ export const CartDialog = (props: ICartProps) => {
                         )}
                       </Grid>
                       <Grid item sx={{ flexGrow: 1 }}>
-                        <Typography sx={{ fontWeight: 700 }}>{cartItem.title}</Typography>
+                        <Typography fontWeight={700}>{cartItem.title}</Typography>
                         {cartItem.specialties.map((specialty, idx) => (
-                          <Box sx={{ color: "#525252", fontSize: ".8rem" }} key={`${specialty.id}-${idx}`}>
+                          <Box
+                            sx={{ color: "common.black_80", fontSize: "small.fontSize" }}
+                            key={`${specialty.id}-${idx}`}
+                          >
                             {specialty.type === "single"
                               ? specialty.items[0]?.title ?? ""
                               : specialty.items.map((item) => item.title).join("、")}
@@ -687,7 +697,7 @@ export const CartDialog = (props: ICartProps) => {
                         onAdd={() => handleAdd(idx)}
                         onMinus={() => handleMinus(idx)}
                       />
-                      <Typography variant="h6" sx={{ fontWeight: 900 }}>
+                      <Typography variant="h6" fontWeight={900}>
                         ${cartItem.amount * cartItem.price}
                       </Typography>
                     </Box>
@@ -706,12 +716,11 @@ export const CartDialog = (props: ICartProps) => {
   );
 };
 
-interface IOrderProps {}
 const STATUS = [
-  { value: "UNPAID", title: "未付款" },
-  { value: "SUCCESS", title: "已付款" }
+  { value: OrderStatus.UNPAID, title: "未付款" },
+  { value: OrderStatus.SUCCESS, title: "已付款" }
 ];
-export const OrderDialog = (props: IOrderProps) => {
+export const OrderDialog = () => {
   const dispatch = useAppDispatch();
   const [orderStatus, setOrderStatus] = useState(STATUS[0].value);
   const [toggleList, setToggleList] = useState<IOrder["id"][]>([]);
@@ -739,21 +748,31 @@ export const OrderDialog = (props: IOrderProps) => {
   };
 
   const handleCheckout = () => {
-    console.log("handleCheckout");
+    dispatch(openModal(MobileModal.PAYMENT));
   };
 
   return (
     <MobileDialogLayout
       title="訂單"
       titleSize="h2"
-      isOpen={currentDialog === ORDER}
+      isOpen={currentDialog === CustomerOrderDialog.ORDER}
       onCloseDialog={handleClose}
       actionButton={
-        orderStatus === "UNPAID" && (
-          <ButtonBase onClick={handleCheckout} disabled={orders.length === 0}>
-            前往結帳
-          </ButtonBase>
-        )
+        <>
+          <Box sx={{ display: "flex", justifyContent: "space-between", alignItems: "center", width: "100%" }}>
+            <Typography variant="h6" fontWeight={900}>
+              總計
+            </Typography>
+            <Typography variant="h6" fontWeight={900}>
+              ${showOrders.reduce((acc, order) => acc + order.paymentLogs[0].price, 0)}
+            </Typography>
+          </Box>
+          {orderStatus === "UNPAID" && (
+            <Button onClick={handleCheckout} disabled={showOrders.length === 0}>
+              前往結帳
+            </Button>
+          )}
+        </>
       }
     >
       <Tabs
@@ -797,7 +816,7 @@ export const OrderDialog = (props: IOrderProps) => {
                   marginBottom: "1rem"
                 }}
               >
-                <Box sx={{ width: "100%", borderBottom: "1px solid #D1D1D1" }}>
+                <Box sx={{ width: "100%", borderBottom: "1px solid common.black_60" }}>
                   <Box sx={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
                     <Box sx={{ fontWeight: 700 }}>{order.type === "dine-in" ? "內用訂單" : "外帶訂單"}</Box>
                     <Box>{`${dayjs(order.createdAt).format("YYYY/MM/DD HH:mm")}`}</Box>
@@ -807,12 +826,12 @@ export const OrderDialog = (props: IOrderProps) => {
                       display: "flex",
                       justifyContent: "space-between",
                       alignItems: "center",
-                      fontSize: "1.25rem",
+                      fontSize: "h6.fontSize",
                       padding: ".5rem 0"
                     }}
                   >
                     <Box>
-                      <Box component="span" sx={{ color: "#525252" }}>
+                      <Box component="span" sx={{ color: "common.black_80" }}>
                         狀態：
                       </Box>
                       <Box component="span" sx={{ fontWeight: 900 }}>
@@ -827,7 +846,7 @@ export const OrderDialog = (props: IOrderProps) => {
                     <Grid
                       container
                       key={meal.id}
-                      sx={{ borderBottom: "1px solid #D1D1D1", fontWeight: 700, padding: ".5rem 0" }}
+                      sx={{ borderBottom: "1px solid common.black_60", fontWeight: 700, padding: ".5rem 0" }}
                     >
                       <Grid item xs={2}>
                         <Checkbox checked={meal.isServed} sx={{ padding: 0 }} />
@@ -837,7 +856,12 @@ export const OrderDialog = (props: IOrderProps) => {
                         {meal.specialties.map((specialty) => (
                           <Box
                             key={specialty.id}
-                            sx={{ fontSize: ".8rem", fontWeight: 300, color: "#525252", paddingBottom: ".5rem" }}
+                            sx={{
+                              fontSize: "small.fontSize",
+                              fontWeight: 300,
+                              color: "common.black_80",
+                              paddingBottom: ".5rem"
+                            }}
                           >
                             {specialty.items.map((item) => item.title).join(", ")}
                           </Box>
@@ -858,7 +882,7 @@ export const OrderDialog = (props: IOrderProps) => {
                     display: "flex",
                     justifyContent: "center",
                     alignItems: "center",
-                    fontSize: ".8rem",
+                    fontSize: "small.fontSize",
                     fontWeight: 700,
                     width: "100%"
                   }}
@@ -883,5 +907,92 @@ export const OrderDialog = (props: IOrderProps) => {
         )}
       </Box>
     </MobileDialogLayout>
+  );
+};
+
+interface IMobileModalLayout {
+  children: React.ReactNode;
+  open: boolean;
+}
+export const MobileModalLayout = (props: IMobileModalLayout) => {
+  const { children, open } = props;
+
+  const dispatch = useAppDispatch();
+
+  const handleClose = () => {
+    dispatch(closeModal());
+  };
+
+  return (
+    <ModalBase open={open} onClose={handleClose}>
+      <Box
+        sx={{
+          display: "flex",
+          flexDirection: "column",
+          justifyContent: "center",
+          alignItems: "center",
+          gap: "1rem",
+          width: "80%",
+          bgcolor: "common.white",
+          textAlign: "center",
+          position: "absolute",
+          top: "50%",
+          left: "50%",
+          transform: "translate(-50%, -50%)",
+          padding: "1rem"
+        }}
+      >
+        {children}
+      </Box>
+    </ModalBase>
+  );
+};
+
+export const PaymentModal = () => {
+  const dispatch = useAppDispatch();
+
+  const currentModal = useAppSelector(({ customerOrder }) => customerOrder.currentModal);
+
+  const handlePaymentByCash = () => {
+    dispatch(openModal(MobileModal.COUNTER_REMINDER));
+  };
+
+  const handlePaymentByCard = () => {
+    // [TODO]: jump to NewebPay
+  };
+
+  const handlePaymentByLinePay = () => {
+    // [TODO]: jump to LINEPay
+  };
+
+  return (
+    <MobileModalLayout open={currentModal === MobileModal.PAYMENT}>
+      <>
+        <Typography variant="h6" fontWeight={900}>
+          請選擇付款方式
+        </Typography>
+        <Button onClick={handlePaymentByCash} startIcon={<MoneyIcon />}>
+          現金付款
+        </Button>
+        <Button onClick={handlePaymentByCard} startIcon={<CreditCardIcon />}>
+          信用卡
+        </Button>
+        <Button onClick={handlePaymentByLinePay}>
+          <img src={linePay} alt="LINE Pay" style={{ height: "1.5rem" }} />
+        </Button>
+      </>
+    </MobileModalLayout>
+  );
+};
+
+export const CounterReminderModal = () => {
+  const currentModal = useAppSelector(({ customerOrder }) => customerOrder.currentModal);
+
+  return (
+    <MobileModalLayout open={currentModal === MobileModal.COUNTER_REMINDER}>
+      <Typography variant="h6" fontWeight={700}>
+        請至臨櫃結帳
+      </Typography>
+    </MobileModalLayout>
   );
 };

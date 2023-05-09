@@ -1,13 +1,12 @@
 // Libs
+import { FC } from "react";
 // Components
-import React from "react";
 import MenuContainer from "~/features/admin/menu";
 import withMainLayout from "~/hoc/create-main-layout";
-// Styles
 
 interface IAdminMenuProps {}
 
-const MenuPage: React.FC<IAdminMenuProps> = (props) => {
+const MenuPage: FC<IAdminMenuProps> = (props) => {
   return <MenuContainer {...props} />;
 };
 
