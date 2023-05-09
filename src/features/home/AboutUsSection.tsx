@@ -1,8 +1,9 @@
-import { Box, Container, Typography, Grid } from '@mui/material'
-import { Column } from '~/components/layout';
-import { Title } from './index.styles';
-import AboutUsAvatarCard from './AboutUsSection.style';
-import { useDeviceType } from './slice';
+import { FC } from "react";
+import { Box, Container, Typography, Grid } from "@mui/material";
+import { Column } from "~/components/layout";
+import { Title } from "./index.styles";
+import AboutUsAvatarCard from "./AboutUsSection.style";
+import { useDeviceType } from "./slice";
 import { useGetImageUrl } from "~/hooks/useGetImageUrl";
 
 const aboutUsData = [
@@ -38,8 +39,7 @@ const aboutUsData = [
   }
 ];
 
-const AboutUsSection = () =>
-{
+const AboutUsSection: FC = () => {
   const deviceType = useDeviceType();
 
   return (
@@ -92,6 +92,6 @@ const AboutUsSection = () =>
       </Container>
     </Box>
   );
-}
+};
 
-export default AboutUsSection
+export default AboutUsSection;

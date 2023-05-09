@@ -1,11 +1,12 @@
-import { Box, Container, Typography, Rating } from "@mui/material"
-import { Swiper, SwiperSlide } from 'swiper/react';
+import { FC } from "react";
+import { Box, Container, Typography, Rating } from "@mui/material";
+import { Swiper, SwiperSlide } from "swiper/react";
 import { Column, Row } from "~/components/layout";
-import { Title } from "./index.styles"
-import { useDeviceType } from "./slice"
+import { Title } from "./index.styles";
+import { useDeviceType } from "./slice";
 import { useGetImageUrl } from "~/hooks/useGetImageUrl";
 
-import "swiper/css"
+import "swiper/css";
 
 const testimonialsData = [
   {
@@ -48,23 +49,28 @@ const testimonialsData = [
   }
 ];
 
-const TestimonialsSection = () => {
-  const deviceType = useDeviceType()
+const TestimonialsSection: FC = () => {
+  const deviceType = useDeviceType();
   return (
-    <Box pt={20} bgcolor={"background.paper"} sx={{ userSelect: "none"}}>
+    <Box pt={20} bgcolor={"background.paper"} sx={{ userSelect: "none" }}>
       <Container>
-        <Column sx={{ gap: deviceType === "tablet" ? "5rem" : "2.5rem", marginBottom: deviceType === "tablet" ? "5rem" : "2.5rem"  }}>
+        <Column
+          sx={{
+            gap: deviceType === "tablet" ? "5rem" : "2.5rem",
+            marginBottom: deviceType === "tablet" ? "5rem" : "2.5rem"
+          }}
+        >
           <Row sx={{ gap: deviceType === "tablet" ? "6.5rem" : "2.5rem" }}>
             <Title title="客戶分享" subtitle="他們的成功故事" />
           </Row>
-          </Column>
-      <Swiper
+        </Column>
+        <Swiper
           spaceBetween={deviceType === "tablet" ? 30 : 16}
           slidesPerView={deviceType === "tablet" ? 3 : 1.2}
           centeredSlides={true}
           grabCursor={true}
           loop={true}
-          >
+        >
           {testimonialsData.map((feature, index) => {
             return (
               <SwiperSlide key={feature.name}>
@@ -81,7 +87,14 @@ const TestimonialsSection = () => {
                     objectPosition: "50% 50%"
                   }}
                 />
-                <Box bgcolor={"white"} borderRadius={"2.5rem"} flex={"column"} px={deviceType === "tablet" ? 3 : 2} pt={deviceType === "tablet" ? 4 : 3} pb={3}>
+                <Box
+                  bgcolor={"white"}
+                  borderRadius={"2.5rem"}
+                  flex={"column"}
+                  px={deviceType === "tablet" ? 3 : 2}
+                  pt={deviceType === "tablet" ? 4 : 3}
+                  pb={3}
+                >
                   <Rating value={feature.rate} precision={0.5} size="small" readOnly />
                   <Typography variant="h5" component={"h3"} fontWeight={900}>
                     {feature.name}
@@ -91,12 +104,12 @@ const TestimonialsSection = () => {
                   </Typography>
                 </Box>
               </SwiperSlide>
-            )
+            );
           })}
         </Swiper>
-        </Container>
-      </Box>
-  )
-}
+      </Container>
+    </Box>
+  );
+};
 
-export default TestimonialsSection
+export default TestimonialsSection;

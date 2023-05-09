@@ -1,7 +1,7 @@
-import { Box, Container, Grid, List, ListItem, ListItemText, Typography, Link } from '@mui/material'
-import React from 'react'
-import { useDeviceType } from './slice'
-import { NavLink } from './index.styles'
+import { FC } from "react";
+import { Box, Container, Grid, List, ListItem, ListItemText, Typography, Link } from "@mui/material";
+import { useDeviceType } from "./slice";
+import { NavLink } from "./index.styles";
 import { ReactComponent as LogoText } from "~/assets/Logo_text.svg";
 
 const siteMapData = [
@@ -53,7 +53,7 @@ const siteMapData = [
   }
 ];
 
-const SiteMapSection = () => {
+const SiteMapSection: FC = () => {
   const deviceType = useDeviceType();
   const handleClick = (event: React.MouseEvent, targetId: string) => {
     event.preventDefault();
@@ -128,4 +128,4 @@ const SiteMapSection = () => {
   );
 };
 
-export default SiteMapSection
+export default SiteMapSection;

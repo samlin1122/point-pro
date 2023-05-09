@@ -1,6 +1,6 @@
 
-import React, { useEffect, useState } from 'react'
-import { useDeviceType } from './slice'
+import { FC, useEffect, useState } from "react";
+import { useDeviceType } from "./slice";
 import { Box, Button, Container, Drawer, Link, List, ListItem, ListItemText, Typography } from "@mui/material";
 import { Row } from "~/components/layout";
 import { NavLink } from "./index.styles";
@@ -45,7 +45,7 @@ interface SwipeableMenuProps {
   menuItems?: MenuItem[];
 }
 
-const SwipeableMenu: React.FC<SwipeableMenuProps> = ({ menuItems }) => {
+const SwipeableMenu: FC<SwipeableMenuProps> = ({ menuItems }) => {
   const [isOpen, setIsOpen] = useState(false);
 
   const toggleDrawer = (open: boolean) => {
@@ -154,11 +154,11 @@ const SwipeableMenu: React.FC<SwipeableMenuProps> = ({ menuItems }) => {
   );
 };
 
-export const HeaderNavBar = () => {
+export const HeaderNavBar: FC = () => {
   const deviceType = useDeviceType();
 
   const [isHidden, setIsHidden] = useState(false);
-  const [scrollTimeout, setScrollTimeout] = useState<number | null>(null);
+  const [scrollTimeout, setScrollTimeout] = useState<number>(0);
 
   useEffect(() => {
     const handleScroll = () => {

@@ -1,9 +1,10 @@
-import { Box, Container, Grid, Typography } from "@mui/material"
-import { Column } from "../../components/layout"
-import { Title } from "./index.styles"
-import { useDeviceType } from "./slice"
-import FeatureCard from "./FeatureSection.style"
-import { Assignment, MoreTime, ChromeReaderMode, MenuBook } from "@mui/icons-material"
+import { FC } from "react";
+import { Box, Container, Grid, Typography } from "@mui/material";
+import { Column } from "../../components/layout";
+import { Title } from "./index.styles";
+import { useDeviceType } from "./slice";
+import FeatureCard from "./FeatureSection.style";
+import { Assignment, MoreTime, ChromeReaderMode, MenuBook } from "@mui/icons-material";
 import { useGetImageUrl } from "~/hooks/useGetImageUrl";
 import { ReactComponent as FeatureIllustration } from "~/assets/featureIllustration.svg";
 
@@ -70,7 +71,7 @@ const featureData: FeatureData[] = [
   }
 ];
 
-const FeatureSection = () => {
+const FeatureSection: FC = () => {
   const deviceType = useDeviceType();
   return (
     <Box pt={20} pb={deviceType === "tablet" ? "7.5rem" : "5rem"} bgcolor={"background.paper"}>
@@ -171,4 +172,4 @@ const FeatureSection = () => {
   );
 };
 
-export default FeatureSection
+export default FeatureSection;

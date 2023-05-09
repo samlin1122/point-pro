@@ -1,5 +1,5 @@
 // PricingSection.tsx
-import React, { useState } from "react";
+import { FC, useState } from "react";
 import {
   Grid,
   Card,
@@ -78,7 +78,7 @@ const globalStyles = css`
 interface Props {
   openModal: () => void;
 }
-const PricingSection: React.FC<Props> = ({ openModal }) => {
+const PricingSection: FC<Props> = ({ openModal }) => {
   const [cards, setCards] = useState(pricingData);
   const [currentPage, setCurrentPage] = useState(1);
   const [centerCardIndex, setCenterCardIndex] = useState(1);

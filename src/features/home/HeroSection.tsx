@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from "react"
+import { FC, useEffect, useRef, useState } from "react";
 import { Container, Box, Typography, useMediaQuery, useTheme } from "@mui/material";
 
 import { CallToActionButton } from "./index.styles";
@@ -47,7 +47,7 @@ interface Props {
   openModal: () => void;
 }
 
-const HeroSection: React.FC<Props> = ({ openModal }) => {
+const HeroSection: FC<Props> = ({ openModal }) => {
   const heroSectionRef = useRef<HTMLDivElement | null>(null);
   const [curvePath, setCurvePath] = useState("");
   const theme = useTheme();
@@ -126,4 +126,4 @@ const HeroSection: React.FC<Props> = ({ openModal }) => {
   );
 };
 
-export default HeroSection
+export default HeroSection;

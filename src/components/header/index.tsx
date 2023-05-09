@@ -28,7 +28,10 @@ const Header: React.FC = () => {
         sx={{
           bgcolor: (theme) => theme.palette.background.paper,
           zIndex: (theme) => theme.zIndex.drawer + 100,
-          height: "88px"
+          height: "88px",
+          boxShadow: "none",
+          borderBottom: 0.5,
+          borderColor: "divider"
         }}
       >
         <Toolbar sx={{ paddingLeft: "0 !important" }}>

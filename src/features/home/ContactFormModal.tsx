@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import { ChangeEvent, ReactElement, FC, Ref, useState, forwardRef } from "react";
 import {
   Button,
   Checkbox,
@@ -14,7 +14,6 @@ import {
   MenuItem,
   Radio,
   RadioGroup,
-  Select,
   SelectChangeEvent,
   TextField
 } from "@mui/material";
@@ -22,11 +21,11 @@ import { Row } from "~/components/layout";
 import Slide from "@mui/material/Slide";
 import { TransitionProps } from "@mui/material/transitions";
 
-const Transition = React.forwardRef(function Transition(
+const Transition = forwardRef(function Transition(
   props: TransitionProps & {
-    children: React.ReactElement<any, any>;
+    children: ReactElement<any, any>;
   },
-  ref: React.Ref<unknown>
+  ref: Ref<unknown>
 ) {
   return <Slide direction="up" ref={ref} {...props} />;
 });
@@ -51,19 +50,17 @@ const initialFormState = {
   requirement: ""
 };
 
-const ContactFormModal: React.FC<ContactFormModalProps> = ({ open, onClose }) => {
+const ContactFormModal: FC<ContactFormModalProps> = ({ open, onClose }) => {
   const [formState, setFormState] = useState(initialFormState);
 
-  const handleChange = (
-    event: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement> | SelectChangeEvent<string>
-  ) => {
+  const handleChange = (event: ChangeEvent<HTMLInputElement | HTMLTextAreaElement> | SelectChangeEvent<string>) => {
     setFormState({
       ...formState,
       [event.target.name]: event.target.value
     });
   };
 
-  const handleInquiryContentChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+  const handleInquiryContentChange = (event: ChangeEvent<HTMLInputElement>) => {
     const { name, checked } = event.target;
     setFormState((prevState) => ({
       ...prevState,

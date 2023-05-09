@@ -1,6 +1,6 @@
+import { ChangeEvent, FC, useState } from "react";
 import { Box, Container, Grid, Typography } from "@mui/material";
 import ArrowForwardIcon from "@mui/icons-material/ArrowForward";
-import React, { useState } from "react";
 import { useDeviceType } from "./slice";
 import {
   SubscribeSectionInputContainer,
@@ -9,7 +9,7 @@ import {
   SubscribeSectionIconButton
 } from "./SubscribedSection.style";
 
-const SubscribedSection = () => {
+const SubscribedSection: FC = () => {
   const [isFocused, setIsFocused] = useState(false);
   const [email, setEmail] = useState("");
   const [errorMessages, setErrorMessages] = useState("");
@@ -28,7 +28,7 @@ const SubscribedSection = () => {
     console.log("Button clicked");
   };
 
-  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+  const handleInputChange = (e: ChangeEvent<HTMLInputElement>) => {
     const emailRegex = /^[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,}$/i;
     setEmail(e.target.value);
     if (e.target.value.length > 0) {

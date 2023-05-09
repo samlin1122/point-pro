@@ -1,6 +1,6 @@
 // Libs
 // Components
-import { useState } from "react";
+import { FC, useState } from "react";
 import AboutUsSection from "./AboutUsSection";
 import BackToTopButton from "./BackToTop";
 import ContactFormModal from "./ContactFormModal";
@@ -17,7 +17,7 @@ import { Box } from "@mui/material";
 
 interface HomeContainerProps {}
 
-const HomeContainer: React.FC<HomeContainerProps> = ({ ...rest }) => {
+const HomeContainer: FC<HomeContainerProps> = ({ ...rest }) => {
   const [isOpen, setIsOpen] = useState(false);
   const handleOpenModal = () => {
     setIsOpen(true);

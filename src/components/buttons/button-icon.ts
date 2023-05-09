@@ -6,3 +6,9 @@ const ButtonIcon = styled(IconButton)(({ theme }) => ({
 }));
 
 export default ButtonIcon;
+
+export const StyledCloseButton = styled(IconButton)(({ theme }) => ({
+  padding: theme.spacing(2),
+  backgroundColor: theme.palette.common.black,
+  color: "white"
+}));

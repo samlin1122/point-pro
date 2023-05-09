@@ -1,17 +1,12 @@
-import { useState } from "react"
-import {
-  Map,
-  MapProvider,
-  Marker,
-  Popup,
-} from "react-map-gl"
-import { Box, Typography } from "@mui/material"
-import { PushPin } from "@mui/icons-material"
+import { FC, useState } from "react";
+import { Map, MapProvider, Marker, Popup } from "react-map-gl";
+import { Box, Typography } from "@mui/material";
+import { PushPin } from "@mui/icons-material";
 
-import "mapbox-gl/dist/mapbox-gl.css"
+import "mapbox-gl/dist/mapbox-gl.css";
 import { ReactComponent as MapLogo } from "~/assets/map_logo.svg";
 
-const MapSection = () => {
+const MapSection: FC = () => {
   const mapboxToken = import.meta.env.VITE_MAPBOX_TOKEN;
 
   const [viewport, setViewport] = useState({
@@ -89,4 +84,4 @@ const MapSection = () => {
   );
 };
 
-export default MapSection
+export default MapSection;

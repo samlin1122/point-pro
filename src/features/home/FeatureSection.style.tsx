@@ -1,13 +1,14 @@
+import { FC, ReactNode } from "react";
 import { Box, Grid, Typography } from "@mui/material";
 import { Column } from "~/components/layout";
 
 interface FeatureCardProps {
   title: string;
   description: string;
-  children: React.ReactNode;
+  children: ReactNode;
 }
 
-const FeatureCard: React.FC<FeatureCardProps> = ({ children, title, description }) => {
+const FeatureCard: FC<FeatureCardProps> = ({ children, title, description }) => {
   return (
     <Grid container>
       <Grid item xs={9} flex={1}>

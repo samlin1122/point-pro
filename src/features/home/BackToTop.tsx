@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import { FC, useEffect, useState } from "react";
 import { IconButton, Typography, styled } from "@mui/material";
 import ArrowUpwardIcon from "@mui/icons-material/ArrowUpward";
 import { useDeviceType } from "./slice";
@@ -36,7 +36,7 @@ const fadeInOut = (isVisible: boolean) => `
   }
 `;
 
-const BackToTopButton: React.FC<BackToTopButtonProps> = ({ position }) => {
+const BackToTopButton: FC<BackToTopButtonProps> = ({ position }) => {
   const deviceType = useDeviceType();
   const [isVisible, setIsVisible] = useState(false);
 
