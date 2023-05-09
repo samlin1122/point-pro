@@ -10,5 +10,8 @@ export default defineConfig({
       "~": resolve(__dirname, "./src")
     }
   },
-  plugins: [react(), svgr()]
+  plugins: [react(), svgr()],
+  define: {
+    "process.env": process.env
+  }
 });
