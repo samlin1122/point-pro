@@ -124,6 +124,7 @@ export interface IAvailableBooking {
 }
 
 export interface ICreateBookingParams {
+  id: IBookingInfo["id"];
   reservedAt: IBookingInfo["reservedAt"];
   user: Omit<IBookingInfo, "id" | "reservedAt">;
 }

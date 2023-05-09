@@ -112,11 +112,11 @@ export const SeatInfo = () => {
           >
             <Grid item xs={6} sx={{ padding: "0 1rem" }}>
               <Box sx={{ color: "common.black_60", fontWeight: 500 }}>座位</Box>
-              <Box sx={{ fontSize: "1.5rem", fontWeight: 900, color: "common.black" }}>{"A03-1"}</Box>
+              <Box sx={{ fontSize: "h5.fontSize", fontWeight: 900, color: "common.black" }}>{"A03-1"}</Box>
             </Grid>
             <Grid item xs={6} sx={{ padding: "0 1rem", borderLeft: "1px solid", borderColor: "common.black_40" }}>
               <Box sx={{ color: "common.black_60", fontWeight: 500 }}>入座時間</Box>
-              <Box sx={{ fontSize: "1.5rem", fontWeight: 900, color: "common.black" }}>{"17:30"}</Box>
+              <Box sx={{ fontSize: "h5.fontSize", fontWeight: 900, color: "common.black" }}>{"17:30"}</Box>
             </Grid>
           </Grid>
         </Box>
@@ -364,7 +364,7 @@ const StyledBottomNavigationAction = styled(BottomNavigationAction)<IStyledBotto
       right: 0,
       width: "1.5rem",
       height: "1.5rem",
-      fontSize: ".8rem",
+      fontSize: "small.fontSize",
       color: theme.palette.common.black,
       borderRadius: "0 .6rem 0 0",
       backgroundColor: theme.palette.primary.main
@@ -414,7 +414,7 @@ export const Footer = () => {
           width: "100%",
           bgcolor: "common.white",
           "& .Mui-selected": { bgcolor: "common.black" },
-          "& .MuiSvgIcon-root": { fontSize: "1rem" }
+          "& .MuiSvgIcon-root": { fontSize: "body1.fontSize" }
         }}
       >
         <StyledBottomNavigationAction label="菜單" value="" icon={<RestaurantMenuIcon />} />
@@ -670,7 +670,10 @@ export const CartDialog = () => {
                       <Grid item sx={{ flexGrow: 1 }}>
                         <Typography fontWeight={700}>{cartItem.title}</Typography>
                         {cartItem.specialties.map((specialty, idx) => (
-                          <Box sx={{ color: "common.black_80", fontSize: ".8rem" }} key={`${specialty.id}-${idx}`}>
+                          <Box
+                            sx={{ color: "common.black_80", fontSize: "small.fontSize" }}
+                            key={`${specialty.id}-${idx}`}
+                          >
                             {specialty.type === "single"
                               ? specialty.items[0]?.title ?? ""
                               : specialty.items.map((item) => item.title).join("、")}
@@ -823,7 +826,7 @@ export const OrderDialog = () => {
                       display: "flex",
                       justifyContent: "space-between",
                       alignItems: "center",
-                      fontSize: "1.25rem",
+                      fontSize: "h6.fontSize",
                       padding: ".5rem 0"
                     }}
                   >
@@ -854,7 +857,7 @@ export const OrderDialog = () => {
                           <Box
                             key={specialty.id}
                             sx={{
-                              fontSize: ".8rem",
+                              fontSize: "small.fontSize",
                               fontWeight: 300,
                               color: "common.black_80",
                               paddingBottom: ".5rem"
@@ -879,7 +882,7 @@ export const OrderDialog = () => {
                     display: "flex",
                     justifyContent: "center",
                     alignItems: "center",
-                    fontSize: ".8rem",
+                    fontSize: "small.fontSize",
                     fontWeight: 700,
                     width: "100%"
                   }}

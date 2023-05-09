@@ -57,7 +57,7 @@ import {
   resetUserInfo
 } from "./slice";
 
-export const genderObj = {
+const genderObj = {
   0: "先生",
   1: "小姐",
   2: ""
@@ -125,7 +125,7 @@ export const PeopleAndTime = () => {
                     <ButtonBase
                       onClick={props.onAccept}
                       sx={{
-                        fontSize: "1rem",
+                        fontSize: "body1.fontSize",
                         bgcolor: "primary.main",
                         padding: ".5rem",
                         borderRadius: ".5rem",
@@ -194,7 +194,7 @@ export const PeopleAndTime = () => {
       </Box>
       <ButtonBase
         onClick={handleOpenBookingSearch}
-        sx={{ textDecoration: "underline", fontWeight: 700, fontSize: "1rem" }}
+        sx={{ textDecoration: "underline", fontWeight: 700, fontSize: "body1.fontSize" }}
       >
         我已經有預約了，查詢預訂資訊
       </ButtonBase>
@@ -301,7 +301,7 @@ export const BookerInfo = () => {
           sx={{ margin: "0" }}
         />
         <ButtonBase
-          sx={{ textDecoration: "underline", fontWeight: 700, fontSize: "1rem" }}
+          sx={{ textDecoration: "underline", fontWeight: 700, fontSize: "body1.fontSize" }}
           onClick={handleOpenPrivayPolicyDialog}
         >
           PointPro 隱私權政策
@@ -322,7 +322,7 @@ export const ConfirmBookingTextField = (props: IConfirmBookingTextFieldProps) =>
   return (
     <TextField
       label={
-        <Box sx={{ display: "flex", alignContent: "center", fontSize: "1.5rem" }}>
+        <Box sx={{ display: "flex", alignContent: "center", fontSize: "h5.fontSize" }}>
           {icon}
           <Box sx={{ marginLeft: ".5rem", color: "common.black" }}>{label}</Box>
         </Box>
@@ -362,11 +362,11 @@ export const ConfirmBookingInfo = (props: IConfirmBookingInfoProps) => {
       >
         <Grid item xs={6} sx={{ padding: "0 1rem" }}>
           <Box sx={{ color: "common.black_60", fontWeight: 500 }}>用餐人數</Box>
-          <Box sx={{ fontSize: "1.5rem", fontWeight: 900, color: "common.black" }}>{adults} 位</Box>
+          <Box sx={{ fontSize: "h5.fontSize", fontWeight: 900, color: "common.black" }}>{adults} 位</Box>
         </Grid>
         <Grid item xs={6} sx={{ padding: "0 1rem", borderLeft: ".1rem solid", borderColor: "common.black_40" }}>
           <Box sx={{ color: "common.black_60", fontWeight: 500 }}>入座時間</Box>
-          <Box sx={{ fontSize: "1.25rem", fontWeight: 900, color: "common.black" }}>
+          <Box sx={{ fontSize: "h6.fontSize", fontWeight: 900, color: "common.black" }}>
             <Box>{dayjs(reservedAt).format("MM月DD日")}</Box>
             <Box>{dayjs(reservedAt).format("HH:mm")}</Box>
           </Box>
@@ -380,13 +380,12 @@ export const ConfirmBookingInfo = (props: IConfirmBookingInfoProps) => {
   );
 };
 
-export const bookingSteps = [
-  { title: "人數及時間", page: () => <PeopleAndTime /> },
-  { title: "訂位人資訊", page: () => <BookerInfo /> },
-  { title: "請確認輸入資訊", page: () => <ConfirmBookingInfo /> }
-];
+interface IBookingStepProps {
+  stepLength: number;
+}
+export const BookingStep = (props: IBookingStepProps) => {
+  const { stepLength } = props;
 
-export const BookingStep = () => {
   const dispatch = useAppDispatch();
 
   const step = useAppSelector(({ customerBooking }) => customerBooking.step);
@@ -395,7 +394,7 @@ export const BookingStep = () => {
   const isAgreedPrivacyPolicy = useAppSelector(({ customerBooking }) => customerBooking.isAgreedPrivacyPolicy);
 
   const isNotFirstStep = step !== 0;
-  const isNotLastStep = step !== bookingSteps.length - 1;
+  const isNotLastStep = step !== stepLength - 1;
 
   const isBookingNextStepBtnDisabled = () => {
     switch (step) {
@@ -426,7 +425,7 @@ export const BookingStep = () => {
   return (
     <MobileStepper
       variant="progress"
-      steps={bookingSteps.length}
+      steps={stepLength}
       activeStep={step}
       backButton={
         <>
@@ -454,7 +453,7 @@ export const BookingStep = () => {
       }
       sx={{
         display: "flex",
-        // flexDirection: "column-reverse",
+        // flexDirection: "column-reverse", // [TODO]: remove?
         gap: "1rem",
         width: "100vw",
         maxWidth: "768px",
@@ -518,6 +517,10 @@ export const PrivacyPolicyModal = () => {
   const dialog = useAppSelector(({ customerBooking }) => customerBooking.dialog);
 
   const handleClose = () => {
+    dispatch(setDialog(""));
+  };
+
+  const handleConfirm = () => {
     dispatch(setAgreedPolicy(true));
     dispatch(setDialog(""));
   };
@@ -533,7 +536,7 @@ export const PrivacyPolicyModal = () => {
       titleSize="h1"
       isOpen={dialog === CustomerBookingDialog.PRIVACY_POLICY}
       onCloseDialog={handleClose}
-      actionButton={<Button onClick={handleClose}>確認同意</Button>}
+      actionButton={<Button onClick={handleConfirm}>確認同意</Button>}
     >
       <Typography variant="h6" color="text.disabled">
         最後更新日期：2023年3月12日
@@ -636,7 +639,7 @@ export const BookingReminderModal = () => {
       title={
         <Box sx={{ display: "flex", justifyContent: "center", alignItems: "center" }}>
           <EventIcon sx={{ width: "1rem", height: "1rem" }} />
-          <Box sx={{ marginLeft: ".5rem", fontSize: "1rem" }}>已為您安排訂位</Box>
+          <Box sx={{ marginLeft: ".5rem", fontSize: "body1.fontSize" }}>已為您安排訂位</Box>
         </Box>
       }
       titleSize="h6"
@@ -687,7 +690,8 @@ export const BookingReminderModal = () => {
           rows={7}
         />
         <Typography color="text.disabled" sx={{ padding: "3rem", textAlign: "center", bgcolor: "common.black_20" }}>
-          Copyright © 2023 PointPro. <br />
+          Copyright © 2023 PointPro.
+          <br />
           All Rights Reserved
         </Typography>
       </Box>
@@ -701,7 +705,7 @@ export const BookingQRCodeModal = () => {
   const dialog = useAppSelector(({ customerBooking }) => customerBooking.dialog);
 
   const handleClose = () => {
-    dispatch(setDialog(""));
+    dispatch(setDialog(CustomerBookingDialog.REMINDER));
   };
 
   return (

@@ -67,8 +67,8 @@ export const getOrders = createAppAsyncThunk(`${name}/getOrders`, async (_, thun
 });
 
 export const postOrder = createAppAsyncThunk(`${name}/postOrder`, async (_, thunkAPI) => {
-  const customerOrderSlice = thunkAPI.getState()[name];
   try {
+    const customerOrderSlice = thunkAPI.getState()[name];
     // [TODO]: handle order request data
   } catch (error) {
     // [TODO]: handle error

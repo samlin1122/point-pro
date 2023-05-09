@@ -14,6 +14,7 @@ const initialState: ICustomerBookingSliceState = {
   choosedDate: dayjs().startOf("day").valueOf(),
   availablePeriod: [],
   bookingParams: {
+    id: "",
     reservedAt: 0,
     user: {
       name: "",
@@ -27,7 +28,7 @@ const initialState: ICustomerBookingSliceState = {
     }
   },
   queryString: "",
-  dialog: "",
+  dialog: CustomerBookingDialog.QRCODE,
   isAgreedPrivacyPolicy: false,
   isLoading: false
 };
@@ -149,7 +150,8 @@ export const customerBookingSlice = createSlice({
         state.isLoading = true;
       })
       .addCase(getBookingRecord.fulfilled, (state, action) => {
-        const { reservedAt, ...rest } = action.payload.bookingRecord;
+        const { id, reservedAt, ...rest } = action.payload.bookingRecord;
+        state.bookingParams.id = id;
         state.bookingParams.reservedAt = reservedAt;
         state.bookingParams.user = rest;
         state.isLoading = false;
