@@ -1,6 +1,6 @@
 // Libs
 import { createSlice, PayloadAction } from "@reduxjs/toolkit";
-import * as dayjs from "dayjs";
+import dayjs from "dayjs";
 
 // Others
 import { createAppAsyncThunk } from "~/app/hook";

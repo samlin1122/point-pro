@@ -33,7 +33,7 @@ const initialState: IAuthState = {
 };
 
 const name = "auth";
-const apiHost = process?.env.API_HOST || "https://point-pro-backend.onrender.com";
+const apiHost = import.meta.env.DEV ? import.meta.env.VITE_API_HOST_DEV : import.meta.env.VITE_API_HOST_PROD;
 
 export const login = createAppAsyncThunk<
   LoginResponse,

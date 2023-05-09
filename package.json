@@ -29,7 +29,6 @@
     "react-redux": "^8.0.5",
     "react-router-dom": "^6.10.0",
     "swiper": "^9.2.4",
-    "use-query-params": "^2.2.1",
     "vite-plugin-svgr": "^3.2.0"
   },
   "devDependencies": {
