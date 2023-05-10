@@ -15,9 +15,9 @@ import {
 } from "@mui/material";
 import Select, { SelectChangeEvent } from "@mui/material/Select";
 import { Base } from "~/components/layout";
-
-import AddIcon from "@mui/icons-material/Add";
 import SwitchBase from "~/components/switch";
+import AddIcon from "@mui/icons-material/Add";
+
 import { RouterProps } from "~/types";
 
 export const MealListContainer: FC<RouterProps> = ({ navigate }) => {

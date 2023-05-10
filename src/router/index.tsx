@@ -3,15 +3,15 @@ import { createBrowserRouter } from "react-router-dom";
 // Components
 import {
   Home,
+  Booking,
   Orders,
   AdminLogin,
   AdminOrders,
   AdminMenu,
   AdminSeat,
   AdminMealList,
-  AdminMealDetail,
-  AdminMealSetting,
-  Booking
+  AdminMealListDetail,
+  AdminMealSettings
 } from "../pages";
 import { ProtectedRoute } from "./protected";
 
@@ -53,15 +53,20 @@ const router = createBrowserRouter([
         children: [
           {
             path: "list",
-            element: <AdminMealList />
-          },
-          {
-            path: "list/:meal_id",
-            element: <AdminMealDetail />
+            children: [
+              {
+                path: "",
+                element: <AdminMealList />
+              },
+              {
+                path: ":meal_id",
+                element: <AdminMealListDetail />
+              }
+            ]
           },
           {
             path: "settings",
-            element: <AdminMealSetting />
+            element: <AdminMealSettings />
           }
         ]
       }

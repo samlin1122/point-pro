@@ -1,5 +1,5 @@
 import { styled } from "@mui/material/styles";
-import { Box, InputAdornment, Stack, Typography } from "@mui/material";
+import { Box, Button, InputAdornment, Stack, Typography } from "@mui/material";
 import { InputText, InputTextarea, InputDate } from "./input";
 import File from "./file";
 import { CheckboxBase } from "./checkbox";
@@ -9,18 +9,6 @@ interface Props {
   length?: Number;
   align?: string;
 }
-
-export const VSpace = styled("div")((props: Props) => ({
-  flexShrink: 0,
-  height: `${props.length}px`,
-  minHeight: `${props.length}px`
-}));
-
-export const HSpace = styled("div")((props: Props) => ({
-  flexShrink: 0,
-  width: `${props.length}px`,
-  minWidth: `${props.length}px`
-}));
 
 export const Row = styled(Box)((props: Props) => ({
   display: "flex",
@@ -71,6 +59,12 @@ export const FieldContainer: React.FC<FieldContainerPropsType> = ({ width = 500,
         return <CheckboxBase {...props} />;
       case "select":
         return <SelectBase list={list} sx={sx} {...props} />;
+      case "button":
+        return (
+          <Button variant="contained" sx={sx} {...props}>
+            {props.text}
+          </Button>
+        );
       default:
         return <InputText sx={sx} />;
     }

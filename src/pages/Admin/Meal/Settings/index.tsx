@@ -4,9 +4,9 @@ import { FC } from "react";
 import MealSettingsContainer from "~/features/admin/meal/settings";
 import withMainLayout from "~/hoc/create-main-layout";
 
-interface MealSettingsProps {}
+import { RouterProps } from "~/types";
 
-const MealSettingsPage: FC<MealSettingsProps> = (props) => {
+const MealSettingsPage: FC<RouterProps> = (props) => {
   return <MealSettingsContainer {...props} />;
 };
 

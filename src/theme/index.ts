@@ -1,14 +1,13 @@
 import { createTheme } from "@mui/material/styles";
-declare module '@mui/material/styles' {
+declare module "@mui/material/styles" {
   interface CommonColors {
-    "black_80": string;
-    "black_60": string;
-    "black_40": string;
-    "black_20": string;
+    black_80: string;
+    black_60: string;
+    black_40: string;
+    black_20: string;
   }
 
-  interface TypographyVariants
-  {
+  interface TypographyVariants {
     display1: React.CSSProperties;
     display2: React.CSSProperties;
     display3: React.CSSProperties;
@@ -17,8 +16,7 @@ declare module '@mui/material/styles' {
   }
 
   // allow configuration using `createTheme`
-  interface TypographyVariantsOptions
-  {
+  interface TypographyVariantsOptions {
     display1?: React.CSSProperties;
     display2?: React.CSSProperties;
     display3?: React.CSSProperties;
@@ -26,9 +24,8 @@ declare module '@mui/material/styles' {
     tiny?: React.CSSProperties;
   }
 }
-declare module '@mui/material/Typography' {
-  interface TypographyPropsVariantOverrides
-  {
+declare module "@mui/material/Typography" {
+  interface TypographyPropsVariantOverrides {
     display1: true;
     display2: true;
     display3: true;
@@ -45,7 +42,7 @@ const theme = createTheme({
       black_80: "#525252",
       black_60: "#919191",
       black_40: "#D1D1D1",
-      black_20: "#F2F2F2",
+      black_20: "#F2F2F2"
     },
     primary: {
       light: "#fadf8d",
@@ -68,13 +65,13 @@ const theme = createTheme({
   },
   typography: {
     fontSize: 16,
-    fontFamily: [ "Noto Sans TC", "Inter", " system-ui", "Avenir", "Helvetica", "Arial", "sans-serif" ].join(","),
+    fontFamily: ["Noto Sans TC", "Inter", " system-ui", "Avenir", "Helvetica", "Arial", "sans-serif"].join(","),
     display1: { fontSize: "10rem" },
     display2: { fontSize: "7.5rem" },
     display3: { fontSize: "5rem" },
     h1: { fontSize: "3rem" },
     h2: { fontSize: "2.5rem", fontWeight: 900, lineHeight: "48px" }, // 40px
-    h3: { fontSize: "2rem" }, // 32px
+    h3: { fontSize: "2rem", fontWeight: 900, lineHeight: "38.4px" }, // 32px
     h4: { fontSize: "1.75rem" },
     h5: { fontSize: "1.5rem" }, // 24px
     h6: { fontSize: "1.25rem" }, // 20px
@@ -90,11 +87,11 @@ const theme = createTheme({
       defaultProps: {
         variantMapping: {
           small: "p",
-          body1: "p",
-        },
-      },
-    },
-  },
+          body1: "p"
+        }
+      }
+    }
+  }
 });
 
 export default theme;

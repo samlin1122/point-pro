@@ -5,7 +5,7 @@ import { Base, FieldContainer } from "~/components/layout";
 
 import { RouterProps } from "~/types";
 
-export const MealDetailContainer: FC<RouterProps> = ({ params }) => {
+export const MealListDetailContainer: FC<RouterProps> = ({ params }) => {
   console.log(params);
   const isCreate = params.meal_id === "create";
 
@@ -72,4 +72,4 @@ export const MealDetailContainer: FC<RouterProps> = ({ params }) => {
   );
 };
 
-export default MealDetailContainer;
+export default MealListDetailContainer;
