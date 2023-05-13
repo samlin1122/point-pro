@@ -6,10 +6,9 @@ export const ProtectedRoute = () => {
 
   const isAuthenticated = useAppSelector(({ auth }) => auth.isAuthenticated);
 
-  // return isAuthenticated && location.pathname !== "/admin" ? (
-  //   <Outlet />
-  // ) : (
-  //   <Navigate to="/admin" state={{ from: location }} replace />
-  // );
-  return <Outlet />;
+  return isAuthenticated && location.pathname !== "/admin" ? (
+    <Outlet />
+  ) : (
+    <Navigate to="/admin" state={{ from: location }} replace />
+  );
 };

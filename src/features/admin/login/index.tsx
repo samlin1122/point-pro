@@ -36,10 +36,9 @@ export const LoginContainer = () => {
   };
 
   useEffect(() => {
-  navigate("/admin/orders");
-    // if (isAuthenticated) {
-    //   navigate("/admin/orders");
-    // }
+    if (isAuthenticated) {
+      navigate("/admin/orders");
+    }
   }, [isAuthenticated]);
 
   return (
