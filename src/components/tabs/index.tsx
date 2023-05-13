@@ -37,7 +37,6 @@ const TabsBase: FC<ITabsProps> = ({ value, tabs, onChange, sx }) => {
           value={value}
           onChange={onChange}
         >
-          <Tab sx={{ display: "none" }} value={0}></Tab>
           {tabs.map((list) => (
             <Tab
               sx={{
@@ -54,6 +53,7 @@ const TabsBase: FC<ITabsProps> = ({ value, tabs, onChange, sx }) => {
               }}
               key={list.id}
               label={list.title}
+              value={list.id}
             />
           ))}
         </Tabs>

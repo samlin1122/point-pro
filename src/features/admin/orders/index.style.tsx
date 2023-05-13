@@ -1,4 +1,4 @@
-import * as React from "react";
+import { FC, useState } from "react";
 import {
   Accordion,
   AccordionSummary,
@@ -7,15 +7,25 @@ import {
   Typography,
   List,
   ListItem,
-  Switch,
   LinearProgress,
   LinearProgressProps,
-  Box
+  Box,
+  linearProgressClasses
 } from "@mui/material";
 import { styled } from "@mui/material/styles";
 
 import AddIcon from "@mui/icons-material/Add";
 import RemoveIcon from "@mui/icons-material/Remove";
+
+import { useAppDispatch, useAppSelector } from "~/app/hook";
+import { Column, Row } from "~/components/layout";
+import Switch from "~/components/switch";
+import TabsBase, { TabPanel } from "~/components/tabs";
+
+import { IOrder, OrderMeal } from "~/types";
+import { OrderStatus } from "~/types/common";
+
+import theme from "~/theme";
 
 const StyledAccordion = styled(Accordion)({
   backgroundColor: "white",
@@ -23,33 +33,28 @@ const StyledAccordion = styled(Accordion)({
   borderRadius: "0 !important"
 });
 
-const Column = styled(Box)({
-  display: "flex",
-  flexDirection: "column",
-  gap: "8px"
-});
-
-const Row = styled(Box)({
-  display: "flex",
-  flexDirection: "row",
-  justifyContent: "space-between",
-  alignItems: "center",
-  padding: "24px",
-  gap: "24px",
-  width: "100%"
-});
-
-const Divider = styled("div")({
+const VerticalDivider = styled("div")(({ theme }) => ({
   height: "32px",
   width: "1px",
-  background: "#F2F2F2"
-});
+  background: theme.palette.common.black_20
+}));
+
+const BorderLinearProgress = styled(LinearProgress)(({ theme }) => ({
+  height: "0.6875rem",
+  borderRadius: "0.5rem",
+  [`&.${linearProgressClasses.colorPrimary}`]: {
+    backgroundColor: theme.palette.common.black_20
+  },
+  [`& .${linearProgressClasses.bar}`]: {
+    borderRadius: "0.5rem"
+  }
+}));
 
 function LinearProgressWithLabel(props: LinearProgressProps & { value: number }) {
   return (
     <Box sx={{ display: "flex", alignItems: "center" }}>
       <Box sx={{ width: "100%", mr: 1 }}>
-        <LinearProgress variant="determinate" {...props} />
+        <BorderLinearProgress variant="determinate" {...props} />
       </Box>
       <Box sx={{ minWidth: 35 }}>
         <Typography variant="body2" color="text.secondary">{`${Math.round(props.value)}%`}</Typography>
@@ -69,12 +74,20 @@ interface IAccordionProps {
   title: string;
   timestamp: string;
   innerContent?: IInnerContentProps[];
+  orderMeals: OrderMeal[];
+  status: OrderStatus;
+  type: string;
+  progress: number;
 }
 
-export const CustomizedAccordions: React.FC<IAccordionProps> = ({ uid, title, timestamp }) => {
-  const [expanded, setExpanded] = React.useState(false);
+export const OrderAccordions: FC<IAccordionProps> = ({ uid, title, timestamp, orderMeals, status, type, progress }) => {
+  const dispatch = useAppDispatch();
+  const [expanded, setExpanded] = useState(false);
   const handleExpand = () => {
     setExpanded(!expanded);
+  };
+  const handleCancelOrder = (id: string) => {
+    console.log("cancel order", id);
   };
   return (
     <Box>
@@ -82,7 +95,7 @@ export const CustomizedAccordions: React.FC<IAccordionProps> = ({ uid, title, ti
         <AccordionSummary
           sx={{
             flexDirection: "row-reverse",
-            borderBottom: expanded ? "1px solid #F2F2F2" : null
+            borderBottom: expanded ? `1px solid ${theme.palette.common.black_20}` : null
           }}
           expandIcon={
             expanded ? (
@@ -129,54 +142,151 @@ export const CustomizedAccordions: React.FC<IAccordionProps> = ({ uid, title, ti
             )
           }
         >
-          <Row>
-            <Divider />
+          <Row
+            sx={{
+              justifyContent: "space-between",
+              padding: "1.5rem",
+              gap: "1.5rem",
+              width: "100%"
+            }}
+          >
+            <VerticalDivider />
             <Typography sx={{ flex: "0 50%" }}>{uid}xxx-xxx-xxx</Typography>
-            <Divider />
-            <Column sx={{ flex: "0 50%" }}>
+            <VerticalDivider />
+            <Column sx={{ flex: "0 50%", gap: "0.5rem" }}>
               <Typography variant="body1" fontWeight={700}>
-                {title}內用
+                {type === "dine-in" ? "內用" : ""}
               </Typography>
               <Typography variant="h6" fontWeight={900}>
                 {title}編號xxx-xxx
               </Typography>
             </Column>
-            <Divider />
-            <Typography sx={{ flex: "0 100%" }}>{timestamp}23/05/26 09:22</Typography>
-            <Divider />
+            <VerticalDivider />
+            <Typography sx={{ flex: "0 100%" }}>{timestamp}</Typography>
+            <VerticalDivider />
             <Box width={"100%"}>
-              <LinearProgressWithLabel value={50} />
+              <LinearProgressWithLabel value={progress} />
             </Box>
           </Row>
         </AccordionSummary>
         <AccordionDetails>
           <List sx={{ marginBottom: "0.75rem" }}>
-            <ListItem sx={{ borderBottom: "1px solid #F2F2F2" }}>
-              <Row>
-                <Typography variant="h5" fontWeight={900}>
-                  {"item.tag"}
-                </Typography>
-                <Typography variant="h5" fontWeight={900}>
-                  {"item.title"}
-                </Typography>
-                <List>
-                  <ListItem>{"listItem"}</ListItem>
-                </List>
-                <Switch />
-              </Row>
-            </ListItem>
+            {orderMeals.map((orderMeal) => (
+              <ListItem key={orderMeal.id} sx={{ borderBottom: `1px solid ${theme.palette.common.black_20}` }}>
+                <Row
+                  justifyContent={"flex-start"}
+                  sx={{ width: "100%", gap: "1.5rem", padding: "0.75rem 0", alignItems: "flex-start" }}
+                >
+                  <Typography variant="h5" fontWeight={900} sx={{ minWidth: "14.625rem" }}>
+                    {orderMeal.categories[0].title}
+                  </Typography>
+                  <Typography variant="h5" fontWeight={900} sx={{ minWidth: "14.625rem" }}>
+                    {orderMeal.mealTitle}
+                  </Typography>
+                  <List sx={{ margin: 0, padding: 0 }}>
+                    {orderMeal.specialties.map((specialty) => (
+                      <ListItem key={specialty.id} sx={{ margin: 0, padding: 0 }}>
+                        {specialty.title}
+                      </ListItem>
+                    ))}
+                  </List>
+                  <Switch checked={orderMeal.isServed} sx={{ marginLeft: "auto" }} />
+                </Row>
+              </ListItem>
+            ))}
           </List>
-          <Box>
-            <Button variant="outlined" sx={{ borderRadius: 0, padding: "0.75rem 1.5rem" }}>
-              <Typography variant="body1" fontWeight={700}>
-                取消訂單
-              </Typography>
-            </Button>
-          </Box>
+          {status === OrderStatus.UNPAID && (
+            <Box>
+              <Button
+                variant="outlined"
+                color="inherit"
+                sx={{ borderRadius: 0, padding: "0.75rem 1.5rem", minWidth: "20.9375rem" }}
+                onClick={() => handleCancelOrder(uid)}
+              >
+                <Typography variant="body1" fontWeight={700}>
+                  取消訂單
+                </Typography>
+              </Button>
+            </Box>
+          )}
         </AccordionDetails>
       </StyledAccordion>
     </Box>
   );
 };
 
-export default CustomizedAccordions;
+const STATUS = [
+  { value: OrderStatus.UNPAID, title: "未付款", id: OrderStatus.UNPAID },
+  { value: OrderStatus.SUCCESS, title: "已付款", id: OrderStatus.SUCCESS },
+  { value: OrderStatus.CANCEL, title: "已取消", id: OrderStatus.CANCEL },
+  { value: OrderStatus.PENDING, title: "準備中", id: OrderStatus.PENDING }
+];
+
+interface IOrderProps {
+  orderStatus: OrderStatus;
+  setOrderStatus: (status: OrderStatus) => void;
+}
+
+export const OrderTabs: FC<IOrderProps> = ({ orderStatus, setOrderStatus }) => {
+  const handleSelected = (orderStatus: OrderStatus) => {
+    setOrderStatus(orderStatus);
+  };
+
+  return (
+    <TabsBase
+      sx={{ position: "sticky", top: "0", zIndex: "10", backgroundColor: theme.palette.background.paper }}
+      tabs={STATUS}
+      onChange={(_, value) => handleSelected(value as OrderStatus)}
+      value={orderStatus}
+    />
+  );
+};
+
+export const OrderList: FC<IOrderProps> = ({ orderStatus, setOrderStatus }) => {
+  const orders = useAppSelector(({ customerOrder }) => customerOrder.orders);
+
+  const showOrders = orders.filter(({ paymentLogs }) => paymentLogs[0].status === orderStatus);
+
+  console.log("orderStatus", orderStatus);
+  console.log("showOrders", showOrders);
+
+  const calculateServedPercentage = (order: IOrder) => {
+    const totalMeals = order.orderMeals.length;
+    const servedMeals = order.orderMeals.filter((meal) => meal.isServed).length;
+
+    return (servedMeals / totalMeals) * 100;
+  };
+
+  return (
+    <>
+      {showOrders.length === 0 ? (
+        <Column justifyContent={"center"} bgcolor={"background.paper"} height={"calc(92ch - 88px)"}>
+          <Typography component={"h2"} variant="h1" textAlign={"center"}>
+            無此分類訂單
+          </Typography>
+        </Column>
+      ) : (
+        STATUS.map(({ id }, idx) => (
+          <Box key={id} bgcolor={"background.paper"}>
+            <TabPanel value={idx} index={idx}>
+              <Box sx={{ display: "flex", flexDirection: "column", gap: "0.75rem", height: "100ch" }}>
+                {showOrders.map((order, idx) => (
+                  <OrderAccordions
+                    key={`${order.id}-${idx}`}
+                    uid={order.id}
+                    title={order.id}
+                    orderMeals={order.orderMeals}
+                    timestamp={new Date(order.updatedAt).toLocaleString()}
+                    status={order.status}
+                    type={order.type}
+                    progress={calculateServedPercentage(order)}
+                  />
+                ))}
+              </Box>
+            </TabPanel>
+          </Box>
+        ))
+      )}
+    </>
+  );
+};

@@ -174,6 +174,16 @@ export const customerOrderSlice = createSlice({
     deleteCartItem: (state, action: PayloadAction<number>) => {
       state.cart.splice(action.payload, 1);
     },
+    clearCart: (state) => {
+      state.cart = [];
+      state.modifiedCartItemIndex = 0;
+      state.isModifiedCartItem = false;
+      state.currentMealId = "";
+      state.currentMealAmount = 1;
+      state.currentSpecialty = [];
+      state.currentDialog = "";
+      state.currentModal = "";
+    },
     increaseCartItemAmount: (state, action: PayloadAction<number>) => {
       const theCartItem = state.cart.find((cartItem, idx) => idx === action.payload) as ICartItem;
       if (theCartItem.amount < 5) theCartItem.amount++;
@@ -247,6 +257,7 @@ export const {
   viewCartItemCustomized,
   updateCartItem,
   deleteCartItem,
+  clearCart,
   increaseCartItemAmount,
   decreaseCartItemAmount,
   openModal,

@@ -2,7 +2,7 @@ import { IMenuCategory } from "../../types";
 import { ChangeEvent, CSSProperties, ReactNode } from "react";
 
 interface ITabsProps {
-  value: string;
+  value: number | string;
   tabs: IMenuCategory[];
   onChange: (event: ChangeEvent<{}>, newValue: string) => void;
   sx?: CSSProperties;
@@ -11,7 +11,8 @@ interface ITabsProps {
 interface ITabsItemProps {
   children: ReactNode;
   index: number;
-  value: number;
+  value: number | string;
+  sx?: CSSProperties;
 }
 
 export { ITabsProps, ITabsItemProps };
