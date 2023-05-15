@@ -1,7 +1,6 @@
 // Libs
 import { Fragment, SyntheticEvent, useCallback, useEffect, useMemo, useState } from "react";
 import { useLocation } from "react-router-dom";
-import * as dayjs from "dayjs";
 import {
   BottomNavigation,
   BottomNavigationAction,
@@ -39,6 +38,7 @@ import { MobileDialogLayout } from "~/components/dialog";
 import { ModalBase } from "~/components/modals";
 import { CheckboxBase } from "~/components/checkbox";
 // Others
+import appDayjs from "~/utils/dayjs.util";
 import { useAppDispatch, useAppSelector } from "~/app/hook";
 import {
   openDialog,
@@ -819,7 +819,7 @@ export const OrderDialog = () => {
                 <Box sx={{ width: "100%", borderBottom: "1px solid common.black_60" }}>
                   <Box sx={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
                     <Box sx={{ fontWeight: 700 }}>{order.type === "dine-in" ? "內用訂單" : "外帶訂單"}</Box>
-                    <Box>{`${dayjs(order.createdAt).format("YYYY/MM/DD HH:mm")}`}</Box>
+                    <Box>{`${appDayjs(order.createdAt).format("YYYY/MM/DD HH:mm")}`}</Box>
                   </Box>
                   <Box
                     sx={{

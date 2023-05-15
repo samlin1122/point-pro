@@ -1,6 +1,5 @@
 // Libs
 import React from "react";
-import * as dayjs from "dayjs";
 import {
   Box,
   Button,
@@ -38,6 +37,7 @@ import { CustomerBookingDialog } from "~/types/common";
 import { MobileButton, MobileDialogLayout } from "~/components/dialog";
 import { CheckboxBase } from "~/components/checkbox";
 // Others
+import appDayjs from "~/utils/dayjs.util";
 import { useAppDispatch, useAppSelector } from "~/app/hook";
 import {
   setStep,
@@ -94,8 +94,8 @@ export const PeopleAndTime = () => {
     dispatch(setAdultsAmount(+e.target.value));
   };
 
-  const handleChangeBookingDate = (value: dayjs.Dayjs | null) => {
-    dispatch(setDate(value?.startOf("day").valueOf() ?? dayjs().startOf("day").valueOf()));
+  const handleChangeBookingDate = (value: appDayjs.Dayjs | null) => {
+    dispatch(setDate(value?.startOf("day").valueOf() ?? appDayjs().startOf("day").valueOf()));
   };
 
   const handleChangeReservedPeriod = (e: SelectChangeEvent<`${number}`>) => {
@@ -111,14 +111,14 @@ export const PeopleAndTime = () => {
         <Box>
           <LocalizationProvider dateAdapter={AdapterDayjs}>
             <DatePicker
-              value={dayjs(choosedDate)}
+              value={appDayjs(choosedDate)}
               sx={{ width: "95%" }}
               format="MM月DD日 (星期dd)"
               onChange={handleChangeBookingDate}
               views={["day"]}
               disablePast
-              maxDate={dayjs().add(30, "day")}
-              shouldDisableDate={(day) => !availableDate.includes(dayjs(day).valueOf())}
+              maxDate={appDayjs().add(30, "day")}
+              shouldDisableDate={(day) => !availableDate.includes(appDayjs(day).valueOf())}
               slots={{
                 actionBar: (props: PickersActionBarProps) => (
                   <DialogActions className={props.className} sx={{ padding: ".5rem" }}>
@@ -159,7 +159,7 @@ export const PeopleAndTime = () => {
               {!reservedAt && <MenuItem value="0"></MenuItem>}
               {availablePeriod.map((option) => (
                 <MenuItem value={`${option.startedAt}`} key={option.startedAt}>
-                  {dayjs(option.startedAt).format("HH:mm")}
+                  {appDayjs(option.startedAt).format("HH:mm")}
                 </MenuItem>
               ))}
             </Select>
@@ -367,8 +367,8 @@ export const ConfirmBookingInfo = (props: IConfirmBookingInfoProps) => {
         <Grid item xs={6} sx={{ padding: "0 1rem", borderLeft: ".1rem solid", borderColor: "common.black_40" }}>
           <Box sx={{ color: "common.black_60", fontWeight: 500 }}>入座時間</Box>
           <Box sx={{ fontSize: "h6.fontSize", fontWeight: 900, color: "common.black" }}>
-            <Box>{dayjs(reservedAt).format("MM月DD日")}</Box>
-            <Box>{dayjs(reservedAt).format("HH:mm")}</Box>
+            <Box>{appDayjs(reservedAt).format("MM月DD日")}</Box>
+            <Box>{appDayjs(reservedAt).format("HH:mm")}</Box>
           </Box>
         </Grid>
       </Grid>

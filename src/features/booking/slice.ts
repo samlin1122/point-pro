@@ -1,8 +1,8 @@
 // Libs
 import { createSlice, PayloadAction } from "@reduxjs/toolkit";
-import dayjs from "dayjs";
 
 // Others
+import appDayjs from "~/utils/dayjs.util";
 import { createAppAsyncThunk } from "~/app/hook";
 import { IAvailableBooking, IBookingInfo, ICustomerBookingSliceState } from "~/types";
 import { BookingType, CustomerBookingDialog, Gender } from "~/types/common";
@@ -11,7 +11,7 @@ const name = "customerBooking";
 const initialState: ICustomerBookingSliceState = {
   step: 0,
   availableBookings: [],
-  choosedDate: dayjs().startOf("day").valueOf(),
+  choosedDate: appDayjs().startOf("day").valueOf(),
   availablePeriod: [],
   bookingParams: {
     id: "",
