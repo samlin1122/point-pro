@@ -55,3 +55,9 @@ export const enum MemberRole {
   MERCHANT = "MERCHANT",
   CUSTOMER = "CUSTOMER"
 }
+
+export const enum SeatStatus {
+  AVAILABLE = "AVAILABLE",
+  BOOKED = "BOOKED",
+  INUSE = "INUSE"
+}

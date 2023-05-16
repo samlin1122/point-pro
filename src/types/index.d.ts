@@ -8,7 +8,8 @@ import {
   OrderStatus,
   OrderType,
   PaymentGateway,
-  SpecialtyType
+  SpecialtyType,
+  SeatStatus
 } from "./common";
 
 export type IBasicKey = Record<"id" | "title", string>;
@@ -146,3 +147,22 @@ export interface RouterProps {
   navigate: NavigateFunction;
   params: Params;
 }
+
+export type SeatReservationInfo = {
+  seatNo: string;
+  status: SeatStatus;
+  details: ReservationInfo[];
+};
+
+export type ReservationInfo = {
+  reservationTime: Date;
+  id: string;
+  seats: string[];
+  options: { [key: string]: any };
+};
+
+type Seat = {
+  seatNo: string;
+  currentStatus: SeatStatus;
+  reservations: ReservationInfo[];
+};

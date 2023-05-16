@@ -4,19 +4,20 @@ import { Button, IconButton, Stack, Typography } from "@mui/material";
 import CloseIcon from "@mui/icons-material/Close";
 import Drawer from "@mui/material/Drawer";
 
-interface DrawerBaseProps {
+export type DrawerBaseButtonType = {
+  label: string;
+  onClick: (data: string) => void;
+};
+
+export type DrawerBaseProps = {
   title: string;
   open: boolean;
   onClose: () => void;
   children: ReactNode;
-  buttonList: () => DrawerBaseButtonType[];
-}
-interface DrawerBaseButtonType {
-  label: string;
-  onClick: (data: string) => void;
-}
+  buttonList: DrawerBaseButtonType[];
+};
 
-const DrawerBase: FC<DrawerBaseProps> = ({ title, open, onClose, children, buttonList }) => {
+export const DrawerBase: FC<DrawerBaseProps> = ({ title, open, onClose, children, buttonList }) => {
   return (
     <Drawer
       anchor="right"
@@ -47,7 +48,7 @@ const DrawerBase: FC<DrawerBaseProps> = ({ title, open, onClose, children, butto
         sx={{ py: 2, px: 3, borderTop: (theme) => `1px solid ${theme.palette.divider}` }}
         spacing={2}
       >
-        {buttonList().map((btn, key) => (
+        {buttonList?.map((btn, key) => (
           <Button
             key={`drawer-button-${btn.label}`}
             fullWidth
@@ -64,4 +65,4 @@ const DrawerBase: FC<DrawerBaseProps> = ({ title, open, onClose, children, butto
   );
 };
 
-export default DrawerBase;
+// export default DrawerBase;
