@@ -645,7 +645,7 @@ export const CartList: FC = () => {
           </Typography>
         )}
       </Column>
-      <DrawerBase title="結帳" open={openPayment} onClose={handleCloseDrawer} buttonList={paymentBtn}>
+      <DrawerBase title="結帳" open={openPayment} onClose={handleCloseDrawer} buttonList={paymentBtn()}>
         <Column p={3}>
           <Row justifyContent={"space-between"}>
             <Typography component="h3" variant="body1" fontWeight={700}>

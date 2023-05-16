@@ -74,7 +74,7 @@ export const MealSettingsContainer: FC<RouterProps> = ({ navigate }) => {
     setOpen(false);
   };
 
-  const buttonList = () => {
+  const getButtonList = () => {
     return isCreate
       ? [{ label: "新增", onClick: (data: string) => handleButtonClick("create", data) }]
       : [
@@ -144,7 +144,7 @@ export const MealSettingsContainer: FC<RouterProps> = ({ navigate }) => {
         title={isCreate ? "新增客製化選項" : "編輯客製化選項"}
         open={open}
         onClose={handleCloseDrawer}
-        buttonList={buttonList}
+        buttonList={getButtonList()}
       >
         <CustomOptionDetail />
       </DrawerBase>

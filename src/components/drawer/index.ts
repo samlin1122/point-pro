@@ -1,1 +1,1 @@
-export { default as DrawerBase } from "./drawer-base";
+export { DrawerBase } from "./drawer-base";
