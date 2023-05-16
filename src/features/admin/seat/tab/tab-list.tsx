@@ -267,7 +267,7 @@ const columns: GridColDef[] = [
 
 interface ISeatTableProps {}
 
-const TableView = (props: ISeatTableProps) => {
+const TabList = (props: ISeatTableProps) => {
   return (
     <Box
       sx={{
@@ -301,4 +301,4 @@ const TableView = (props: ISeatTableProps) => {
   );
 };
 
-export default TableView;
+export default TabList;

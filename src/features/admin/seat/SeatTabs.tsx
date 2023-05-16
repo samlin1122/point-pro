@@ -12,7 +12,7 @@ const TABLE_VIEW = "TABLE_VIEW";
 
 const tabs = [
   { value: SEAT_VIEW, title: "座位表", id: SEAT_VIEW },
-  { value: GANTT_VIEW, title: "甘特圖", id: GANTT_VIEW },
+  // { value: GANTT_VIEW, title: "甘特圖", id: GANTT_VIEW },
   { value: TABLE_VIEW, title: "列表", id: TABLE_VIEW }
 ];
 

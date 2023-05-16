@@ -122,7 +122,7 @@ export const MealList: FC<IMealsProps> = () => {
 
   return (
     <>
-      <Box ref={contentRef} sx={{ overflowY: "scroll", height: "calc(100vh - 88px - 55px)" }}>
+      <Box ref={contentRef} sx={{ p: 3, overflowY: "scroll", height: "calc(100vh - 88px - 55px)" }}>
         {combinedMenu.map(
           (category, idx) =>
             category.id === currentCategory && (

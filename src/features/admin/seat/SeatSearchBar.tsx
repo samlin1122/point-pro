@@ -23,7 +23,16 @@ const SeatSearchBar = (props: ISeatSearchBarProps) => {
   };
 
   return (
-    <Box sx={{ display: "flex", width: "100%", gap: "1rem", height: "4.5rem", padding: "1rem" }}>
+    <Box
+      sx={{
+        display: "flex",
+        width: "100%",
+        gap: "1rem",
+        height: "4.5rem",
+        padding: "1rem",
+        borderBottom: (theme) => `1px solid ${theme.palette.divider}`
+      }}
+    >
       <ButtonBase sx={{ border: "1px solid", borderColor: "common.black_40", color: "common.black", fontWeight: 900 }}>
         現在
       </ButtonBase>
@@ -53,7 +62,7 @@ const SeatSearchBar = (props: ISeatSearchBarProps) => {
           }
         />
       </Box>
-      {view === 2 && (
+      {view === 1 && (
         <Box
           sx={{
             flexGrow: 1,
