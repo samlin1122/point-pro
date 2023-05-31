@@ -1,6 +1,6 @@
 // Libs
 import { Fragment, SyntheticEvent, useCallback, useEffect, useMemo, useState } from "react";
-import { useLocation } from "react-router-dom";
+import { useLocation, useSearchParams } from "react-router-dom";
 import {
   BottomNavigation,
   BottomNavigationAction,
@@ -56,12 +56,18 @@ import {
   increaseCartItemAmount,
   decreaseCartItemAmount,
   openModal,
-  closeModal
+  closeModal,
+  postOrder,
+  SpecialtyItem,
+  Specialty,
+  Meal,
+  CartItem
 } from "./slice";
 import usePrevious from "~/hooks/usePrevious";
 import linePay from "~/assets/images/line-pay.png";
-import { ICartItem, IOrder, IPaymentLog, ISpecialty, ISpecialtyOption } from "~/types";
-import { CustomerOrderDialog, MobileModal, OrderStatus } from "~/types/common";
+import { IOrder } from "~/types";
+import { CustomerOrderDialog, MobileModal, OrderStatus, OrderType } from "~/types/common";
+import { useDispatch } from "react-redux";
 
 export const Header = () => {
   const { pathname } = useLocation();
@@ -94,9 +100,20 @@ export const Header = () => {
 };
 
 export const SeatInfo = () => {
+  const dispatch = useDispatch();
+  const [searchParams] = useSearchParams();
+  const reservationLogId = searchParams.get("reservationLogId");
+
+  useEffect(() => {
+    if (reservationLogId) {
+      // [TODO] get reservation info
+      // dispatch();
+    }
+  }, [reservationLogId]);
+
   return (
     <>
-      {true && (
+      {reservationLogId && (
         <Box sx={{ padding: "0 0 1rem" }}>
           <Typography variant="h3" fontWeight={900} sx={{ paddingBottom: "1rem" }}>
             內用資訊
@@ -213,7 +230,8 @@ export const CategoryNavbar = () => {
           sx={{
             display: isShowDropdown ? "block" : "none",
             maxHeight: "60vh",
-            border: "1px solid common.black_20",
+            border: "1px solid",
+            borderColor: "common.black_40",
             position: "absolute",
             overflowY: "scroll",
             zIndex: 2,
@@ -222,10 +240,10 @@ export const CategoryNavbar = () => {
           }}
         >
           <List>
-            {categories.map((category) => (
-              <Fragment key={category.id}>
-                <ListItemButton onClick={() => handleClickCategory(category.id)} sx={{ padding: "1rem" }}>
-                  {category.title}
+            {categories.map(({ id, title }) => (
+              <Fragment key={id}>
+                <ListItemButton onClick={() => handleClickCategory(id)} sx={{ padding: "1rem" }}>
+                  {title}
                 </ListItemButton>
                 <Divider light />
               </Fragment>
@@ -243,7 +261,7 @@ const stickyTopOffset = 128;
 export const Meals = () => {
   const dispatch = useAppDispatch();
 
-  const combinedMenu = useAppSelector(({ customerOrder }) => customerOrder.combinedMenu);
+  const menu = useAppSelector(({ customerOrder }) => customerOrder.menu);
   const currentCategory = useAppSelector(({ customerOrder }) => customerOrder.currentCategory);
   const cart = useAppSelector(({ customerOrder }) => customerOrder.cart);
 
@@ -271,7 +289,7 @@ export const Meals = () => {
   return (
     <Box sx={{ padding: "0 .2rem 5rem" }}>
       <List sx={{ width: "100%", zIndex: 0, "& ul": { padding: 0 } }} subheader={<li />} id="meal-list">
-        {combinedMenu.map((category) => (
+        {menu.map((category) => (
           <li key={category.id}>
             <ul>
               <ListSubheader sx={{ padding: ".5rem 0", color: "common.black", top: stickyTopOffset }}>
@@ -280,7 +298,7 @@ export const Meals = () => {
                 </Typography>
               </ListSubheader>
               <Divider light id={category.id} />
-              {category.allMeals.map((meal, idx) => (
+              {category.meals.map((meal, idx) => (
                 <Box key={`${meal.id}-${idx}`}>
                   <ListItem sx={{ padding: ".5rem" }}>
                     <ListItemButton sx={{ padding: "0" }} onClick={handleSelectedMeal(meal.id)}>
@@ -288,11 +306,11 @@ export const Meals = () => {
                         <Grid item sx={{ position: "relative" }}>
                           <Box
                             component="img"
-                            src={meal.coverUrl}
+                            src={meal.coverUrl.split(".jpeg")[0] + "b" + ".jpeg"}
                             alt={`${meal.title}-img`}
                             sx={{ width: "5rem", verticalAlign: "middle" }}
                           />
-                          {meal.recommended && (
+                          {meal?.recommended && (
                             <Box
                               sx={{
                                 position: "absolute",
@@ -381,7 +399,7 @@ export const Footer = () => {
 
   const cartAmount = useMemo(() => cart.reduce((acc, item) => (acc += item.amount), 0), [cart]);
   const unPaidOrderAmount = useMemo(
-    () => orders.filter(({ paymentLogs }) => paymentLogs[0].status === "UNPAID").length,
+    () => orders.filter(({ status }) => status === OrderStatus.UNPAID || status === OrderStatus.PENDING).length,
     [orders]
   );
 
@@ -446,13 +464,15 @@ export const InputNumber = (props: IInputNumberProps) => {
   const handleStopPropagation = (e: SyntheticEvent<Element, Event>) => {
     e.stopPropagation();
   };
+
   return (
     <Box
       sx={{
         display: "flex",
         justifyContent: "space-between",
         alignItems: "center",
-        border: "1px solid common.black_20",
+        border: "1px solid ",
+        borderColor: "common.black_40",
         borderRadius: ".5rem",
         bgcolor: "common.white"
       }}
@@ -467,6 +487,7 @@ export const InputNumber = (props: IInputNumberProps) => {
             padding: ".5rem"
           }
         }}
+        disableRipple
         onClick={() => onMinus()}
       >
         <RemoveIcon />
@@ -483,6 +504,7 @@ export const InputNumber = (props: IInputNumberProps) => {
             padding: ".5rem"
           }
         }}
+        disableRipple
         onClick={() => onAdd()}
       >
         <AddIcon />
@@ -501,14 +523,14 @@ export const CustomizedDialog = () => {
   const currentSpecialty = useAppSelector(({ customerOrder }) => customerOrder.currentSpecialty);
   const isModifiedCartItem = useAppSelector(({ customerOrder }) => customerOrder.isModifiedCartItem);
 
-  const currentMeal = meals.find((meal) => meal.id === currentMealId);
-  const specialtyItems = currentSpecialty.reduce((acc, cur) => acc.concat(cur.items), [] as ISpecialtyOption[]);
+  const currentMeal = meals.find((meal) => meal.id === currentMealId) ?? { title: "", price: 0, specialties: [] };
+  const specialtyItems = currentSpecialty.reduce((acc, cur) => acc.concat(cur.specialtyItems), [] as SpecialtyItem[]);
 
   const handleClose = () => {
     dispatch(closeCustomizeDialog());
   };
 
-  const handleClickItem = (selectedSpecialty: ISpecialty, selectedItem: ISpecialtyOption) => () => {
+  const handleClickItem = (selectedSpecialty: Specialty, selectedItem: SpecialtyItem) => () => {
     dispatch(updateSpecialty({ selectedSpecialty, selectedItem }));
   };
 
@@ -538,7 +560,7 @@ export const CustomizedDialog = () => {
           <Box sx={{ display: "flex", justifyContent: "space-between", alignItems: "center", width: "100%" }}>
             <InputNumber value={currentMealAmount} onAdd={handleAdd} onMinus={handleMinus} />
             <Typography variant="h5" fontWeight={900}>
-              ${currentMealAmount * (currentMeal?.price ?? 0)}
+              ${currentMealAmount * currentMeal?.price}
             </Typography>
           </Box>
           {isModifiedCartItem ? (
@@ -549,7 +571,7 @@ export const CustomizedDialog = () => {
         </>
       }
     >
-      {currentMeal?.specialties.length ? (
+      {currentMeal.specialties.length ? (
         <List subheader={<li />} sx={{ "& ul": { padding: 0 } }}>
           {currentMeal?.specialties.map((specialty) => (
             <li key={specialty.id}>
@@ -559,7 +581,7 @@ export const CustomizedDialog = () => {
                     {specialty.title}
                   </Typography>
                 </ListSubheader>
-                {specialty.items.map((item) => (
+                {specialty.specialtyItems.map((item) => (
                   <Fragment key={item.id}>
                     <ListItemButton onClick={handleClickItem(specialty, item)}>
                       <Box sx={{ display: "flex", justifyContent: "space-between", width: "100%" }}>
@@ -593,7 +615,7 @@ export const CartDialog = () => {
     dispatch(closeDialog());
   };
 
-  const handleCustomized = (cartItem: ICartItem, idx: number) => () => {
+  const handleCustomized = (cartItem: CartItem, idx: number) => () => {
     dispatch(viewCartItemCustomized({ cartItem, idx }));
   };
 
@@ -612,7 +634,7 @@ export const CartDialog = () => {
 
   const handleSubmitOrders = () => {
     // [TODO]: api post new order
-    console.log("handleSubmitOrders");
+    dispatch(postOrder());
   };
 
   return (
@@ -644,8 +666,12 @@ export const CartDialog = () => {
               <Fragment key={`${cartItem.id}-${idx}`}>
                 <ListItemButton onClick={handleCustomized(cartItem, idx)} sx={{ padding: ".5rem" }}>
                   <Box sx={{ width: "100%" }}>
-                    <Grid container gap={1} sx={{ justifyContent: "space-between", marginBottom: "1rem" }}>
-                      <Grid item sx={{ position: "relative" }}>
+                    <Grid
+                      container
+                      gap={1}
+                      sx={{ justifyContent: "space-between", marginBottom: "1rem", alignItems: "center" }}
+                    >
+                      <Grid item sx={{ position: "relative" }} xs={2}>
                         <Box
                           component="img"
                           src={cartItem.coverUrl}
@@ -667,20 +693,20 @@ export const CartDialog = () => {
                           </Box>
                         )}
                       </Grid>
-                      <Grid item sx={{ flexGrow: 1 }}>
+                      <Grid item xs={7}>
                         <Typography fontWeight={700}>{cartItem.title}</Typography>
                         {cartItem.specialties.map((specialty, idx) => (
                           <Box
                             sx={{ color: "common.black_80", fontSize: "small.fontSize" }}
                             key={`${specialty.id}-${idx}`}
                           >
-                            {specialty.type === "single"
-                              ? specialty.items[0]?.title ?? ""
-                              : specialty.items.map((item) => item.title).join("、")}
+                            {specialty.type === "SINGLE"
+                              ? specialty.specialtyItems[0]?.title ?? ""
+                              : specialty.specialtyItems.map((i) => i.title).join("、")}
                           </Box>
                         ))}
                       </Grid>
-                      <Grid item>
+                      <Grid item xs={1}>
                         <DeleteIcon onClick={handleDeleteCartItem(idx)} sx={{ height: "100%" }} />
                       </Grid>
                     </Grid>
@@ -716,24 +742,41 @@ export const CartDialog = () => {
   );
 };
 
-const STATUS = [
-  { value: OrderStatus.UNPAID, title: "未付款" },
-  { value: OrderStatus.SUCCESS, title: "已付款" }
+const STATUS = {
+  PENDING: "準備中",
+  UNPAID: "已完成",
+  SUCCESS: "已付款",
+  CANCEL: "已取消"
+};
+
+const STATUS_TAB = [
+  { value: 0, type: ["PENDING", "UNPAID"], title: "未付款" },
+  { value: 1, type: ["SUCCESS"], title: "已付款" },
+  { value: 2, type: ["CANCEL"], title: "已取消" }
 ];
+
 export const OrderDialog = () => {
   const dispatch = useAppDispatch();
-  const [orderStatus, setOrderStatus] = useState(STATUS[0].value);
-  const [toggleList, setToggleList] = useState<IOrder["id"][]>([]);
   const currentDialog = useAppSelector(({ customerOrder }) => customerOrder.currentDialog);
   const orders = useAppSelector(({ customerOrder }) => customerOrder.orders);
 
-  const showOrders = orders.filter(({ paymentLogs }) => paymentLogs[0].status === orderStatus);
+  const [orderStatus, setOrderStatus] = useState(0);
+  const [toggleList, setToggleList] = useState<IOrder["id"][]>([]);
+
+  useEffect(() => {
+    const newOrder = orders[0];
+    if (newOrder) {
+      setToggleList((prevToggleList) => [...prevToggleList, newOrder.id]);
+    }
+  }, [orders]);
+
+  const showOrders = orders.filter(({ status }) => STATUS_TAB[orderStatus].type.includes(status));
 
   const handleClose = () => {
     dispatch(closeDialog());
   };
 
-  const handleClickOrderStatus = (orderStatus: IPaymentLog["status"]) => {
+  const handleClickOrderStatus = (orderStatus: number) => {
     setOrderStatus(orderStatus);
   };
 
@@ -751,6 +794,11 @@ export const OrderDialog = () => {
     dispatch(openModal(MobileModal.PAYMENT));
   };
 
+  const totalPrice = useMemo(
+    () => showOrders.reduce((acc, cur) => acc + cur.orderMeals.reduce((acc, cur) => acc + cur.price, 0), 0),
+    [showOrders]
+  );
+
   return (
     <MobileDialogLayout
       title="訂單"
@@ -764,14 +812,10 @@ export const OrderDialog = () => {
               總計
             </Typography>
             <Typography variant="h6" fontWeight={900}>
-              ${showOrders.reduce((acc, order) => acc + order.paymentLogs[0].price, 0)}
+              ${totalPrice}
             </Typography>
           </Box>
-          {orderStatus === "UNPAID" && (
-            <Button onClick={handleCheckout} disabled={showOrders.length === 0}>
-              前往結帳
-            </Button>
-          )}
+          {orderStatus === 0 && showOrders.length > 0 && <Button onClick={handleCheckout}>前往結帳</Button>}
         </>
       }
     >
@@ -788,7 +832,7 @@ export const OrderDialog = () => {
           marginBottom: "10px"
         }}
       >
-        {STATUS.map((status, idx) => (
+        {STATUS_TAB.map((status, idx) => (
           <StyledTab key={`${status.value}-${idx}`} value={status.value} label={status.title} />
         ))}
       </Tabs>
@@ -804,21 +848,24 @@ export const OrderDialog = () => {
       >
         {showOrders.length > 0 ? (
           <List>
-            {showOrders.map((order) => (
+            {showOrders.map((order, idx) => (
               <ListItem
-                key={order.id}
+                key={`${order.id}-${idx}`}
                 sx={{
                   bgcolor: "common.white",
                   display: "flex",
                   flexDirection: "column",
                   padding: ".5rem",
                   borderRadius: ".5rem",
-                  marginBottom: "1rem"
+                  marginBottom: "1rem",
+                  border: "1px solid",
+                  borderColor: "common.black_40"
                 }}
+                onClick={handleToggleListItem(order.id)}
               >
                 <Box sx={{ width: "100%", borderBottom: "1px solid common.black_60" }}>
                   <Box sx={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
-                    <Box sx={{ fontWeight: 700 }}>{order.type === "dine-in" ? "內用訂單" : "外帶訂單"}</Box>
+                    <Box sx={{ fontWeight: 700 }}>{order.type === OrderType.DineIn ? "內用訂單" : "外帶訂單"}</Box>
                     <Box>{`${appDayjs(order.createdAt).format("YYYY/MM/DD HH:mm")}`}</Box>
                   </Box>
                   <Box
@@ -835,24 +882,20 @@ export const OrderDialog = () => {
                         狀態：
                       </Box>
                       <Box component="span" sx={{ fontWeight: 900 }}>
-                        {order.status === "SUCCESS" ? "已完成" : "準備中"}
+                        {STATUS[order.status]}
                       </Box>
                     </Box>
-                    <Box sx={{ fontWeight: 900 }}>${order.paymentLogs[0].price}</Box>
+                    <Box sx={{ fontWeight: 900 }}>${order.orderMeals.reduce((acc, cur) => acc + cur.price, 0)}</Box>
                   </Box>
                 </Box>
                 <Box sx={{ width: "100%", display: toggleList.includes(order.id) ? "block" : "none" }}>
                   {order.orderMeals.map((meal) => (
-                    <Grid
-                      container
-                      key={meal.id}
-                      sx={{ borderBottom: "1px solid common.black_60", fontWeight: 700, padding: ".5rem 0" }}
-                    >
-                      <Grid item xs={2}>
-                        <Checkbox checked={meal.isServed} sx={{ padding: 0 }} />
+                    <Grid container key={meal.id} sx={{ borderBottom: "1px solid common.black_60", fontWeight: 700 }}>
+                      <Grid item xs={1.5}>
+                        <Checkbox checked={meal.amount === meal.servedAmount} sx={{ padding: 0 }} />
                       </Grid>
-                      <Grid item sx={{ flexGrow: 1 }}>
-                        <Box>{meal.mealTitle}</Box>
+                      <Grid item sx={{ flexGrow: 1 }} xs={7.5}>
+                        <Box sx={{ paddingBottom: ".5rem" }}>{meal.title}</Box>
                         {meal.specialties.map((specialty) => (
                           <Box
                             key={specialty.id}
@@ -863,21 +906,22 @@ export const OrderDialog = () => {
                               paddingBottom: ".5rem"
                             }}
                           >
-                            {specialty.items.map((item) => item.title).join(", ")}
+                            {specialty.title}:
+                            <br />
+                            {specialty.specialtyItems.map((i) => i.title).join(", ")}
                           </Box>
                         ))}
                       </Grid>
                       <Grid item xs={1.5}>
                         <Box>x{meal.amount}</Box>
                       </Grid>
-                      <Grid item sx={{ textAlign: "right" }}>
-                        <Box>${meal.price}</Box>
+                      <Grid item sx={{ textAlign: "right" }} xs={1.5}>
+                        <Box>${meal.price / meal.amount}</Box>
                       </Grid>
                     </Grid>
                   ))}
                 </Box>
-                <ListItemButton
-                  onClick={handleToggleListItem(order.id)}
+                <Box
                   sx={{
                     display: "flex",
                     justifyContent: "center",
@@ -898,7 +942,7 @@ export const OrderDialog = () => {
                       <ExpandMoreIcon fontSize="small" />
                     </>
                   )}
-                </ListItemButton>
+                </Box>
               </ListItem>
             ))}
           </List>

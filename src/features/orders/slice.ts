@@ -3,22 +3,105 @@ import { PayloadAction, createSlice } from "@reduxjs/toolkit";
 
 // Others
 import { createAppAsyncThunk } from "~/app/hook";
-import {
-  ICartItem,
-  ICustomerOrderSliceState,
-  IMeal,
-  IMenuCategory,
-  IOrder,
-  ISpecialty,
-  ISpecialtyOption
-} from "~/types";
-import { CustomerOrderDialog, MobileModal } from "~/types/common";
+import { OrderType } from "~/types/common";
+import { CustomerOrderDialog, MobileModal, OrderStatus } from "~/types/common";
+import appDayjs from "~/utils/dayjs.util";
+
+export interface Category {
+  id: string;
+  title: string;
+  position: number;
+  createAt?: number;
+  updatedAt?: number;
+}
+
+export interface Meal {
+  id: string;
+  title: string;
+  position: number;
+  coverUrl: string;
+  description: string;
+  price: number;
+  recommended?: boolean;
+  categories: Category[];
+  specialties: Specialty[];
+  publishedAt?: number;
+  createAt?: number;
+  updatedAt?: number;
+}
+
+export interface Specialty {
+  id: string;
+  title: string;
+  type: "SINGLE" | "MULTIPLE";
+  specialtyItems: SpecialtyItem[];
+  createAt?: number;
+  updatedAt?: number;
+}
+
+export interface SpecialtyItem {
+  id: string;
+  title: string;
+  price: number;
+  createAt?: number;
+  updatedAt?: number;
+}
+
+export interface Menu extends Category {
+  meals: Meal[];
+}
+
+export interface Order {
+  id: string;
+  status: OrderStatus;
+  type: OrderType;
+  orderMeals: {
+    id: string;
+    title: string;
+    specialties: Specialty[];
+    price: number;
+    amount: number;
+    servedAmount: number;
+  }[];
+  paymentLogs: any[];
+  createdAt: number;
+  updatedAt: number;
+}
+
+export interface CartItem {
+  id: string;
+  title: string;
+  position: number;
+  coverUrl: string;
+  description: string;
+  price: number;
+  recommended?: boolean;
+  specialties: Specialty[];
+  amount: number;
+}
+
+type CustomerOrderSliceState = {
+  menu: Menu[];
+  categories: Category[];
+  meals: Meal[];
+  cart: CartItem[];
+  orders: Order[];
+  currentCategory: Category["id"];
+  currentMealId: Meal["id"];
+  currentMealAmount: number;
+  currentSpecialty: Specialty[];
+  currentDialog: string;
+  currentModal: string;
+  modifiedCartItemIndex: number;
+  isModifiedCartItem: boolean;
+  isLoading: boolean;
+};
 
 const name = "customerOrder";
-const initialState: ICustomerOrderSliceState = {
+const initialState: CustomerOrderSliceState = {
+  menu: [],
   categories: [],
   meals: [],
-  combinedMenu: [],
   cart: [],
   orders: [],
   currentCategory: "",
@@ -33,61 +116,88 @@ const initialState: ICustomerOrderSliceState = {
 };
 
 export const getMenu = createAppAsyncThunk(`${name}/getMenu`, async (_, thunkAPI) => {
-  try {
-    const categoriesRes = await fetch("/data/dummyCategories.json");
-    const mealsRes = await fetch("/data/dummyMeals.json");
+  const menuRes = await fetch("http://localhost:8081/api/menu");
+  const { message = "", result = [] } = (await menuRes.json()) as unknown as { message: string; result: Menu[] };
 
-    const { categories = [] }: { categories: IMenuCategory[] } = await categoriesRes.json();
-    const { meals = [] }: { meals: IMeal[] } = await mealsRes.json();
+  const menu = result;
+  const categories = result.map(({ meals, ...category }) => category);
+  const meals = result.map((category) => category.meals).flat();
 
-    const combinedMenu = categories.map((category) => {
-      let allMeals: IMeal[] = [];
-      meals.forEach((meal) => meal.categories[0].id === category.id && allMeals.push(meal));
-      return { ...category, allMeals };
-    });
-
-    return { categories, meals, combinedMenu };
-  } catch (error) {
-    // [TODO]: handle error
-    console.log(error);
-    return thunkAPI.rejectWithValue({ message: "Something went wrong..." });
+  if (message === "success") {
+    return { menu, meals, categories };
+  } else {
+    return thunkAPI.rejectWithValue({ message });
   }
 });
 
 export const getOrders = createAppAsyncThunk(`${name}/getOrders`, async (_, thunkAPI) => {
-  try {
-    const ordersRes = await fetch("/data/dummyOrders.json");
-    const { orders = [] }: { orders: IOrder[] } = await ordersRes.json();
+  const res = await fetch("http://localhost:8081/api/order");
+  const { message = "", result = [] } = (await res.json()) as unknown as { message: string; result: Order[] };
+
+  const orders = result.sort((a, b) => appDayjs(b.createdAt).valueOf() - appDayjs(a.createdAt).valueOf());
+
+  if (message === "success") {
     return { orders };
-  } catch (error) {
-    // [TODO]: handle error
-    console.log(error);
-    return thunkAPI.rejectWithValue({ message: "Something went wrong..." });
+  } else {
+    return thunkAPI.rejectWithValue({ message });
   }
 });
 
-export const postOrder = createAppAsyncThunk(`${name}/postOrder`, async (_, thunkAPI) => {
-  try {
-    const customerOrderSlice = thunkAPI.getState()[name];
-    // [TODO]: handle order request data
-  } catch (error) {
-    // [TODO]: handle error
-    console.log(error);
-    return thunkAPI.rejectWithValue({ message: "Something went wrong..." });
+export const postOrder = createAppAsyncThunk(
+  `${name}/postOrder`,
+  async (_, { getState, dispatch, rejectWithValue }) => {
+    try {
+      const cart = getState()[name].cart;
+      const orderMeals = cart.map(({ amount, id, price, specialties }) => {
+        // mealsPrice = amount * price + specialties price
+        const mealsPrice =
+          price * amount +
+          specialties.reduce((acc, cur) => (acc += cur.specialtyItems.reduce((acc, cur) => (acc += cur.price), 0)), 0);
+        return {
+          amount,
+          id,
+          price: mealsPrice,
+          specialties
+        };
+      });
+
+      // [TODO]
+      const res = await fetch("http://localhost:8081/api/order", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json"
+        },
+        body: JSON.stringify({
+          orderMeals
+        })
+      });
+
+      const { message, result } = (await res.json()) as { message: string; result: any }; // [TODO] type
+
+      if (message === "success") {
+        dispatch(clearCart());
+        dispatch(getOrders());
+        dispatch(openDialog("ORDER"));
+      }
+    } catch (error) {
+      // [TODO]: handle error
+      console.log(error);
+      return rejectWithValue({ message: "Something went wrong..." });
+    }
   }
-});
+);
 
 export const customerOrderSlice = createSlice({
   name,
   initialState,
   reducers: {
-    openDialog: (state, action: PayloadAction<ICustomerOrderSliceState["currentDialog"]>) => {
+    openDialog: (state, action: PayloadAction<CustomerOrderSliceState["currentDialog"]>) => {
       state.currentDialog = action.payload;
     },
     closeDialog: (state) => {
       state.currentDialog = initialState.currentDialog;
     },
-    openCustomizeDialog: (state, action: PayloadAction<ICustomerOrderSliceState["currentMealId"]>) => {
+    openCustomizeDialog: (state, action: PayloadAction<CustomerOrderSliceState["currentMealId"]>) => {
       state.currentMealId = action.payload;
       state.currentDialog = CustomerOrderDialog.CUSTOMIZED;
     },
@@ -99,27 +209,28 @@ export const customerOrderSlice = createSlice({
       state.modifiedCartItemIndex = initialState.modifiedCartItemIndex;
       state.isModifiedCartItem = initialState.isModifiedCartItem;
     },
-    setCurrentCategory: (state, action: PayloadAction<ICustomerOrderSliceState["currentCategory"]>) => {
+    setCurrentCategory: (state, action: PayloadAction<CustomerOrderSliceState["currentCategory"]>) => {
       state.currentCategory = action.payload;
     },
-    updateSpecialty: (
-      state,
-      action: PayloadAction<{ selectedSpecialty: ISpecialty; selectedItem: ISpecialtyOption }>
-    ) => {
+    updateSpecialty: (state, action: PayloadAction<{ selectedSpecialty: Specialty; selectedItem: SpecialtyItem }>) => {
       const { selectedSpecialty, selectedItem } = action.payload;
       const { id, title, type } = selectedSpecialty;
       const includedSpecialty = state.currentSpecialty.find((specialty) => specialty.id === id);
-      const isItemChecked = includedSpecialty?.items.find((item) => item.id === selectedItem.id);
-      const isSingle = type === "single";
+      const isItemChecked = includedSpecialty?.specialtyItems.find((item) => item.id === selectedItem.id);
+      const isSingle = type === "SINGLE";
 
       if (includedSpecialty) {
         if (isItemChecked) {
-          includedSpecialty.items = includedSpecialty.items.filter((item) => item.id !== selectedItem.id);
+          includedSpecialty.specialtyItems = includedSpecialty.specialtyItems.filter(
+            (item) => item.id !== selectedItem.id
+          );
         } else {
-          includedSpecialty.items = isSingle ? [selectedItem] : [...includedSpecialty.items, selectedItem];
+          includedSpecialty.specialtyItems = isSingle
+            ? [selectedItem]
+            : [...includedSpecialty.specialtyItems, selectedItem];
         }
       } else {
-        state.currentSpecialty.push({ id, type, title, items: [selectedItem] });
+        state.currentSpecialty.push({ id, type, title, specialtyItems: [selectedItem] });
       }
     },
     increaseMealAmount: (state) => {
@@ -130,21 +241,23 @@ export const customerOrderSlice = createSlice({
     },
     createCartItem: (state) => {
       const { currentMealId, currentMealAmount, currentSpecialty } = state;
-      const currentMeal = state.meals.find((meal) => meal.id === currentMealId) as IMeal;
-      const { id, title, coverUrl, price, recommended } = currentMeal;
+      const currentMeal = state.meals.find((meal) => meal.id === currentMealId) as Meal;
+      const { id, title, position, description, coverUrl, price } = currentMeal;
       const newItem = {
         id,
         title,
+        position,
+        description,
         coverUrl,
         price,
-        recommended,
+        recommended: false,
         amount: currentMealAmount,
         specialties: currentSpecialty
       };
       state.cart.push(newItem);
       customerOrderSlice.caseReducers.closeCustomizeDialog(state);
     },
-    viewCartItemCustomized: (state, action: PayloadAction<{ cartItem: ICartItem; idx: number }>) => {
+    viewCartItemCustomized: (state, action: PayloadAction<{ cartItem: CartItem; idx: number }>) => {
       const { cartItem, idx } = action.payload;
       const { id, specialties, amount } = cartItem;
       state.currentMealId = id;
@@ -156,14 +269,16 @@ export const customerOrderSlice = createSlice({
     },
     updateCartItem: (state) => {
       const { currentMealId, currentMealAmount, currentSpecialty } = state;
-      const currentMeal = state.meals.find((meal) => meal.id === currentMealId) as IMeal;
-      const { id, title, coverUrl, price, recommended } = currentMeal;
+      const currentMeal = state.meals.find((meal) => meal.id === currentMealId) as Meal;
+      const { id, title, position, description, coverUrl, price } = currentMeal;
       const newItem = {
         id,
         title,
+        position,
+        description,
         coverUrl,
         price,
-        recommended,
+        recommended: false,
         amount: currentMealAmount,
         specialties: currentSpecialty
       };
@@ -175,21 +290,21 @@ export const customerOrderSlice = createSlice({
       state.cart.splice(action.payload, 1);
     },
     clearCart: (state) => {
-      state.cart = [];
-      state.modifiedCartItemIndex = 0;
-      state.isModifiedCartItem = false;
-      state.currentMealId = "";
-      state.currentMealAmount = 1;
-      state.currentSpecialty = [];
-      state.currentDialog = "";
-      state.currentModal = "";
+      state.cart = initialState.cart;
+      state.modifiedCartItemIndex = initialState.modifiedCartItemIndex;
+      state.isModifiedCartItem = initialState.isModifiedCartItem;
+      state.currentMealId = initialState.currentMealId;
+      state.currentMealAmount = initialState.currentMealAmount;
+      state.currentSpecialty = initialState.currentSpecialty;
+      state.currentDialog = initialState.currentDialog;
+      state.currentModal = initialState.currentModal;
     },
     increaseCartItemAmount: (state, action: PayloadAction<number>) => {
-      const theCartItem = state.cart.find((cartItem, idx) => idx === action.payload) as ICartItem;
+      const theCartItem = state.cart.find((cartItem, idx) => idx === action.payload) as CartItem;
       if (theCartItem.amount < 5) theCartItem.amount++;
     },
     decreaseCartItemAmount: (state, action: PayloadAction<number>) => {
-      const theCartItem = state.cart.find((cartItem, idx) => idx === action.payload) as ICartItem;
+      const theCartItem = state.cart.find((cartItem, idx) => idx === action.payload) as CartItem;
       if (theCartItem.amount > 1) theCartItem.amount--;
     },
     openModal: (state, action: PayloadAction<MobileModal>) => {
@@ -205,15 +320,18 @@ export const customerOrderSlice = createSlice({
         state.isLoading = true;
       })
       .addCase(getMenu.fulfilled, (state, action) => {
-        const { categories, meals, combinedMenu } = action.payload;
+        const { menu, categories, meals } = action.payload;
+        state.menu = menu;
         state.categories = categories;
-        state.meals = meals;
-        state.combinedMenu = combinedMenu;
         state.currentCategory = categories[0]?.id ?? "";
+        state.meals = meals;
         state.isLoading = false;
       })
       .addCase(getMenu.rejected, (state) => {
-        // [TODO]: handle error
+        state.menu = initialState.menu;
+        state.categories = initialState.categories;
+        state.currentCategory = initialState.currentCategory;
+        state.meals = initialState.meals;
         state.isLoading = false;
       })
 
@@ -225,8 +343,9 @@ export const customerOrderSlice = createSlice({
         state.orders = orders;
         state.isLoading = false;
       })
-      .addCase(getOrders.rejected, (state) => {
-        // [TODO]: handle error
+      .addCase(getOrders.rejected, (state, action) => {
+        // const { message } = action.payload;
+        state.orders = initialState.orders;
         state.isLoading = false;
       })
 

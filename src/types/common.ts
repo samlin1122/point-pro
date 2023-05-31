@@ -4,8 +4,8 @@ export const enum SpecialtyType {
 }
 
 export const enum OrderType {
-  "dine-in" = "dine-in",
-  checkout = "checkout"
+  DineIn = "DineIn",
+  TakeOut = "TakeOut"
 }
 
 export const enum OrderStatus {
