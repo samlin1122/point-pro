@@ -84,7 +84,7 @@ export interface OrderMeal {
 
 export interface ICustomerOrderSliceState {
   categories: IMenuCategory[];
-  meals: IMeal[];
+  menu: IMeal[];
   combinedMenu: ICombineMenu[];
   cart: ICartItem[];
   orders: IOrder[];
