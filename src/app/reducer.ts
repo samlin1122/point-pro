@@ -1,7 +1,7 @@
 import { customerOrderSlice } from "~/features/orders/slice";
 import { counterSlice } from "../features/home/slice";
 import { customerBookingSlice } from "~/features/booking/slice";
-import { authSlice } from "~/features/admin/slice";
+import { authSlice } from "~/app/slices/auth";
 
 const reducer = {
   [counterSlice.name]: counterSlice.reducer,

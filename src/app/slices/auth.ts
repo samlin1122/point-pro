@@ -1,25 +1,34 @@
 // Libs
 import { PayloadAction, createSlice } from "@reduxjs/toolkit";
-import Axios from "axios";
+import { AuthApi } from "~/api";
 // Others
 import { createAppAsyncThunk } from "~/app/hook";
+import { LoginPayload, LoginResponse } from "~/types/api";
 
-type Member = {
-  id: string;
-  account: string;
-  email: string;
-  name: string;
-  role: "MERCHANT" | "CUSTOMER";
-};
+const name = "auth";
 
-type LoginResponse = {
-  authToken: string;
-  member: Member;
-};
+export const login = createAppAsyncThunk<LoginResponse, LoginPayload>(
+  `${name}/postLogin`,
+  async (payload, { rejectWithValue }) => {
+    try {
+      const { result } = await AuthApi.postLogin(payload);
 
-type RejectError = {
-  message: string;
-};
+      const { authToken, member } = result;
+
+      if (authToken) {
+        localStorage.setItem("token", authToken);
+      }
+      return { authToken, member };
+    } catch (error) {
+      if (error instanceof Error) {
+        return rejectWithValue({ message: error.message });
+      } else {
+        return rejectWithValue({ message: "unknown error" });
+      }
+    }
+  }
+);
+
 interface IAuthState {
   isLoading: boolean;
   isAuthenticated: boolean;
@@ -31,28 +40,6 @@ const initialState: IAuthState = {
   isAuthenticated: false,
   authToken: null
 };
-
-const name = "auth";
-const apiHost = import.meta.env.DEV ? import.meta.env.VITE_API_HOST_DEV : import.meta.env.VITE_API_HOST_PROD;
-
-export const login = createAppAsyncThunk<
-  LoginResponse,
-  { account: string; password: string },
-  { rejectValue: RejectError }
->(`${name}/login`, async ({ account, password }, thunkAPI) => {
-  try {
-    const { data } = await Axios.post(`${apiHost}/api/auth/login`, { account, password }, { withCredentials: true });
-
-    const { authToken, member } = data.result;
-    return { authToken, member };
-  } catch (error) {
-    if (error instanceof Error) {
-      return thunkAPI.rejectWithValue({ message: error.message });
-    } else {
-      return thunkAPI.rejectWithValue({ message: "unknown error" });
-    }
-  }
-});
 
 export const authSlice = createSlice({
   name,

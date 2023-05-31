@@ -16,7 +16,7 @@ import {
 import HeaderLogo from "~/assets/images/header-logo.svg";
 import { useAppDispatch, useAppSelector } from "~/app/hook";
 import { useNavigate } from "react-router-dom";
-import { login } from "../slice";
+import { login } from "~/app/slices/auth";
 
 export const LoginContainer = () => {
   const dispatch = useAppDispatch();

@@ -19,11 +19,13 @@ export type Timestamp = number;
 export interface IMenuCategory extends IBasicKey {}
 
 export interface IMeal extends IBasicKey {
-  coverUrl: string;
-  description: string;
-  price: number;
-  position: number;
-  recommended: boolean;
+  coverUrl: boolean;
+  description: boolean;
+  price: boolean;
+  position: boolean;
+  published_at: boolean;
+  createdAt: boolean;
+  updatedAt: boolean;
   specialties: ISpecialty[];
   categories: IMenuCategory[];
 }
@@ -165,4 +167,12 @@ type Seat = {
   seatNo: string;
   currentStatus: SeatStatus;
   reservations: ReservationInfo[];
+};
+
+export type Member = {
+  id: string;
+  account: string;
+  email: string;
+  name: string;
+  role: "MERCHANT" | "CUSTOMER";
 };
