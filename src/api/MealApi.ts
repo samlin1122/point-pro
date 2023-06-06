@@ -1,8 +1,8 @@
 import http from "./http";
-import { Id, MealResponse, PostMealPayload, PatchMealByIdPayload } from "~/types/api";
+import { Id, MealsResponse, MealResponse, PostMealPayload, PatchMealByIdPayload } from "~/types/api";
 
 export const getMeals = () => {
-  return http.get<string, MealResponse[]>("meal");
+  return http.get<string, MealsResponse>("meal");
 };
 
 export const getMealById = (mealId: Id) => {

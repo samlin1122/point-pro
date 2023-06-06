@@ -1,3 +1,4 @@
+import { FC } from "react";
 import { styled } from "@mui/material/styles";
 import { Box, Button, InputAdornment, Stack, Typography } from "@mui/material";
 import { InputText, InputTextarea, InputDate } from "./input";
@@ -24,7 +25,7 @@ export const Column = styled(Box)(() => ({
 
 export const Base = styled(Box)(() => ({
   padding: "24px",
-  maxHeight: "calc(100vh - 88px)"
+  minHeight: "calc(100vh - 88px)"
 }));
 
 interface FieldContainerPropsType {
@@ -34,29 +35,52 @@ interface FieldContainerPropsType {
   [name: string]: any;
 }
 
-export const FieldContainer: React.FC<FieldContainerPropsType> = ({ width = 500, label, type, list, ...props }) => {
-  const Component: React.FC<{ width: number }> = ({ width }) => {
-    const sx = { width: `${width}px` as string };
+export interface handleChangeProps {
+  id: string | undefined;
+  value: any;
+}
+
+export const FieldContainer: FC<FieldContainerPropsType> = ({ width = 500, label, type, list, ...props }) => {
+  const sx = { width: `${width}px` };
+  const Component = () => {
     switch (type) {
       case "text":
-        return <InputText sx={sx} {...props} />;
+        return (
+          <InputText
+            sx={sx}
+            {...props}
+            onChange={(event) => props.onChange({ id: props.id, value: event.target.value })}
+          />
+        );
       case "textarea":
-        return <InputTextarea sx={sx} {...props} />;
+        return (
+          <InputTextarea
+            sx={sx}
+            {...props}
+            onChange={(event) => props.onChange({ id: props.id, value: event.target.value })}
+          />
+        );
       case "dollar":
         return (
           <InputText
             sx={sx}
             type="number"
             {...props}
+            onChange={(event) => props.onChange({ id: props.id, value: event.target.value })}
             startAdornment={<InputAdornment position="start">$</InputAdornment>}
           />
         );
       case "file":
-        return <File width={width} />;
+        return <File width={width} {...props} />;
       case "date":
-        return <InputDate sx={sx} {...props} />;
+        return <InputDate sx={sx} {...props} onChange={(value) => props.onChange({ id: props.id, value })} />;
       case "checkbox":
-        return <CheckboxBase {...props} />;
+        return (
+          <CheckboxBase
+            {...props}
+            onChange={(event) => props.onChange({ id: props.id, value: event.target.checked })}
+          />
+        );
       case "select":
         return <SelectBase list={list} sx={sx} {...props} />;
       case "button":
@@ -70,11 +94,11 @@ export const FieldContainer: React.FC<FieldContainerPropsType> = ({ width = 500,
     }
   };
   return (
-    <Stack direction="row" spacing={8} alignItems="center" flexWrap="wrap" sx={{ mb: 5 }}>
+    <Stack direction="row" spacing={8} alignItems="center" flexWrap="wrap">
       <Typography width={130} variant="h3">
         {label}
       </Typography>
-      <Component width={width} />
+      {Component()}
     </Stack>
   );
 };

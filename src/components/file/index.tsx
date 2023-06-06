@@ -1,4 +1,4 @@
-import { useState, useRef } from "react";
+import { useState, useRef, useEffect } from "react";
 // Components
 import { InputFile } from "~/components/input";
 import { Button, Box } from "@mui/material";
@@ -6,10 +6,20 @@ import ImageIcon from "@mui/icons-material/Image";
 // Styles
 // Libs
 
-const File = ({ width }: { width: number }) => {
+interface FileProps {
+  width: number;
+  value?: any;
+  onChange?: () => void;
+}
+
+const File = ({ width, value }: FileProps) => {
   const fileInputRef = useRef<HTMLInputElement>(null);
 
-  const [preview, setPreview] = useState<string | undefined>(undefined);
+  const [preview, setPreview] = useState<string>();
+
+  useEffect(() => {
+    setPreview(value ? value : undefined);
+  }, [value]);
 
   const handleFileChange = () => {
     if (fileInputRef.current?.files && fileInputRef.current.files.length > 0) {
@@ -21,6 +31,7 @@ const File = ({ width }: { width: number }) => {
       };
     }
   };
+
   const handleUploadFile = () => {
     fileInputRef.current?.click();
   };

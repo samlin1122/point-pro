@@ -1,9 +1,9 @@
-import { IMenuCategory } from "../../types";
+import { ICategory } from "../../types";
 import { ChangeEvent, CSSProperties, ReactNode } from "react";
 
 interface ITabsProps {
   value: number | string;
-  tabs: IMenuCategory[];
+  tabs: ICategory[];
   onChange: (event: ChangeEvent<{}>, newValue: string) => void;
   sx?: CSSProperties;
 }

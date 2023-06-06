@@ -44,7 +44,7 @@ import DeleteIcon from "@mui/icons-material/Delete";
 import ShoppingCartIcon from "@mui/icons-material/ShoppingCart";
 import MoneyIcon from "@mui/icons-material/Money";
 import CreditCardIcon from "@mui/icons-material/CreditCard";
-import { IMeal, ISpecialty, ISpecialtyOption } from "~/types";
+import { IMeal, ISpecialty, ISpecialtyItem } from "~/types";
 import { InputNumber } from "~/features/orders/index.styles";
 import theme from "~/theme";
 import { DrawerBase } from "~/components/drawer";
@@ -286,9 +286,9 @@ const MealDrawer: FC<IMealDrawer> = ({ contentRef }) => {
   const currentSpecialty = useAppSelector(({ customerOrder }) => customerOrder.currentSpecialty);
 
   const currentMeal = meals.find((meal) => meal.id === currentMealId);
-  const specialtyItems = currentSpecialty.reduce((acc, cur) => acc.concat(cur.items), [] as ISpecialtyOption[]);
+  const specialtyItems = currentSpecialty.reduce((acc, cur) => acc.concat(cur.items), [] as ISpecialtyItem[]);
 
-  const handleClickItem = (selectedSpecialty: ISpecialty, selectedItem: ISpecialtyOption) => () => {
+  const handleClickItem = (selectedSpecialty: ISpecialty, selectedItem: ISpecialtyItem) => () => {
     dispatch(updateSpecialty({ selectedSpecialty, selectedItem }));
   };
 

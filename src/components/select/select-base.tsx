@@ -1,30 +1,38 @@
 import { useState } from "react";
 import { MenuItem } from "@mui/material";
-import Select, { SelectChangeEvent, SelectProps } from "@mui/material/Select";
+import Select, { SelectChangeEvent } from "@mui/material/Select";
 
-interface BasicSelectPropsType extends SelectProps {
+import { handleChangeProps } from "~/components/layout";
+
+interface SelectBasePropsType {
   list: Array<SelectItemType> | undefined;
-  handleChange?: (props: string) => void;
+  includeAll?: boolean;
+  onChange?: (props: handleChangeProps) => void;
+  [key: string]: any;
 }
 
 interface SelectItemType {
   id: string;
-  label: string;
+  title: string;
 }
 
-export default function BasicSelect({ list, handleChange, ...props }: BasicSelectPropsType) {
+export default function SelectBase({ list, onChange, includeAll = false, ...props }: SelectBasePropsType) {
   const [select, setSelect] = useState("");
 
   const handleSelectChange = (event: SelectChangeEvent<unknown>) => {
+    let payload = { id: props.id, value: event.target.value };
+    // console.log({ payload });
+
     setSelect(event.target.value as string);
-    handleChange && handleChange(event.target.value as string);
+    onChange && onChange(payload);
   };
 
   return (
     <Select value={select} onChange={handleSelectChange} {...props}>
+      {includeAll ? <MenuItem value="all">全部</MenuItem> : null}
       {list?.map((item) => (
         <MenuItem key={`${item.id}`} value={item.id}>
-          {item.label}
+          {item.title}
         </MenuItem>
       ))}
     </Select>

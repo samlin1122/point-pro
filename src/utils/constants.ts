@@ -1,7 +1,13 @@
+import { SpecialtyType } from "~/types/common";
 // 專門放固定參數
 export const genderList = [
   { id: "male", name: "男生" },
   { id: "female", name: "女生" }
+];
+
+export const SpecialtyTypeList = [
+  { id: SpecialtyType.SINGLE, title: "單選" },
+  { id: SpecialtyType.MULTIPLE, title: "多選" }
 ];
 
 // route

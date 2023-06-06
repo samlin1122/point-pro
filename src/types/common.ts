@@ -1,6 +1,6 @@
 export const enum SpecialtyType {
-  single = "single",
-  multiple = "multiple"
+  SINGLE = "SINGLE",
+  MULTIPLE = "MULTIPLE"
 }
 
 export const enum OrderType {

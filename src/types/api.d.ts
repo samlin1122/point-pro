@@ -1,4 +1,4 @@
-import { Member, IMeal } from ".";
+import { Member, IMeal, ICategory, ISpecialty, ISpecialtyItem } from ".";
 
 type Id = string;
 
@@ -7,21 +7,41 @@ interface ApiResopnse<result> {
   result;
 }
 
-export interface LoginPayload {
+interface LoginPayload {
   account: string;
   password: string;
 }
 
-export type LoginResponse = ApiResponse<{
+type LoginResponse = ApiResponse<{
   authToken: string;
   member: Member;
 }>;
 
-export type MealResponse = ApiResponse<IMeal>;
-export type MealsResponse = ApiResponse<IMeal[]>;
+type MealResponse = ApiResponse<IMeal>;
+type MealsResponse = ApiResponse<IMeal[]>;
 
-export interface PostMealPayload extends IMeal {}
-export interface PatchMealByIdPayload {
+interface PostMealPayload extends IMeal {}
+interface PatchMealByIdPayload {
   mealId: string;
   payload: IMeal;
 }
+
+type CategoryResponse = ApiResponse<ICategory>;
+type CategoriesResponse = ApiResponse<ICategory[]>;
+
+interface PostCategoryPayload {}
+
+type SpecialtyResponse = ApiResponse<ISpecialty>;
+type SpecialtiesResponse = ApiResponse<ISpecialty[]>;
+
+interface PostSpecialtyPayload extends ISpecialty {}
+interface PatchSpecialtyPayload {
+  specialtyId: string;
+  payload: ISpecialty;
+}
+
+interface PatchSpecialtyByIdPayload {
+  specialtyId: string;
+  payload: ISpecialty;
+}
+type SpecialtyItemsResponse = ApiResponse<ISpecialtyItem[]>;

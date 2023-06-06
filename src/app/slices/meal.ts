@@ -3,7 +3,7 @@ import { createSlice } from "@reduxjs/toolkit";
 import { MealApi } from "~/api";
 // Others
 import { createAppAsyncThunk } from "~/app/hook";
-import { MealsResponse } from "~/types/api";
+import { MealsResponse, MealResponse, PostMealPayload, PatchMealByIdPayload, Id } from "~/types/api";
 
 const name = "meal";
 
@@ -18,6 +18,66 @@ export const getMeals = createAppAsyncThunk<MealsResponse>(`${name}/getMeals`, a
     }
   }
 });
+
+export const getMealById = createAppAsyncThunk<MealResponse, Id>(
+  `${name}/getMealById`,
+  async (payload, { rejectWithValue }) => {
+    try {
+      return await MealApi.getMealById(payload);
+    } catch (error) {
+      if (error instanceof Error) {
+        return rejectWithValue({ message: error.message });
+      } else {
+        return rejectWithValue({ message: "unknown error" });
+      }
+    }
+  }
+);
+
+export const postMeal = createAppAsyncThunk<MealResponse, PostMealPayload>(
+  `${name}/postMeal`,
+  async (payload, { rejectWithValue }) => {
+    try {
+      return await MealApi.postMeal(payload);
+    } catch (error) {
+      if (error instanceof Error) {
+        return rejectWithValue({ message: error.message });
+      } else {
+        return rejectWithValue({ message: "unknown error" });
+      }
+    }
+  }
+);
+
+export const patchMealById = createAppAsyncThunk<MealResponse, PatchMealByIdPayload>(
+  `${name}/patchMealById`,
+  async (payload, { rejectWithValue }) => {
+    try {
+      return await MealApi.patchMealById(payload);
+    } catch (error) {
+      if (error instanceof Error) {
+        return rejectWithValue({ message: error.message });
+      } else {
+        return rejectWithValue({ message: "unknown error" });
+      }
+    }
+  }
+);
+
+export const deleteMeal = createAppAsyncThunk<MealResponse, Id>(
+  `${name}/deleteMeal`,
+  async (payload, { rejectWithValue }) => {
+    try {
+      return await MealApi.deleteMeal(payload);
+    } catch (error) {
+      if (error instanceof Error) {
+        return rejectWithValue({ message: error.message });
+      } else {
+        return rejectWithValue({ message: "unknown error" });
+      }
+    }
+  }
+);
 
 interface IMealState {}
 const initialState: IMealState = {};

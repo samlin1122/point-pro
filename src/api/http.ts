@@ -27,14 +27,20 @@ http.interceptors.response.use(
   (error) => {
     let { response } = error;
     log(response.config, response.data, true);
-    errorCodeCheck(response.data.code);
+    errorCodeCheck(response.status);
     return Promise.reject(response);
   }
 );
 
 const errorCodeCheck = (status: number) => {
   switch (status) {
-    case 401:
+    case 500:
+      if (location.href.includes("admin")) {
+        localStorage.removeItem("token");
+        location.replace(`${location.origin}/admin`);
+      } else {
+        location.replace(location.origin);
+      }
       return;
     default:
       break;

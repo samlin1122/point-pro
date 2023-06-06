@@ -1,25 +1,67 @@
-import { memo, useRef, useState } from "react";
-import { useLocation } from "react-router-dom";
+import { memo, useState, useEffect, FC } from "react";
 // Components
 import { Box, Button, Badge, AppBar, Toolbar, IconButton, Typography, Drawer } from "@mui/material";
-import { AccountCircle, DoubleArrow, NotificationsNone } from "@mui/icons-material";
+import { DoubleArrow, NotificationsNone, PowerSettingsNew } from "@mui/icons-material";
 import SideBar from "~/components/side-bar";
 // Libs
 import HeaderLogo from "~/assets/images/header-logo.svg";
 import dayjs from "dayjs";
 
+import { useAppDispatch, useAppSelector } from "~/app/hook";
+import { getCategories } from "~/app/slices/category";
+import { getSpecialties } from "~/app/slices/specialty";
+import { Categories } from "~/app/selector";
+import { Specialties } from "~/app/selector";
+import { isEmpty } from "lodash";
+import { RouterProps } from "~/types";
+
 const drawerWidth = "335px";
 
-const Header: React.FC = () => {
+const Header: FC<RouterProps> = ({ location, navigate }) => {
   const [open, setOpen] = useState(false);
-  const location = useLocation();
+  const dispatch = useAppDispatch();
 
-  let countRef = useRef(0);
-  console.log("header", countRef);
-  if (countRef.current === null) {
-    countRef.current = 0;
-  }
-  countRef.current++;
+  const categories = useAppSelector(Categories);
+  const specialties = useAppSelector(Specialties);
+
+  useEffect(() => {
+    console.log("call api");
+    if (isEmpty(categories)) {
+      dispatch(getCategories());
+    }
+    if (isEmpty(specialties)) {
+      dispatch(getSpecialties());
+    }
+  }, []);
+
+  console.log("header rerender");
+
+  const routerName = () => {
+    switch (true) {
+      case location.pathname.includes("/admin/orders"):
+        return "點餐系統";
+      case location.pathname.includes("/admin/menu"):
+        return "訂單系統";
+      case location.pathname.includes("/admin/seat"):
+        return "座位系統";
+      case location.pathname.includes("/admin/meal/list"):
+        const id = location.pathname.split("/admin/meal/list/")[1];
+        if (id) {
+          return id === "create" ? "新增菜單" : "編輯菜單";
+        } else {
+          return "菜單列表";
+        }
+      case location.pathname.includes("/admin/meal/settings"):
+        return "菜單設置";
+      default:
+        return location.pathname;
+    }
+  };
+
+  const handleLogout = () => {
+    localStorage.removeItem("token");
+    navigate({ pathname: "/admin" });
+  };
 
   return (
     <Box sx={{ display: "flex" }}>
@@ -68,7 +110,7 @@ const Header: React.FC = () => {
           </Button>
           {/* middle */}
           <Typography variant="h2" component="div" sx={{ flexGrow: 1, pl: 5 }}>
-            {location.pathname}
+            {routerName()}
           </Typography>
           <Typography component="p" sx={{ pr: 5 }}>
             {dayjs().format("M月D日 Ahh:mm")}
@@ -89,8 +131,8 @@ const Header: React.FC = () => {
                 <NotificationsNone sx={{ width: "40px", height: "40px" }} />
               </Badge>
             </IconButton>
-            <IconButton color="inherit" edge="end">
-              <AccountCircle sx={{ width: "40px", height: "40px" }} />
+            <IconButton onClick={handleLogout} color="inherit" edge="end">
+              <PowerSettingsNew sx={{ width: "40px", height: "40px" }} />
             </IconButton>
           </Box>
         </Toolbar>

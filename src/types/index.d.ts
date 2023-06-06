@@ -16,36 +16,38 @@ export type IBasicKey = Record<"id" | "title", string>;
 
 export type Timestamp = number;
 
-export interface IMenuCategory extends IBasicKey {}
+export interface ICategory extends IBasicKey {}
 
 export interface IMeal extends IBasicKey {
-  coverUrl: boolean;
-  description: boolean;
-  price: boolean;
-  position: boolean;
-  published_at: boolean;
-  createdAt: boolean;
-  updatedAt: boolean;
-  specialties: ISpecialty[];
-  categories: IMenuCategory[];
+  coverUrl?: string;
+  description?: string;
+  price?: number;
+  position?: number;
+  publishedAt?: Date | null;
+  isPopular?: boolean;
+  createdAt?: Date;
+  updatedAt?: Date;
+  categories?: CategoriesOnMeals[];
+  specialties?: SpecialtiesOnMeals[];
 }
 
-export interface ICombineMenu extends IMenuCategory {
+export interface ICombineMenu extends ICategory {
   allMeals: IMeal[];
 }
 
 export interface ISpecialty extends IBasicKey {
   type: SpecialtyType;
-  items: ISpecialtyOption[];
+  items: ISpecialtyItem[];
+  [key: string]: any;
 }
 
-export interface ISpecialtyOption extends IBasicKey {
+export interface ISpecialtyItem extends IBasicKey {
   price?: number;
 }
 
 export interface ISelectedSpecialty {
   id: string;
-  value: ISpecialtyOption["id"][];
+  value: ISpecialtyItem["id"][];
 }
 
 export interface ICartItem extends Pick<IMeal, "id" | "title" | "coverUrl" | "price" | "recommended" | "specialties"> {
@@ -81,16 +83,16 @@ export interface OrderMeal {
   servedAmount: number;
   isServed: boolean;
   specialties: ISpecialty[];
-  categories: IMenuCategory[];
+  categories: ICategory[];
 }
 
 export interface ICustomerOrderSliceState {
-  categories: IMenuCategory[];
+  categories: ICategory[];
   menu: IMeal[];
   combinedMenu: ICombineMenu[];
   cart: ICartItem[];
   orders: IOrder[];
-  currentCategory: IMenuCategory["id"];
+  currentCategory: ICategory["id"];
   currentMealId: IMeal["id"];
   currentMealAmount: number;
   currentSpecialty: ISpecialty[];
@@ -175,4 +177,21 @@ export type Member = {
   email: string;
   name: string;
   role: "MERCHANT" | "CUSTOMER";
+};
+
+export type CategoriesOnMeals = {
+  id: string;
+  createdAt: Date;
+  updatedAt: Date;
+  categoryId: string;
+  mealId: string;
+};
+
+export type SpecialtiesOnMeals = {
+  id: string;
+  position: number | null;
+  createdAt: Date;
+  updatedAt: Date;
+  specialtyId: string;
+  mealId: string;
 };
