@@ -108,6 +108,7 @@ export type Order = {
     price: number;
     amount: number;
     servedAmount: number;
+    categories: Category[];
   }[];
   paymentLogs: any[];
   createdAt: number;

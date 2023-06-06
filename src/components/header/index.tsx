@@ -39,9 +39,9 @@ const Header: FC<RouterProps> = ({ location, navigate }) => {
   const routerName = () => {
     switch (true) {
       case location.pathname.includes("/admin/orders"):
-        return "點餐系統";
-      case location.pathname.includes("/admin/menu"):
         return "訂單系統";
+      case location.pathname.includes("/admin/menu"):
+        return "點餐系統";
       case location.pathname.includes("/admin/seat"):
         return "座位系統";
       case location.pathname.includes("/admin/meal/list"):

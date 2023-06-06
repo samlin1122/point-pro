@@ -22,10 +22,8 @@ import { Column, Row } from "~/components/layout";
 import Switch from "~/components/switch";
 import TabsBase, { TabPanel } from "~/components/tabs";
 
-import { IOrder, OrderMeal } from "~/types";
-import { OrderStatus } from "~/types/common";
-
 import theme from "~/theme";
+import { Order, OrderStatus } from "~/features/orders/type";
 
 const StyledAccordion = styled(Accordion)({
   backgroundColor: "white",
@@ -74,7 +72,7 @@ interface IAccordionProps {
   title: string;
   timestamp: string;
   innerContent?: IInnerContentProps[];
-  orderMeals: OrderMeal[];
+  orderMeals: Order["orderMeals"];
   status: OrderStatus;
   type: string;
   progress: number;
@@ -181,7 +179,7 @@ export const OrderAccordions: FC<IAccordionProps> = ({ uid, title, timestamp, or
                     {orderMeal.categories[0].title}
                   </Typography>
                   <Typography variant="h5" fontWeight={900} sx={{ minWidth: "14.625rem" }}>
-                    {orderMeal.mealTitle}
+                    {orderMeal.title}
                   </Typography>
                   <List sx={{ margin: 0, padding: 0 }}>
                     {orderMeal.specialties.map((specialty) => (
@@ -190,7 +188,7 @@ export const OrderAccordions: FC<IAccordionProps> = ({ uid, title, timestamp, or
                       </ListItem>
                     ))}
                   </List>
-                  <Switch checked={orderMeal.isServed} sx={{ marginLeft: "auto" }} />
+                  <Switch checked={orderMeal.servedAmount === orderMeal.amount} sx={{ marginLeft: "auto" }} />
                 </Row>
               </ListItem>
             ))}
@@ -250,9 +248,9 @@ export const OrderList: FC<IOrderProps> = ({ orderStatus, setOrderStatus }) => {
   console.log("orderStatus", orderStatus);
   console.log("showOrders", showOrders);
 
-  const calculateServedPercentage = (order: IOrder) => {
+  const calculateServedPercentage = (order: Order) => {
     const totalMeals = order.orderMeals.length;
-    const servedMeals = order.orderMeals.filter((meal) => meal.isServed).length;
+    const servedMeals = order.orderMeals.filter((meal) => meal.amount === meal.servedAmount).length;
 
     return (servedMeals / totalMeals) * 100;
   };

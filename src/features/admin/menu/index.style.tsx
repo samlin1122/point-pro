@@ -27,6 +27,7 @@ import { useAppDispatch, useAppSelector } from "~/app/hook";
 
 import {
   clearCart,
+  closeCustomizeDialog,
   createCartItem,
   decreaseCartItemAmount,
   decreaseMealAmount,
@@ -44,12 +45,12 @@ import DeleteIcon from "@mui/icons-material/Delete";
 import ShoppingCartIcon from "@mui/icons-material/ShoppingCart";
 import MoneyIcon from "@mui/icons-material/Money";
 import CreditCardIcon from "@mui/icons-material/CreditCard";
-import { IMeal, ISpecialty, ISpecialtyItem } from "~/types";
 import { InputNumber } from "~/features/orders/index.styles";
 import theme from "~/theme";
 import { DrawerBase } from "~/components/drawer";
 import ExpandMoreIcon from "@mui/icons-material/ExpandMore";
 import { ModalBase } from "~/components/modals";
+import { Meal, Specialty, SpecialtyItem } from "~/features/orders/type";
 
 export const MenuTabs: FC = () => {
   const dispatch = useAppDispatch();
@@ -59,6 +60,7 @@ export const MenuTabs: FC = () => {
 
   const handleClickCategory = (categoryId: string) => {
     dispatch(setCurrentCategory(categoryId));
+    dispatch(closeCustomizeDialog());
   };
 
   return (
@@ -71,35 +73,24 @@ export const MenuTabs: FC = () => {
   );
 };
 
-interface IMealCardProps extends IMeal {
+interface IMealCardProps extends Meal {
   currentMealId: string;
 }
 
 const MealCard: FC<IMealCardProps> = ({ id, title, price, coverUrl, currentMealId }) => (
   <Column
     key={id}
-    py="0.75rem"
-    width={"100%"}
-    height={"100%"}
+    py="0.5rem"
     sx={{
       gap: "0.75rem",
       backgroundColor: id === currentMealId ? "primary.main" : "transparent",
-      transition: "all 0.3s ease"
+      padding: "0.3rem"
     }}
   >
-    <Box component={"img"} width={"100%"} height={"100%"} src={coverUrl} alt={title} sx={{ objectFit: "cover" }} />
-    <Row
-      justifyContent={"space-between"}
-      alignItems={"center"}
-      px={id === currentMealId ? "0.75rem" : "0"}
-      sx={{ transition: "all 0.3s" }}
-    >
-      <Typography component="h3" variant="h6" fontWeight={900}>
-        {title}
-      </Typography>
-      <Typography component="h3" variant="h6">
-        {price}
-      </Typography>
+    <Box component="img" src={coverUrl} height="7rem" width="7rem" alt={title} sx={{ objectFit: "cover" }} />
+    <Row justifyContent="space-between" alignItems="center">
+      <Typography fontWeight={900}>{title}</Typography>
+      <Typography>{price}</Typography>
     </Row>
   </Column>
 );
@@ -109,27 +100,26 @@ interface IMealsProps {}
 export const MealList: FC<IMealsProps> = () => {
   const dispatch = useAppDispatch();
 
-  const combinedMenu = useAppSelector(({ customerOrder }) => customerOrder.combinedMenu);
+  const menu = useAppSelector(({ customerOrder }) => customerOrder.menu);
   const currentCategory = useAppSelector(({ customerOrder }) => customerOrder.currentCategory);
   const currentMealId = useAppSelector(({ customerOrder }) => customerOrder.currentMealId);
 
   const contentRef = useRef<HTMLDivElement>(null);
 
   const handleSelectedMeal = (currentMealId: string) => () => {
-    console.log("currentMealId", currentMealId);
     dispatch(openCustomizeDialog(currentMealId));
   };
 
   return (
     <>
       <Box ref={contentRef} sx={{ p: 3, overflowY: "scroll", height: "calc(100vh - 88px - 55px)" }}>
-        {combinedMenu.map(
+        {menu.map(
           (category, idx) =>
             category.id === currentCategory && (
-              <TabPanel key={category.id} value={parseInt(category.id) - 1} index={idx}>
-                <GridBase columns="3" gap="1.5rem">
-                  {category.allMeals.length > 0 &&
-                    category.allMeals.map((meal, idx) => (
+              <TabPanel key={category.id} value={category.position} index={category.position}>
+                <GridBase columns="5" gap="1rem">
+                  {category.meals.length > 0 &&
+                    category.meals.map((meal) => (
                       <GridItemBase
                         sx={{
                           zIndex: 0,
@@ -183,7 +173,7 @@ interface ICartItemProps {
   amount: number;
   price: number;
   coverUrl: string;
-  specialties: ISpecialty[];
+  specialties: Specialty[];
   handleAdd: (idx: number) => void;
   handleMinus: (idx: number) => void;
 }
@@ -286,9 +276,9 @@ const MealDrawer: FC<IMealDrawer> = ({ contentRef }) => {
   const currentSpecialty = useAppSelector(({ customerOrder }) => customerOrder.currentSpecialty);
 
   const currentMeal = meals.find((meal) => meal.id === currentMealId);
-  const specialtyItems = currentSpecialty.reduce((acc, cur) => acc.concat(cur.items), [] as ISpecialtyItem[]);
+  const specialtyItems = currentSpecialty.reduce((acc, cur) => acc.concat(cur.items), [] as SpecialtyItem[]);
 
-  const handleClickItem = (selectedSpecialty: ISpecialty, selectedItem: ISpecialtyItem) => () => {
+  const handleClickItem = (selectedSpecialty: Specialty, selectedItem: SpecialtyItem) => () => {
     dispatch(updateSpecialty({ selectedSpecialty, selectedItem }));
   };
 
@@ -305,7 +295,7 @@ const MealDrawer: FC<IMealDrawer> = ({ contentRef }) => {
   };
 
   const handleClose = () => {
-    dispatch(openCustomizeDialog("0"));
+    dispatch(closeCustomizeDialog());
   };
 
   return (

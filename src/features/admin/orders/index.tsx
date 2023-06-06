@@ -1,7 +1,7 @@
 import { FC, useEffect, useState } from "react";
 import { Box } from "@mui/material";
 import { OrderList, OrderTabs } from "./index.style";
-import { OrderStatus } from "~/types/common";
+import { OrderStatus } from "~/features/orders/type";
 import { useAppDispatch } from "~/app/hook";
 import { getOrders } from "~/features/orders/slice";
 

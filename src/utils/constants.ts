@@ -19,13 +19,13 @@ import EventSeatIcon from "@mui/icons-material/EventSeat";
 export const sideBarItemList = [
   {
     id: "orders",
-    name: "點餐系統",
+    name: "訂單系統",
     src: RestaurantMenuIcon,
     path: "orders"
   },
   {
     id: "menu",
-    name: "訂單系統",
+    name: "點餐系統",
     src: StickyNote2Icon,
     path: "menu"
   },
