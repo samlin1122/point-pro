@@ -57,17 +57,11 @@ import {
   decreaseCartItemAmount,
   openModal,
   closeModal,
-  postOrder,
-  SpecialtyItem,
-  Specialty,
-  Meal,
-  CartItem
+  postOrder
 } from "./slice";
+import { SpecialtyItem, Specialty, CartItem, Order, OrderStatus, OrderType, MobileDialog, MobileModal } from "./type";
 import usePrevious from "~/hooks/usePrevious";
 import linePay from "~/assets/images/line-pay.png";
-import { IOrder } from "~/types";
-import { CustomerOrderDialog, MobileModal, OrderStatus, OrderType } from "~/types/common";
-import { useDispatch } from "react-redux";
 
 export const Header = () => {
   const { pathname } = useLocation();
@@ -100,20 +94,11 @@ export const Header = () => {
 };
 
 export const SeatInfo = () => {
-  const dispatch = useDispatch();
-  const [searchParams] = useSearchParams();
-  const reservationLogId = searchParams.get("reservationLogId");
-
-  useEffect(() => {
-    if (reservationLogId) {
-      // [TODO] get reservation info
-      // dispatch();
-    }
-  }, [reservationLogId]);
+  const userInfo = useAppSelector(({ customerOrder }) => customerOrder.userInfo);
 
   return (
     <>
-      {reservationLogId && (
+      {userInfo && (
         <Box sx={{ padding: "0 0 1rem" }}>
           <Typography variant="h3" fontWeight={900} sx={{ paddingBottom: "1rem" }}>
             內用資訊
@@ -129,11 +114,13 @@ export const SeatInfo = () => {
           >
             <Grid item xs={6} sx={{ padding: "0 1rem" }}>
               <Box sx={{ color: "common.black_60", fontWeight: 500 }}>座位</Box>
-              <Box sx={{ fontSize: "h5.fontSize", fontWeight: 900, color: "common.black" }}>{"A03-1"}</Box>
+              <Box sx={{ fontSize: "h5.fontSize", fontWeight: 900, color: "common.black" }}>{userInfo.seatNo}</Box>
             </Grid>
             <Grid item xs={6} sx={{ padding: "0 1rem", borderLeft: "1px solid", borderColor: "common.black_40" }}>
               <Box sx={{ color: "common.black_60", fontWeight: 500 }}>入座時間</Box>
-              <Box sx={{ fontSize: "h5.fontSize", fontWeight: 900, color: "common.black" }}>{"17:30"}</Box>
+              <Box sx={{ fontSize: "h5.fontSize", fontWeight: 900, color: "common.black" }}>
+                {appDayjs(userInfo.startTime).format("YYYY/MM/DD HH:mm")}
+              </Box>
             </Grid>
           </Grid>
         </Box>
@@ -310,7 +297,7 @@ export const Meals = () => {
                             alt={`${meal.title}-img`}
                             sx={{ width: "5rem", verticalAlign: "middle" }}
                           />
-                          {meal?.recommended && (
+                          {meal?.isPopular && (
                             <Box
                               sx={{
                                 position: "absolute",
@@ -393,6 +380,7 @@ const StyledBottomNavigationAction = styled(BottomNavigationAction)<IStyledBotto
 export const Footer = () => {
   const dispatch = useAppDispatch();
 
+  const userInfo = useAppSelector(({ customerOrder }) => customerOrder.userInfo);
   const currentDialog = useAppSelector(({ customerOrder }) => customerOrder.currentDialog);
   const cart = useAppSelector(({ customerOrder }) => customerOrder.cart);
   const orders = useAppSelector(({ customerOrder }) => customerOrder.orders);
@@ -403,53 +391,57 @@ export const Footer = () => {
     [orders]
   );
 
-  const handleClickFooter = (e: SyntheticEvent<Element, Event>, currentDialog: string) => {
-    if (currentDialog) dispatch(openDialog(currentDialog));
+  const handleClickFooter = (e: SyntheticEvent<Element, Event>, currentDialog: MobileDialog) => {
+    if (currentDialog) dispatch(openDialog({ type: currentDialog }));
   };
 
   return (
-    <Box
-      sx={{
-        position: "fixed",
-        bottom: ".5rem",
-        left: "50%",
-        transform: "translateX(-50%)",
-        padding: "5px",
-        borderRadius: ".6rem",
-        height: "4.5rem",
-        display: "flex",
-        width: "14rem",
-        bgcolor: "common.white"
-      }}
-    >
-      <BottomNavigation
-        showLabels
-        value={currentDialog}
-        onChange={handleClickFooter}
-        sx={{
-          gap: "5px",
-          height: "100%",
-          width: "100%",
-          bgcolor: "common.white",
-          "& .Mui-selected": { bgcolor: "common.black" },
-          "& .MuiSvgIcon-root": { fontSize: "body1.fontSize" }
-        }}
-      >
-        <StyledBottomNavigationAction label="菜單" value="" icon={<RestaurantMenuIcon />} />
-        <StyledBottomNavigationAction
-          label="購物車"
-          value={CustomerOrderDialog.CART}
-          icon={<CartIcon />}
-          amount={cartAmount}
-        />
-        <StyledBottomNavigationAction
-          label="訂單"
-          value={CustomerOrderDialog.ORDER}
-          icon={<StickyNote2Icon />}
-          amount={unPaidOrderAmount}
-        />
-      </BottomNavigation>
-    </Box>
+    <>
+      {userInfo && (
+        <Box
+          sx={{
+            position: "fixed",
+            bottom: ".5rem",
+            left: "50%",
+            transform: "translateX(-50%)",
+            padding: "5px",
+            borderRadius: ".6rem",
+            height: "4.5rem",
+            display: "flex",
+            width: "14rem",
+            bgcolor: "common.white"
+          }}
+        >
+          <BottomNavigation
+            showLabels
+            value={currentDialog}
+            onChange={handleClickFooter}
+            sx={{
+              gap: "5px",
+              height: "100%",
+              width: "100%",
+              bgcolor: "common.white",
+              "& .Mui-selected": { bgcolor: "common.black" },
+              "& .MuiSvgIcon-root": { fontSize: "body1.fontSize" }
+            }}
+          >
+            <StyledBottomNavigationAction label="菜單" value="" icon={<RestaurantMenuIcon />} />
+            <StyledBottomNavigationAction
+              label="購物車"
+              value={MobileDialog.CART}
+              icon={<CartIcon />}
+              amount={cartAmount}
+            />
+            <StyledBottomNavigationAction
+              label="訂單"
+              value={MobileDialog.ORDER}
+              icon={<StickyNote2Icon />}
+              amount={unPaidOrderAmount}
+            />
+          </BottomNavigation>
+        </Box>
+      )}
+    </>
   );
 };
 
@@ -515,6 +507,8 @@ export const InputNumber = (props: IInputNumberProps) => {
 
 export const CustomizedDialog = () => {
   const dispatch = useAppDispatch();
+  const [searchParams] = useSearchParams();
+  const token = searchParams.get("token");
 
   const meals = useAppSelector(({ customerOrder }) => customerOrder.meals);
   const currentDialog = useAppSelector(({ customerOrder }) => customerOrder.currentDialog);
@@ -524,13 +518,14 @@ export const CustomizedDialog = () => {
   const isModifiedCartItem = useAppSelector(({ customerOrder }) => customerOrder.isModifiedCartItem);
 
   const currentMeal = meals.find((meal) => meal.id === currentMealId) ?? { title: "", price: 0, specialties: [] };
-  const specialtyItems = currentSpecialty.reduce((acc, cur) => acc.concat(cur.specialtyItems), [] as SpecialtyItem[]);
+  const items = currentSpecialty.reduce((acc, cur) => acc.concat(cur.items), [] as SpecialtyItem[]);
 
   const handleClose = () => {
     dispatch(closeCustomizeDialog());
   };
 
   const handleClickItem = (selectedSpecialty: Specialty, selectedItem: SpecialtyItem) => () => {
+    if (!token) return;
     dispatch(updateSpecialty({ selectedSpecialty, selectedItem }));
   };
 
@@ -553,20 +548,24 @@ export const CustomizedDialog = () => {
   return (
     <MobileDialogLayout
       title={currentMeal?.title}
-      isOpen={currentDialog === CustomerOrderDialog.CUSTOMIZED}
+      isOpen={currentDialog === MobileDialog.CUSTOMIZED}
       onCloseDialog={handleClose}
       actionButton={
         <>
-          <Box sx={{ display: "flex", justifyContent: "space-between", alignItems: "center", width: "100%" }}>
-            <InputNumber value={currentMealAmount} onAdd={handleAdd} onMinus={handleMinus} />
-            <Typography variant="h5" fontWeight={900}>
-              ${currentMealAmount * currentMeal?.price}
-            </Typography>
-          </Box>
-          {isModifiedCartItem ? (
-            <Button onClick={handleUpdateCartItem}>確認修改</Button>
-          ) : (
-            <Button onClick={handleAddToCart}>加入購物車</Button>
+          {token && (
+            <>
+              <Box sx={{ display: "flex", justifyContent: "space-between", alignItems: "center", width: "100%" }}>
+                <InputNumber value={currentMealAmount} onAdd={handleAdd} onMinus={handleMinus} />
+                <Typography variant="h5" fontWeight={900}>
+                  ${currentMealAmount * currentMeal?.price}
+                </Typography>
+              </Box>
+              {isModifiedCartItem ? (
+                <Button onClick={handleUpdateCartItem}>確認修改</Button>
+              ) : (
+                <Button onClick={handleAddToCart}>加入購物車</Button>
+              )}
+            </>
           )}
         </>
       }
@@ -581,12 +580,12 @@ export const CustomizedDialog = () => {
                     {specialty.title}
                   </Typography>
                 </ListSubheader>
-                {specialty.specialtyItems.map((item) => (
+                {specialty.items.map((item) => (
                   <Fragment key={item.id}>
                     <ListItemButton onClick={handleClickItem(specialty, item)}>
                       <Box sx={{ display: "flex", justifyContent: "space-between", width: "100%" }}>
                         <Typography>{item.title}</Typography>
-                        <CheckboxBase checked={!!specialtyItems.find(({ id }) => id === item.id)} />
+                        <CheckboxBase checked={!!items.find(({ id }) => id === item.id)} />
                       </Box>
                     </ListItemButton>
                     <Divider light />
@@ -621,7 +620,7 @@ export const CartDialog = () => {
 
   const handleDeleteCartItem = (idx: number) => (e: SyntheticEvent<Element, Event>) => {
     e.stopPropagation();
-    dispatch(deleteCartItem(idx));
+    dispatch(openModal({ type: MobileModal.REMOVE_CART_CONFIRM, data: { idx } }));
   };
 
   const handleAdd = (idx: number) => {
@@ -641,7 +640,7 @@ export const CartDialog = () => {
     <MobileDialogLayout
       title="購物車"
       titleSize="h2"
-      isOpen={currentDialog === CustomerOrderDialog.CART}
+      isOpen={currentDialog === MobileDialog.CART}
       onCloseDialog={handleClose}
       actionButton={
         <>
@@ -664,7 +663,7 @@ export const CartDialog = () => {
           <List>
             {cart.map((cartItem, idx) => (
               <Fragment key={`${cartItem.id}-${idx}`}>
-                <ListItemButton onClick={handleCustomized(cartItem, idx)} sx={{ padding: ".5rem" }}>
+                <ListItemButton onClick={handleCustomized(cartItem, idx)} sx={{ padding: ".5rem" }} disableRipple>
                   <Box sx={{ width: "100%" }}>
                     <Grid
                       container
@@ -678,7 +677,7 @@ export const CartDialog = () => {
                           alt={`${cartItem.title}-img`}
                           sx={{ width: "5rem", verticalAlign: "middle" }}
                         />
-                        {cartItem.recommended && (
+                        {cartItem.isPopular && (
                           <Box
                             sx={{
                               position: "absolute",
@@ -701,8 +700,8 @@ export const CartDialog = () => {
                             key={`${specialty.id}-${idx}`}
                           >
                             {specialty.type === "SINGLE"
-                              ? specialty.specialtyItems[0]?.title ?? ""
-                              : specialty.specialtyItems.map((i) => i.title).join("、")}
+                              ? specialty.items[0]?.title ?? ""
+                              : specialty.items.map((i) => i.title).join("、")}
                           </Box>
                         ))}
                       </Grid>
@@ -761,7 +760,7 @@ export const OrderDialog = () => {
   const orders = useAppSelector(({ customerOrder }) => customerOrder.orders);
 
   const [orderStatus, setOrderStatus] = useState(0);
-  const [toggleList, setToggleList] = useState<IOrder["id"][]>([]);
+  const [toggleList, setToggleList] = useState<Order["id"][]>([]);
 
   useEffect(() => {
     const newOrder = orders[0];
@@ -780,8 +779,8 @@ export const OrderDialog = () => {
     setOrderStatus(orderStatus);
   };
 
-  const handleToggleListItem = (orderId: IOrder["id"]) => () => {
-    let newToggleList: IOrder["id"][];
+  const handleToggleListItem = (orderId: Order["id"]) => () => {
+    let newToggleList: Order["id"][];
     if (toggleList.includes(orderId)) {
       newToggleList = toggleList.filter((id) => id !== orderId);
     } else {
@@ -791,7 +790,7 @@ export const OrderDialog = () => {
   };
 
   const handleCheckout = () => {
-    dispatch(openModal(MobileModal.PAYMENT));
+    dispatch(openModal({ type: MobileModal.PAYMENT }));
   };
 
   const totalPrice = useMemo(
@@ -803,7 +802,7 @@ export const OrderDialog = () => {
     <MobileDialogLayout
       title="訂單"
       titleSize="h2"
-      isOpen={currentDialog === CustomerOrderDialog.ORDER}
+      isOpen={currentDialog === MobileDialog.ORDER}
       onCloseDialog={handleClose}
       actionButton={
         <>
@@ -819,30 +818,38 @@ export const OrderDialog = () => {
         </>
       }
     >
-      <Tabs
-        value={orderStatus}
-        onChange={(_, value) => handleClickOrderStatus(value)}
+      <Box
         sx={{
-          [`& .${tabsClasses.scrollButtons}`]: {
-            display: "none"
-          },
-          "& .MuiTabs-indicator": {
-            display: "none"
-          },
-          marginBottom: "10px"
+          position: "fixed",
+          zIndex: 5,
+          bgcolor: "background.paper",
+          width: "100%"
         }}
       >
-        {STATUS_TAB.map((status, idx) => (
-          <StyledTab key={`${status.value}-${idx}`} value={status.value} label={status.title} />
-        ))}
-      </Tabs>
-      <Divider />
+        <Tabs
+          value={orderStatus}
+          onChange={(_, value) => handleClickOrderStatus(value)}
+          sx={{
+            [`& .${tabsClasses.scrollButtons}`]: {
+              display: "none"
+            },
+            "& .MuiTabs-indicator": {
+              display: "none"
+            },
+            marginBottom: "10px"
+          }}
+        >
+          {STATUS_TAB.map((status, idx) => (
+            <StyledTab key={`${status.value}-${idx}`} value={status.value} label={status.title} />
+          ))}
+        </Tabs>
+      </Box>
       <Box
         sx={{
           flexGrow: 1,
           display: "flex",
           flexDirection: "column",
-          paddingTop: "1rem",
+          paddingTop: "4rem",
           paddingBottom: "10rem"
         }}
       >
@@ -908,7 +915,7 @@ export const OrderDialog = () => {
                           >
                             {specialty.title}:
                             <br />
-                            {specialty.specialtyItems.map((i) => i.title).join(", ")}
+                            {specialty.items.map((i) => i.title).join(", ")}
                           </Box>
                         ))}
                       </Grid>
@@ -992,13 +999,49 @@ export const MobileModalLayout = (props: IMobileModalLayout) => {
   );
 };
 
+export const ConfirmRemoveCartItemModal = () => {
+  const dispatch = useAppDispatch();
+
+  const currentModal = useAppSelector(({ customerOrder }) => customerOrder.currentModal);
+  const data = useAppSelector(({ customerOrder }) => customerOrder.modalData);
+
+  const handleConfirm = () => {
+    dispatch(deleteCartItem(data.idx));
+    dispatch(closeModal());
+  };
+
+  return (
+    <MobileModalLayout open={currentModal === MobileModal.REMOVE_CART_CONFIRM}>
+      <>
+        <Typography variant="h6" fontWeight={900}>
+          從購物車中移除？
+        </Typography>
+        <Button
+          onClick={handleConfirm}
+          sx={{
+            color: "common.black",
+            bgcolor: "primary.main",
+            width: "100%"
+          }}
+        >
+          確定
+        </Button>
+      </>
+    </MobileModalLayout>
+  );
+};
+
 export const PaymentModal = () => {
   const dispatch = useAppDispatch();
 
   const currentModal = useAppSelector(({ customerOrder }) => customerOrder.currentModal);
 
   const handlePaymentByCash = () => {
-    dispatch(openModal(MobileModal.COUNTER_REMINDER));
+    dispatch(
+      openModal({
+        type: MobileModal.COUNTER_REMINDER
+      })
+    );
   };
 
   const handlePaymentByCard = () => {
@@ -1015,14 +1058,37 @@ export const PaymentModal = () => {
         <Typography variant="h6" fontWeight={900}>
           請選擇付款方式
         </Typography>
-        <Button onClick={handlePaymentByCash} startIcon={<MoneyIcon />}>
+        <Button
+          onClick={handlePaymentByCash}
+          startIcon={<MoneyIcon />}
+          sx={{
+            color: "common.black",
+            bgcolor: "primary.main",
+            width: "100%"
+          }}
+        >
           現金付款
         </Button>
-        <Button onClick={handlePaymentByCard} startIcon={<CreditCardIcon />}>
+        <Button
+          onClick={handlePaymentByCard}
+          startIcon={<CreditCardIcon />}
+          sx={{
+            color: "common.black",
+            bgcolor: "primary.main",
+            width: "100%"
+          }}
+        >
           信用卡
         </Button>
-        <Button onClick={handlePaymentByLinePay}>
-          <img src={linePay} alt="LINE Pay" style={{ height: "1.5rem" }} />
+        <Button
+          onClick={handlePaymentByLinePay}
+          sx={{
+            color: "common.black",
+            bgcolor: "primary.main",
+            width: "100%"
+          }}
+        >
+          <img src={linePay} alt="LINE Pay" style={{ height: "1.8rem" }} />
         </Button>
       </>
     </MobileModalLayout>

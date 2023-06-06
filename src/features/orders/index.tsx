@@ -1,5 +1,6 @@
 // Libs
 import { useEffect } from "react";
+import { useSearchParams } from "react-router-dom";
 // Components
 import {
   SeatInfo,
@@ -11,19 +12,29 @@ import {
   CartDialog,
   OrderDialog,
   PaymentModal,
-  CounterReminderModal
+  CounterReminderModal,
+  ConfirmRemoveCartItemModal
 } from "./index.styles";
 // Others
 import { useAppDispatch } from "~/app/hook";
-import { getMenu, getOrders } from "./slice";
+import { getMenu, getOrders, getUserInfo } from "./slice";
 
 const Order = () => {
   const dispatch = useAppDispatch();
+  const [searchParams] = useSearchParams();
+  const token = searchParams.get("token");
 
   useEffect(() => {
+    if (token) {
+      localStorage.setItem("token", token);
+    } else {
+      localStorage.removeItem("token");
+    }
+
+    dispatch(getUserInfo());
     dispatch(getMenu());
     dispatch(getOrders());
-  }, []);
+  }, [token]);
 
   return (
     <>
@@ -37,6 +48,7 @@ const Order = () => {
       <CartDialog />
       <OrderDialog />
 
+      <ConfirmRemoveCartItemModal />
       <PaymentModal />
       <CounterReminderModal />
     </>
