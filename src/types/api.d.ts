@@ -1,3 +1,4 @@
+import { Menu, Order, Specialty, UserInfo } from "~/features/orders/type";
 import { Member, IMeal, ICategory, ISpecialty, ISpecialtyItem } from ".";
 
 type Id = string;
@@ -16,6 +17,8 @@ type LoginResponse = ApiResponse<{
   authToken: string;
   member: Member;
 }>;
+
+type GetUserInfoResponse = ApiResponse<UserInfo>; // [TODO]
 
 type MealResponse = ApiResponse<IMeal>;
 type MealsResponse = ApiResponse<IMeal[]>;
@@ -45,3 +48,16 @@ interface PatchSpecialtyByIdPayload {
   payload: ISpecialty;
 }
 type SpecialtyItemsResponse = ApiResponse<ISpecialtyItem[]>;
+
+type PostOrderResponse = ApiResponse<Order>;
+type GetOrdersResponse = ApiResponse<Order[]>;
+type PostOrderPayload = {
+  orderMeals: {
+    amount: number;
+    id: string;
+    price: number;
+    specialties: Specialty[];
+  }[];
+};
+
+type GetMenuResponse = ApiResponse<Menu[]>;
