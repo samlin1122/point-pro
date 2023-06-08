@@ -53,8 +53,8 @@ import {
   viewCartItemCustomized,
   deleteCartItem,
   updateCartItem,
-  increaseCartItemAmount,
-  decreaseCartItemAmount,
+  // increaseCartItemAmount,
+  // decreaseCartItemAmount,
   openModal,
   closeModal,
   postOrder
@@ -314,7 +314,7 @@ export const Meals = () => {
                         </Grid>
                         <Grid item sx={{ flexGrow: 1 }}>
                           <Box sx={{ fontWeight: "700" }}>{meal.title}</Box>
-                          <Box>${meal.price}</Box>
+                          <Box>{meal.price}元</Box>
                         </Grid>
 
                         {getItemAmountInCart(meal.id) > 0 && (
@@ -475,8 +475,7 @@ export const InputNumber = (props: IInputNumberProps) => {
           "&.MuiButtonBase-root": {
             bgcolor: "transparent",
             color: "common.black",
-            outline: "none",
-            padding: ".5rem"
+            outline: "none"
           }
         }}
         disableRipple
@@ -492,8 +491,7 @@ export const InputNumber = (props: IInputNumberProps) => {
           "&.MuiButtonBase-root": {
             bgcolor: "transparent",
             color: "common.black",
-            outline: "none",
-            padding: ".5rem"
+            outline: "none"
           }
         }}
         disableRipple
@@ -557,7 +555,7 @@ export const CustomizedDialog = () => {
               <Box sx={{ display: "flex", justifyContent: "space-between", alignItems: "center", width: "100%" }}>
                 <InputNumber value={currentMealAmount} onAdd={handleAdd} onMinus={handleMinus} />
                 <Typography variant="h5" fontWeight={900}>
-                  ${currentMealAmount * currentMeal?.price}
+                  {currentMealAmount * currentMeal?.price}元
                 </Typography>
               </Box>
               {isModifiedCartItem ? (
@@ -608,27 +606,22 @@ export const CartDialog = () => {
   const currentDialog = useAppSelector(({ customerOrder }) => customerOrder.currentDialog);
   const cart = useAppSelector(({ customerOrder }) => customerOrder.cart);
 
-  const totalAmount = cart.reduce((acc, cur) => (acc += cur.amount * cur.price), 0);
+  const totalAmount = cart.reduce((acc, cur) => (acc += cur.amount), 0);
+  const totaPrice = cart.reduce(
+    (acc, cartItem) =>
+      (acc +=
+        cartItem.amount *
+        (cartItem.price +
+          cartItem.specialties.reduce(
+            (acc, specialty) =>
+              (acc += specialty.items.reduce((acc, specialtyItem) => (acc += specialtyItem.price), 0)),
+            0
+          ))),
+    0
+  );
 
   const handleClose = () => {
     dispatch(closeDialog());
-  };
-
-  const handleCustomized = (cartItem: CartItem, idx: number) => () => {
-    dispatch(viewCartItemCustomized({ cartItem, idx }));
-  };
-
-  const handleDeleteCartItem = (idx: number) => (e: SyntheticEvent<Element, Event>) => {
-    e.stopPropagation();
-    dispatch(openModal({ type: MobileModal.REMOVE_CART_CONFIRM, data: { idx } }));
-  };
-
-  const handleAdd = (idx: number) => {
-    dispatch(increaseCartItemAmount(idx));
-  };
-
-  const handleMinus = (idx: number) => {
-    dispatch(decreaseCartItemAmount(idx));
   };
 
   const handleSubmitOrders = () => {
@@ -644,13 +637,39 @@ export const CartDialog = () => {
       onCloseDialog={handleClose}
       actionButton={
         <>
-          <Box sx={{ display: "flex", justifyContent: "space-between", alignItems: "center", width: "100%" }}>
-            <Typography variant="h6" fontWeight={900}>
-              小計
-            </Typography>
-            <Typography variant="h6" fontWeight={900}>
-              ${totalAmount}
-            </Typography>
+          <Box
+            sx={{
+              display: "flex",
+              flexDirection: "column",
+              width: "100%"
+            }}
+          >
+            <Box
+              sx={{
+                display: "flex",
+                justifyContent: "space-between"
+              }}
+            >
+              <Typography variant="h6" fontWeight={900}>
+                數量
+              </Typography>
+              <Typography variant="h6" fontWeight={900}>
+                {totalAmount}
+              </Typography>
+            </Box>
+            <Box
+              sx={{
+                display: "flex",
+                justifyContent: "space-between"
+              }}
+            >
+              <Typography variant="h6" fontWeight={900}>
+                小計
+              </Typography>
+              <Typography variant="h6" fontWeight={900}>
+                {totaPrice}元
+              </Typography>
+            </Box>
           </Box>
           <Button onClick={handleSubmitOrders} disabled={cart.length === 0}>
             送出訂單
@@ -662,82 +681,119 @@ export const CartDialog = () => {
         {cart.length > 0 ? (
           <List>
             {cart.map((cartItem, idx) => (
-              <Fragment key={`${cartItem.id}-${idx}`}>
-                <ListItemButton onClick={handleCustomized(cartItem, idx)} sx={{ padding: ".5rem" }} disableRipple>
-                  <Box sx={{ width: "100%" }}>
-                    <Grid
-                      container
-                      gap={1}
-                      sx={{ justifyContent: "space-between", marginBottom: "1rem", alignItems: "center" }}
-                    >
-                      <Grid item sx={{ position: "relative" }} xs={2}>
-                        <Box
-                          component="img"
-                          src={cartItem.coverUrl}
-                          alt={`${cartItem.title}-img`}
-                          sx={{ width: "5rem", verticalAlign: "middle" }}
-                        />
-                        {cartItem.isPopular && (
-                          <Box
-                            sx={{
-                              position: "absolute",
-                              left: 0,
-                              top: 0,
-                              bgcolor: "primary.main",
-                              display: "flex",
-                              padding: ".1rem"
-                            }}
-                          >
-                            <ThumbUpIcon sx={{ width: "1rem", height: "1rem" }} />
-                          </Box>
-                        )}
-                      </Grid>
-                      <Grid item xs={7}>
-                        <Typography fontWeight={700}>{cartItem.title}</Typography>
-                        {cartItem.specialties.map((specialty, idx) => (
-                          <Box
-                            sx={{ color: "common.black_80", fontSize: "small.fontSize" }}
-                            key={`${specialty.id}-${idx}`}
-                          >
-                            {specialty.type === "SINGLE"
-                              ? specialty.items[0]?.title ?? ""
-                              : specialty.items.map((i) => i.title).join("、")}
-                          </Box>
-                        ))}
-                      </Grid>
-                      <Grid item xs={1}>
-                        <DeleteIcon onClick={handleDeleteCartItem(idx)} sx={{ height: "100%" }} />
-                      </Grid>
-                    </Grid>
-                    <Box
-                      sx={{
-                        display: "flex",
-                        justifyContent: "space-between",
-                        alignItems: "center",
-                        width: "100%"
-                      }}
-                    >
-                      <InputNumber
-                        value={cartItem.amount}
-                        onAdd={() => handleAdd(idx)}
-                        onMinus={() => handleMinus(idx)}
-                      />
-                      <Typography variant="h6" fontWeight={900}>
-                        ${cartItem.amount * cartItem.price}
-                      </Typography>
-                    </Box>
-                  </Box>
-                </ListItemButton>
-                <Divider light />
-              </Fragment>
+              <>
+                <CartMeal key={`${cartItem.id}-${idx}`} cartItem={cartItem} idx={idx} />
+                <Divider />
+              </>
             ))}
-            <Divider />
           </List>
         ) : (
           <Typography sx={{ textAlign: "center", margin: "auto", color: "text.disabled" }}>快去點餐囉！</Typography>
         )}
       </Box>
     </MobileDialogLayout>
+  );
+};
+
+interface ICartMeal {
+  cartItem: CartItem;
+  idx: number;
+}
+const CartMeal = (props: ICartMeal) => {
+  const dispatch = useAppDispatch();
+
+  const { cartItem, idx } = props;
+
+  const { id, title, coverUrl, specialties, price, amount } = cartItem;
+
+  const specialtiesPrice = useMemo(
+    () =>
+      specialties.reduce(
+        (acc, specialty) => (acc += specialty.items.reduce((acc, specialtyItem) => (acc += specialtyItem.price), 0)),
+        0
+      ),
+    [specialties]
+  );
+  const totalPrice = (price + specialtiesPrice) * amount;
+
+  const handleCustomized = (cartItem: CartItem, idx: number) => () => {
+    dispatch(viewCartItemCustomized({ cartItem, idx }));
+  };
+
+  const handleDeleteCartItem = (idx: number) => (e: SyntheticEvent<Element, Event>) => {
+    e.stopPropagation();
+    dispatch(openModal({ type: MobileModal.REMOVE_CART_CONFIRM, data: { idx } }));
+  };
+
+  // [TODO] remove?
+  // const handleAdd = (idx: number) => {
+  //   dispatch(increaseCartItemAmount(idx));
+  // };
+  // const handleMinus = (idx: number) => {
+  //   dispatch(decreaseCartItemAmount(idx));
+  // };
+
+  return (
+    <Fragment key={`${id}-${idx}`}>
+      <ListItemButton onClick={handleCustomized(cartItem, idx)} sx={{ padding: ".5rem" }} disableRipple>
+        <Box sx={{ width: "100%" }}>
+          <Grid container gap={1} sx={{ justifyContent: "space-between", marginBottom: "1rem" }}>
+            <Grid item sx={{ position: "relative" }} xs={2}>
+              <Box
+                component="img"
+                src={coverUrl}
+                alt={`${title}-img`}
+                sx={{ width: "5rem", verticalAlign: "middle" }}
+              />
+              {cartItem.isPopular && (
+                <Box
+                  sx={{
+                    position: "absolute",
+                    left: 0,
+                    top: 0,
+                    bgcolor: "primary.main",
+                    display: "flex",
+                    padding: ".1rem"
+                  }}
+                >
+                  <ThumbUpIcon sx={{ width: "1rem", height: "1rem" }} />
+                </Box>
+              )}
+            </Grid>
+            <Grid item xs={7}>
+              <Typography fontWeight={700}>
+                {title} x {amount}
+              </Typography>
+              {specialties.map((specialty, idx) => (
+                <Box sx={{ color: "common.black_80", fontSize: "small.fontSize" }} key={`${specialty.id}-${idx}`}>
+                  {specialty.type === "SINGLE"
+                    ? specialty.items[0]?.title ?? ""
+                    : specialty.items.map((i) => i.title).join("、")}
+                </Box>
+              ))}
+            </Grid>
+            <Grid item xs={1}>
+              <DeleteIcon onClick={handleDeleteCartItem(idx)} />
+            </Grid>
+          </Grid>
+          <Box
+            sx={{
+              display: "flex",
+              justifyContent: "end",
+              alignItems: "center",
+              width: "100%"
+            }}
+          >
+            {/*  [TODO] remove? */}
+            {/* <InputNumber value={amount} onAdd={() => handleAdd(idx)} onMinus={() => handleMinus(idx)} /> */}
+            <Typography variant="h6" fontWeight={900}>
+              {`${price}${specialtiesPrice ? `(+${specialtiesPrice})` : ""} x ${amount} = ${totalPrice}元`}
+            </Typography>
+          </Box>
+        </Box>
+      </ListItemButton>
+      <Divider light />
+    </Fragment>
   );
 };
 
@@ -811,7 +867,7 @@ export const OrderDialog = () => {
               總計
             </Typography>
             <Typography variant="h6" fontWeight={900}>
-              ${totalPrice}
+              {totalPrice}元
             </Typography>
           </Box>
           {orderStatus === 0 && showOrders.length > 0 && <Button onClick={handleCheckout}>前往結帳</Button>}
@@ -892,7 +948,7 @@ export const OrderDialog = () => {
                         {STATUS[order.status]}
                       </Box>
                     </Box>
-                    <Box sx={{ fontWeight: 900 }}>${order.orderMeals.reduce((acc, cur) => acc + cur.price, 0)}</Box>
+                    <Box sx={{ fontWeight: 900 }}>{order.orderMeals.reduce((acc, cur) => acc + cur.price, 0)}元</Box>
                   </Box>
                 </Box>
                 <Box sx={{ width: "100%", display: toggleList.includes(order.id) ? "block" : "none" }}>
@@ -923,7 +979,7 @@ export const OrderDialog = () => {
                         <Box>x{meal.amount}</Box>
                       </Grid>
                       <Grid item sx={{ textAlign: "right" }} xs={1.5}>
-                        <Box>${meal.price / meal.amount}</Box>
+                        <Box>{meal.price / meal.amount}元</Box>
                       </Grid>
                     </Grid>
                   ))}

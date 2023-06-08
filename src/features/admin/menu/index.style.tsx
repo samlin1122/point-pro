@@ -1,4 +1,5 @@
-import { FC, RefObject, SyntheticEvent, useEffect, useRef, useState } from "react";
+// Lib
+import { FC, SyntheticEvent, useEffect, useRef, useState } from "react";
 import {
   Accordion,
   AccordionDetails,
@@ -9,50 +10,57 @@ import {
   CardActions,
   CardContent,
   CardHeader,
+  Chip,
   Divider,
+  Drawer,
   FormControl,
   Input,
   List,
   ListItem,
   ListItemText,
+  Tab,
+  Tabs,
   Typography,
-  styled
+  styled,
+  tabsClasses
 } from "@mui/material";
-
-import TabsBase, { TabPanel } from "~/components/tabs";
-import { Column, Row } from "~/components/layout";
-import GridBase, { GridItemBase } from "~/components/grid";
-import { ButtonBase, ButtonIcon, CloseButton } from "~/components/buttons";
-import { useAppDispatch, useAppSelector } from "~/app/hook";
-
-import {
-  clearCart,
-  closeCustomizeDialog,
-  createCartItem,
-  decreaseCartItemAmount,
-  decreaseMealAmount,
-  deleteCartItem,
-  increaseCartItemAmount,
-  increaseMealAmount,
-  openCustomizeDialog,
-  setCurrentCategory,
-  updateCartItem,
-  updateSpecialty
-} from "~/features/orders/slice";
-
-import { ReactComponent as LinePayIcon } from "~/assets/line-pay-solid.svg";
+import DoneIcon from "@mui/icons-material/Done";
 import DeleteIcon from "@mui/icons-material/Delete";
 import ShoppingCartIcon from "@mui/icons-material/ShoppingCart";
 import MoneyIcon from "@mui/icons-material/Money";
 import CreditCardIcon from "@mui/icons-material/CreditCard";
+import ExpandMoreIcon from "@mui/icons-material/ExpandMore";
+// Components
+import { TabPanel } from "~/components/tabs";
+import { Column, Row } from "~/components/layout";
+import GridBase, { GridItemBase } from "~/components/grid";
+import { ButtonBase, ButtonIcon, CloseButton } from "~/components/buttons";
+import { DrawerBase } from "~/components/drawer";
+import { ModalBase } from "~/components/modals";
+// Others
+import { useAppDispatch, useAppSelector } from "~/app/hook";
+import {
+  clearCart,
+  closeCustomizeDialog,
+  createCartItem,
+  // decreaseCartItemAmount,
+  decreaseMealAmount,
+  deleteCartItem,
+  // increaseCartItemAmount,
+  increaseMealAmount,
+  openCustomizeDialog,
+  resetSpecialty,
+  setCurrentCategory,
+  updateCartItem,
+  updateSpecialty,
+  viewCartItemCustomized
+} from "~/features/orders/slice";
+import { ReactComponent as LinePayIcon } from "~/assets/line-pay-solid.svg";
 import { InputNumber } from "~/features/orders/index.styles";
 import theme from "~/theme";
-import { DrawerBase } from "~/components/drawer";
-import ExpandMoreIcon from "@mui/icons-material/ExpandMore";
-import { ModalBase } from "~/components/modals";
-import { Meal, Specialty, SpecialtyItem } from "~/features/orders/type";
+import { CartItem, Meal, Specialty, SpecialtyItem } from "~/features/orders/type";
 
-export const MenuTabs: FC = () => {
+export const MenuTabs = () => {
   const dispatch = useAppDispatch();
 
   const categories = useAppSelector(({ customerOrder }) => customerOrder.categories);
@@ -64,216 +72,75 @@ export const MenuTabs: FC = () => {
   };
 
   return (
-    <TabsBase
-      sx={{ position: "sticky", top: "0", zIndex: "10", backgroundColor: theme.palette.background.paper }}
-      tabs={categories}
+    <Tabs
+      variant="scrollable"
       value={currentCategory}
       onChange={(_, value) => handleClickCategory(value)}
-    />
+      sx={{
+        position: "sticky",
+        top: "0",
+        zIndex: "2",
+        backgroundColor: theme.palette.background.paper,
+        [`& .${tabsClasses.scrollButtons}.Mui-disabled`]: {
+          opacity: 0.2
+        }
+      }}
+    >
+      {categories.map(({ id, title }) => (
+        <Tab key={id} value={id} label={title} sx={{ fontSize: theme.typography.body1.fontSize }} />
+      ))}
+    </Tabs>
   );
 };
 
 interface IMealCardProps extends Meal {
   currentMealId: string;
 }
-
-const MealCard: FC<IMealCardProps> = ({ id, title, price, coverUrl, currentMealId }) => (
-  <Column
-    key={id}
-    py="0.5rem"
-    sx={{
-      gap: "0.75rem",
-      backgroundColor: id === currentMealId ? "primary.main" : "transparent",
-      padding: "0.3rem"
-    }}
-  >
-    <Box component="img" src={coverUrl} height="7rem" width="7rem" alt={title} sx={{ objectFit: "cover" }} />
-    <Row justifyContent="space-between" alignItems="center">
-      <Typography fontWeight={900}>{title}</Typography>
-      <Typography>{price}</Typography>
-    </Row>
-  </Column>
-);
-
-interface IMealsProps {}
-
-export const MealList: FC<IMealsProps> = () => {
+const MealCard = (props: IMealCardProps) => {
   const dispatch = useAppDispatch();
 
-  const menu = useAppSelector(({ customerOrder }) => customerOrder.menu);
-  const currentCategory = useAppSelector(({ customerOrder }) => customerOrder.currentCategory);
-  const currentMealId = useAppSelector(({ customerOrder }) => customerOrder.currentMealId);
+  const { id, title, price, coverUrl, currentMealId } = props;
 
-  const contentRef = useRef<HTMLDivElement>(null);
+  const isModifiedCartItem = useAppSelector(({ customerOrder }) => customerOrder.isModifiedCartItem);
+  const isSelected = id === currentMealId && !isModifiedCartItem;
 
   const handleSelectedMeal = (currentMealId: string) => () => {
+    dispatch(resetSpecialty());
     dispatch(openCustomizeDialog(currentMealId));
   };
-
   return (
-    <>
-      <Box ref={contentRef} sx={{ p: 3, overflowY: "scroll", height: "calc(100vh - 88px - 55px)" }}>
-        {menu.map(
-          (category, idx) =>
-            category.id === currentCategory && (
-              <TabPanel key={category.id} value={category.position} index={category.position}>
-                <GridBase columns="5" gap="1rem">
-                  {category.meals.length > 0 &&
-                    category.meals.map((meal) => (
-                      <GridItemBase
-                        sx={{
-                          zIndex: 0,
-                          transition: "all 0.3s ease",
-                          cursor: "pointer",
-                          "&:hover": {
-                            backgroundColor: theme.palette.common.black_20
-                          }
-                        }}
-                        key={meal.id}
-                        onClick={handleSelectedMeal(meal.id)}
-                      >
-                        <MealCard {...meal} currentMealId={currentMealId} />
-                      </GridItemBase>
-                    ))}
-                </GridBase>
-              </TabPanel>
-            )
-        )}
+    <Box
+      key={id}
+      sx={{
+        backgroundColor: isSelected ? "primary.main" : "transparent",
+        boxShadow: "rgba(0, 0, 0, 0.5) 0px 1px 4px"
+      }}
+      onClick={handleSelectedMeal(id)}
+    >
+      <Typography
+        fontWeight={600}
+        textAlign="center"
+        sx={{ textOverflow: "ellipsis", whiteSpace: "nowrap", overflow: "hidden", padding: ".3rem" }}
+      >
+        {title}
+      </Typography>
+      <Box height="6rem" sx={{ bgcolor: theme.palette.common.black, textAlign: "center" }}>
+        <Box component="img" src={coverUrl} alt={title} sx={{ objectFit: "fill", height: "100%", maxWidth: "100%" }} />
       </Box>
-      <MealDrawer contentRef={contentRef} />
-    </>
+      <Typography textAlign="center">{price}元</Typography>
+      <Row justifyContent="space-between" alignItems="center"></Row>
+    </Box>
   );
 };
 
-const CartTitle = styled(Row)`
-  padding: 1.5rem 1.5rem 0.75rem 1.5rem;
-`;
-
-const StyledCartItem = styled(Column)(({ theme }) => ({
-  flex: 1,
-  justifyContent: "space-between",
-  padding: "0.75rem 1.5rem",
-  gap: "0.75rem",
-  borderBottom: `1px solid ${theme.palette.common.black_20}`
-}));
-
-const SpecialtiesCartList = styled(List)(({ theme }) => ({
-  padding: 0,
-  margin: 0
-}));
-
-const SpecialtiesCartItem = styled(ListItem)(({ theme }) => ({
-  padding: 0,
-  margin: 0
-}));
-
-interface ICartItemProps {
-  idx: number;
-  title: string;
-  amount: number;
-  price: number;
-  coverUrl: string;
-  specialties: Specialty[];
-  handleAdd: (idx: number) => void;
-  handleMinus: (idx: number) => void;
-}
-
-const CartItem: FC<ICartItemProps> = ({ idx, title, amount, price, coverUrl, specialties, handleAdd, handleMinus }) => {
-  const dispatch = useAppDispatch();
-  const handleDeleteCartItem = (idx: number) => (e: SyntheticEvent<Element, Event>) => {
-    e.stopPropagation();
-    dispatch(deleteCartItem(idx));
-  };
-
-  return (
-    <>
-      <StyledCartItem>
-        <Row justifyContent={"flex-start"} align={"flex-start"} sx={{ gap: "0.75rem" }}>
-          <Box component="img" height={64} width={64} src={coverUrl} alt={title} sx={{ objectFit: "cover" }} />
-          <Column justifyContent={"flex-start"} alignItems={"flex-start"}>
-            <Typography component="h3" variant="body1" fontWeight={700} mb={0.5}>
-              {title}
-            </Typography>
-            <SpecialtiesCartList dense={true}>
-              {specialties.map((specialty) => (
-                <SpecialtiesCartItem key={specialty.id}>
-                  <ListItemText
-                    secondary={specialty.items.map((item) => (
-                      <Typography
-                        component="span"
-                        variant="body1"
-                        key={item.id}
-                        lineHeight={1.2}
-                        sx={{ marginRight: "0.5rem" }}
-                      >
-                        {item.title}
-                      </Typography>
-                    ))}
-                  />
-                </SpecialtiesCartItem>
-              ))}
-            </SpecialtiesCartList>
-          </Column>
-          <ButtonIcon sx={{ marginLeft: "auto" }} size="large" color="inherit" onClick={handleDeleteCartItem(idx)}>
-            <DeleteIcon sx={{ height: "100%" }} />
-          </ButtonIcon>
-        </Row>
-        <Row
-          justifyContent={"space-between"}
-          alignItems={"center"}
-          sx={{
-            width: "100%"
-          }}
-        >
-          <InputNumber value={amount} onAdd={() => handleAdd(idx)} onMinus={() => handleMinus(idx)} />
-          <Typography variant="h6" sx={{ fontWeight: 900 }}>
-            {price}
-          </Typography>
-        </Row>
-      </StyledCartItem>
-    </>
-  );
-};
-
-const SelectTab = styled(Button)(({ theme }) => ({
-  borderRadius: "1rem",
-  display: "flex",
-  justifyContent: "space-between",
-  alignItems: "center",
-  gap: "1.5rem",
-  padding: "0.5rem 1rem",
-  minWidth: "9rem",
-  outline: `1px solid ${theme.palette.common.black_20}`,
-  backgroundColor: theme.palette.common.white,
-  fontWeight: 700,
-  color: theme.palette.common.black,
-  "&:hover": {
-    backgroundColor: "transparent",
-    outline: `1px solid ${theme.palette.common.black}`
-  },
-  "&.Mui-selected": {
-    backgroundColor: theme.palette.primary.main,
-    outline: `1px solid ${theme.palette.common.black}`
-  },
-
-  "&.disabled": {
-    backgroundColor: theme.palette.common.black_20,
-    outline: `1px solid ${theme.palette.common.black_20}`,
-    color: theme.palette.common.black_40
-  }
-}));
-
-interface IMealDrawer {
-  contentRef: RefObject<HTMLDivElement>;
-}
-
-const MealDrawer: FC<IMealDrawer> = ({ contentRef }) => {
+export const MealDrawer = () => {
   const dispatch = useAppDispatch();
 
   const meals = useAppSelector(({ customerOrder }) => customerOrder.meals);
   const currentMealId = useAppSelector(({ customerOrder }) => customerOrder.currentMealId);
   const currentMealAmount = useAppSelector(({ customerOrder }) => customerOrder.currentMealAmount);
   const currentSpecialty = useAppSelector(({ customerOrder }) => customerOrder.currentSpecialty);
+  const isModifiedCartItem = useAppSelector(({ customerOrder }) => customerOrder.isModifiedCartItem);
 
   const currentMeal = meals.find((meal) => meal.id === currentMealId);
   const specialtyItems = currentSpecialty.reduce((acc, cur) => acc.concat(cur.items), [] as SpecialtyItem[]);
@@ -290,6 +157,10 @@ const MealDrawer: FC<IMealDrawer> = ({ contentRef }) => {
     dispatch(decreaseMealAmount());
   };
 
+  const handleUpdateCartItem = () => {
+    dispatch(updateCartItem());
+  };
+
   const handleAddToCart = () => {
     dispatch(createCartItem());
   };
@@ -303,78 +174,253 @@ const MealDrawer: FC<IMealDrawer> = ({ contentRef }) => {
       sx={{
         position: "fixed",
         bottom: 0,
-        left: 0,
-        right: 0,
-        width: `${contentRef.current?.clientWidth}px`,
         transition: "transform 0.3s",
-        transform: currentMeal ? "translateY(0)" : "translateY(100%)"
+        transform: currentMeal ? "translateY(0)" : "translateY(100%)",
+        width: "66.6vw"
       }}
     >
       <Box
-        bgcolor={"white"}
+        bgcolor="white"
         sx={{
           borderTop: `1px solid ${theme.palette.common.black_40}`,
           position: "relative",
-          padding: "2rem 1.5rem"
+          padding: ".5rem"
         }}
       >
+        <Typography variant="h4" sx={{ fontWeight: 900, color: theme.palette.common.black }}>
+          {currentMeal?.title}
+        </Typography>
         <CloseButton
           onClick={handleClose}
           sx={{
             position: "absolute",
             top: 0,
             right: 0,
-            zIndex: 1
+            padding: ".5rem",
+            minWidth: 0
           }}
         />
-        <Column sx={{ gap: "2rem" }}>
+        <Box>
           {currentMeal?.specialties?.length
             ? currentMeal.specialties.map((specialty) => (
-                <Column key={specialty.id} sx={{ gap: "1.5rem" }}>
-                  <Typography variant="h6" key={specialty.id} sx={{ fontWeight: 900 }}>
+                <Box key={specialty.id}>
+                  <Typography
+                    variant="h6"
+                    key={specialty.id}
+                    sx={{ fontWeight: 900, padding: "1rem 0 1rem", color: theme.palette.common.black_80 }}
+                  >
                     {specialty.title}
                   </Typography>
-                  <Row component={"ul"} sx={{ gap: "1.5rem", padding: 0, margin: 0 }}>
-                    {specialty.items.map((item, idx) => (
-                      <ListItem key={item.id}>
-                        <SelectTab
-                          onClick={handleClickItem(specialty, item)}
-                          className={specialtyItems.find(({ id }) => id === item.id) ? "Mui-selected" : ""}
-                        >
-                          <Typography variant="body1" fontWeight={700}>
-                            {item.title}
-                          </Typography>
-                        </SelectTab>
-                      </ListItem>
+                  <Box
+                    sx={{
+                      padding: 0,
+                      margin: 0,
+                      width: "100%",
+                      display: "grid",
+                      gridTemplateColumns: "repeat(6, 1fr)",
+                      gap: ".5rem"
+                    }}
+                  >
+                    {specialty.items.map((item) => (
+                      <Chip
+                        key={item.id}
+                        label={item.title}
+                        color="primary"
+                        variant={specialtyItems.find(({ id }) => id === item.id) ? "filled" : "outlined"}
+                        icon={
+                          <DoneIcon
+                            sx={{
+                              display: specialtyItems.find(({ id }) => id === item.id) ? "block" : "none",
+                              fontSize: theme.typography.body1.fontSize
+                            }}
+                          />
+                        }
+                        onClick={handleClickItem(specialty, item)}
+                        sx={{
+                          color: theme.palette.common.black,
+                          fontSize: theme.typography.body1.fontSize,
+                          "&:hover": {
+                            bgcolor: theme.palette.primary.main
+                          }
+                        }}
+                      />
                     ))}
-                  </Row>
-                </Column>
+                  </Box>
+                </Box>
               ))
             : null}
-        </Column>
-        <Row sx={{ marginTop: "2.5rem" }} alignItems={"center"}>
-          <InputNumber value={currentMealAmount} onAdd={() => handleAdd()} onMinus={() => handleMinus()} />
+        </Box>
+        <Box sx={{ marginTop: "1rem", display: "flex", justifyContent: "end" }}>
+          <InputNumber value={currentMealAmount} onAdd={handleAdd} onMinus={handleMinus} />
           <ButtonBase
             sx={{
               backgroundColor: theme.palette.common.black,
               color: "white",
-              padding: "1rem 1.5rem",
+              padding: ".5rem 1rem",
               marginLeft: "1.5rem",
               "&:hover": {
                 backgroundColor: theme.palette.common.black_80,
                 color: theme.palette.common.black_20
               }
             }}
-            onClick={handleAddToCart}
+            onClick={isModifiedCartItem ? handleUpdateCartItem : handleAddToCart}
+            startIcon={isModifiedCartItem ? <DoneIcon /> : <ShoppingCartIcon />}
           >
-            <ShoppingCartIcon />
-            <Typography variant="h6" fontWeight={700} ml={"0.8125rem"}>
-              加入購物車
+            <Typography variant="body1" fontWeight={700}>
+              {isModifiedCartItem ? "確認修改" : "加入購物車"}
             </Typography>
           </ButtonBase>
-        </Row>
+        </Box>
       </Box>
     </Box>
+  );
+};
+
+export const MealList = () => {
+  const menu = useAppSelector(({ customerOrder }) => customerOrder.menu);
+  const currentCategory = useAppSelector(({ customerOrder }) => customerOrder.currentCategory);
+  const currentMealId = useAppSelector(({ customerOrder }) => customerOrder.currentMealId);
+
+  return (
+    <>
+      <Box
+        sx={{
+          p: 2,
+          overflowY: "scroll",
+          height: "calc(100vh - 88px - 4rem)"
+        }}
+      >
+        {menu.map(
+          (category) =>
+            category.id === currentCategory && (
+              <TabPanel
+                key={category.id}
+                value={category.position}
+                index={category.position}
+                sx={{ paddingBottom: "26rem" }}
+              >
+                <GridBase columns="5" gap="1rem">
+                  {category.meals.length > 0 &&
+                    category.meals.map((meal) => (
+                      <GridItemBase
+                        sx={{
+                          cursor: "pointer"
+                        }}
+                        key={meal.id}
+                      >
+                        <MealCard {...meal} currentMealId={currentMealId} />
+                      </GridItemBase>
+                    ))}
+                </GridBase>
+              </TabPanel>
+            )
+        )}
+      </Box>
+    </>
+  );
+};
+
+const SpecialtiesCartList = styled(List)(({ theme }) => ({
+  padding: 0,
+  margin: 0
+}));
+
+const SpecialtiesCartItem = styled(ListItem)(({ theme }) => ({
+  padding: 0,
+  margin: 0
+}));
+
+interface ICartMealProps {
+  idx: number;
+  cartItem: CartItem;
+}
+
+const CartMeal = ({ idx, cartItem }: ICartMealProps) => {
+  const dispatch = useAppDispatch();
+
+  const { title, amount, specialties, price } = cartItem;
+
+  const specialtiesPrice = specialties.reduce(
+    (acc, specialty) => (acc += specialty.items.reduce((acc, specialtyItem) => (acc += specialtyItem.price), 0)),
+    0
+  );
+  const totalPrice = (price + specialtiesPrice) * amount;
+
+  const handleEditCartItem = (e: React.MouseEvent<HTMLDivElement, MouseEvent>) => {
+    dispatch(viewCartItemCustomized({ cartItem, idx }));
+  };
+
+  const handleDeleteCartItem = (e: React.MouseEvent<HTMLButtonElement, MouseEvent>) => {
+    e.stopPropagation();
+    dispatch(deleteCartItem(idx));
+  };
+
+  // [TODO] remove?
+  // const handleAdd = (idx: number) => {
+  //   dispatch(increaseCartItemAmount(idx));
+  // };
+  // const handleMinus = (idx: number) => {
+  //   dispatch(decreaseCartItemAmount(idx));
+  // };
+
+  return (
+    <Column
+      sx={{
+        flex: 1,
+        padding: ".2rem .5rem",
+        gap: ".2rem",
+        borderBottom: `1px solid ${theme.palette.common.black_20}`,
+        boxShadow: "rgba(60, 64, 67, 0.3) 0px 1px 2px 0px, rgba(60, 64, 67, 0.15) 0px 2px 6px 2px",
+        cursor: "pointer"
+      }}
+      onClick={handleEditCartItem}
+    >
+      <Row>
+        <Typography variant="h6" fontWeight={700} mb={0.5}>
+          {title} x {amount}
+        </Typography>
+        <ButtonIcon sx={{ marginLeft: "auto" }} size="large" color="inherit" onClick={handleDeleteCartItem}>
+          <DeleteIcon />
+        </ButtonIcon>
+      </Row>
+      <Row sx={{ gap: "0.5rem" }} alignItems="flex-start">
+        {/* [TODO] remove? */}
+        {/* <Box component="img" height={64} width={64} src={coverUrl} alt={title} sx={{ objectFit: "cover" }} /> */}
+        <Column>
+          <SpecialtiesCartList dense={true}>
+            {specialties.map((specialty) => (
+              <SpecialtiesCartItem key={specialty.id}>
+                <ListItemText
+                  secondary={specialty.items.map((item) => (
+                    <Typography
+                      component="span"
+                      variant="body1"
+                      key={item.id}
+                      lineHeight={1.2}
+                      sx={{ marginRight: "0.5rem" }}
+                    >
+                      {item.title}
+                    </Typography>
+                  ))}
+                />
+              </SpecialtiesCartItem>
+            ))}
+          </SpecialtiesCartList>
+        </Column>
+      </Row>
+      <Box
+        sx={{
+          width: "100%",
+          textAlign: "right"
+        }}
+      >
+        {/* [TODO] remove? */}
+        {/* <InputNumber value={amount} onAdd={() => handleAdd(idx)} onMinus={() => handleMinus(idx)} /> */}
+        <Typography variant="body1" sx={{ fontWeight: 900 }}>
+          {`${price}${specialtiesPrice ? `(+${specialtiesPrice})` : ""} x ${amount} = ${totalPrice}元`}
+        </Typography>
+      </Box>
+    </Column>
   );
 };
 
@@ -397,14 +443,6 @@ export const CartList: FC = () => {
       setFooterHeight(footerRef.current.offsetHeight);
     }
   }, []);
-
-  const handleAdd = (idx: number) => {
-    dispatch(increaseCartItemAmount(idx));
-  };
-
-  const handleMinus = (idx: number) => {
-    dispatch(decreaseCartItemAmount(idx));
-  };
 
   const handleClearCart = () => {
     dispatch(clearCart());
@@ -526,20 +564,28 @@ export const CartList: FC = () => {
     },
     {
       label: "Line Pay",
-      icon: <LinePayIcon width={"2.5rem"} />,
+      icon: <LinePayIcon width="2.5rem" />,
       content: <LinePaymentForm onSubmit={handleCompleteOrder} />
     }
   ];
 
+  const totalPrice = cart.reduce((acc, cartItem) => {
+    const speicaltiesPrice = cartItem.specialties.reduce(
+      (acc, specialty) => (acc += specialty.items.reduce((acc, specialtyItem) => (acc += specialtyItem.price), 0)),
+      0
+    );
+    return (acc += cartItem.amount * (cartItem.price + speicaltiesPrice));
+  }, 0);
+
   return (
     <>
-      <Column bgcolor={"background.paper"} height={"100%"}>
-        <CartTitle justifyContent={"space-between"} alignItems={"flex-end"} ref={headerRef}>
-          <Typography component="h2" variant="h3" fontWeight={900}>
-            已點項目
-          </Typography>
-          <Box>
-            {cart.length > 0 && (
+      <Column bgcolor="background.paper" height="100%">
+        {cart.length > 0 && (
+          <Row justifyContent="space-between" ref={headerRef} sx={{ padding: "0.5rem" }}>
+            <Typography variant="h5" fontWeight={900}>
+              已點項目
+            </Typography>
+            <Box>
               <ButtonBase size={"small"} color="inherit" disableRipple onClick={() => setOpenDialog(true)}>
                 <Typography
                   component="span"
@@ -550,9 +596,9 @@ export const CartList: FC = () => {
                   清空訂單
                 </Typography>
               </ButtonBase>
-            )}
-          </Box>
-        </CartTitle>
+            </Box>
+          </Row>
+        )}
         <ModalBase open={openDialog} onClose={() => setOpenDialog(false)}>
           <Box display="grid" sx={{ placeContent: "center" }} height={"100%"}>
             <Card>
@@ -578,70 +624,75 @@ export const CartList: FC = () => {
         </ModalBase>
         {cart.length > 0 ? (
           <>
-            <List sx={{ padding: 0, overflowY: "scroll", height: `calc(100vh - ${headerHeight + footerHeight}px)` }}>
+            <List
+              sx={{
+                overflowY: "scroll",
+                flexGrow: 1,
+                height: `calc(100vh - 88px - 16rem)`,
+                padding: ".5rem"
+              }}
+            >
               {cart.map((cartItem, idx) => (
-                <ListItem key={`${cartItem.title}-${idx}`} sx={{ padding: 0 }}>
-                  <CartItem
-                    idx={idx}
-                    title={cartItem.title}
-                    price={cartItem.price}
-                    coverUrl={cartItem.coverUrl}
-                    specialties={cartItem.specialties}
-                    amount={cartItem.amount}
-                    handleAdd={handleAdd}
-                    handleMinus={handleMinus}
-                  />
+                <ListItem key={`${cartItem.title}-${idx}`} sx={{ padding: 0, margin: ".5rem 0" }}>
+                  <CartMeal idx={idx} cartItem={cartItem} />
                 </ListItem>
               ))}
             </List>
             <Box
               ref={footerRef}
-              sx={{ position: "sticky", bottom: 0, borderTop: `1px dashed ${theme.palette.common.black_40}` }}
+              sx={{ borderTop: `1px dashed ${theme.palette.common.black_40}` }}
               bgcolor={"background.paper"}
             >
               <Column sx={{ padding: "0.75rem 1.5rem", gap: "0.75rem" }}>
                 <Row justifyContent={"space-between"} alignItems={"flex-end"}>
-                  <Typography component="h3" variant="body1" fontWeight={700}>
+                  <Typography variant="body1" fontWeight={700}>
                     數量
                   </Typography>
-                  <Typography component="h3" variant="h6" fontWeight={900}>
-                    {cart.length}
+                  <Typography variant="h6" fontWeight={900}>
+                    {cart.reduce((acc, cur) => (acc += cur.amount), 0)}
                   </Typography>
                 </Row>
-                <Row justifyContent={"space-between"} alignItems={"flex-end"}>
-                  <Typography component="h3" variant="body1" fontWeight={700}>
-                    小記
+                <Row justifyContent="space-between" alignItems="flex-end">
+                  <Typography variant="body1" fontWeight={700}>
+                    小計
                   </Typography>
-                  <Typography component="h3" variant="h6" fontWeight={900}>
-                    {cart.reduce((acc, cur) => (acc += cur.amount * cur.price), 0)}
+                  <Typography variant="h6" fontWeight={900}>
+                    {totalPrice}元
                   </Typography>
                 </Row>
               </Column>
               <ButtonBase
-                sx={{ width: "100%", padding: "1.5rem 2rem", borderRadius: 0, boxShadow: "none" }}
+                sx={{ width: "100%", padding: "1rem", borderRadius: 0, boxShadow: "none" }}
                 variant="contained"
                 onClick={handleSubmitOrders}
                 color="primary"
               >
-                <Typography component="h3" variant="h6" fontWeight={900} textAlign={"center"}>
+                <Typography variant="h6" fontWeight={900} textAlign="center">
                   結帳
                 </Typography>
               </ButtonBase>
             </Box>
           </>
         ) : (
-          <Typography component="h3" variant="h5" fontWeight={900} align="center" p={3}>
-            無訂單
+          <Typography
+            variant="h5"
+            fontWeight={900}
+            align="center"
+            p={3}
+            sx={{ margin: "auto" }}
+            color={theme.palette.common.black_40}
+          >
+            無項目
           </Typography>
         )}
       </Column>
       <DrawerBase title="結帳" open={openPayment} onClose={handleCloseDrawer} buttonList={paymentBtn()}>
         <Column p={3}>
-          <Row justifyContent={"space-between"}>
-            <Typography component="h3" variant="body1" fontWeight={700}>
+          <Row justifyContent="space-between">
+            <Typography variant="body1" fontWeight={700}>
               類型
             </Typography>
-            <Typography component="h3" variant="h5" fontWeight={900}>
+            <Typography variant="h5" fontWeight={900}>
               外帶
             </Typography>
           </Row>
@@ -695,7 +746,7 @@ export const CartList: FC = () => {
             總金額
           </Typography>
           <Typography component="h4" variant="h6" fontWeight={900}>
-            {cart.reduce((acc, cur) => (acc += cur.amount * cur.price), 0)}
+            {totalPrice}
           </Typography>
         </Row>
       </DrawerBase>

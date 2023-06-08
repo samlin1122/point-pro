@@ -149,6 +149,11 @@ export const customerOrderSlice = createSlice({
   name,
   initialState,
   reducers: {
+    // Category Tab Focus
+    setCurrentCategory: (state, action: PayloadAction<CustomerOrderSliceState["currentCategory"]>) => {
+      state.currentCategory = action.payload;
+    },
+    // Modal
     openModal: (state, action: PayloadAction<{ type: CustomerOrderSliceState["currentModal"]; data?: any }>) => {
       const { type, data = {} } = action.payload;
       state.currentModal = type;
@@ -156,7 +161,9 @@ export const customerOrderSlice = createSlice({
     },
     closeModal: (state) => {
       state.currentModal = initialState.currentModal;
+      state.modalData = initialState.modalData;
     },
+    // Dialog
     openDialog: (state, action: PayloadAction<{ type: CustomerOrderSliceState["currentDialog"]; data?: any }>) => {
       const { type, data = {} } = action.payload;
       state.currentDialog = type;
@@ -166,21 +173,24 @@ export const customerOrderSlice = createSlice({
       state.currentDialog = initialState.currentDialog;
       state.dialogData = initialState.dialogData;
     },
-    // [TODO] replace to openModal
+    // [TODO] replace to openDialog
     openCustomizeDialog: (state, action: PayloadAction<CustomerOrderSliceState["currentMealId"]>) => {
       state.currentMealId = action.payload;
       state.currentDialog = MobileDialog.CUSTOMIZED;
     },
     closeCustomizeDialog: (state) => {
-      state.currentMealId = initialState.currentMealId;
-      state.currentMealAmount = initialState.currentMealAmount;
-      state.currentSpecialty = initialState.currentSpecialty;
+      customerOrderSlice.caseReducers.resetSpecialty(state);
       state.currentDialog = initialState.currentDialog;
       state.modifiedCartItemIndex = initialState.modifiedCartItemIndex;
       state.isModifiedCartItem = initialState.isModifiedCartItem;
     },
-    setCurrentCategory: (state, action: PayloadAction<CustomerOrderSliceState["currentCategory"]>) => {
-      state.currentCategory = action.payload;
+    // Specialty
+    resetSpecialty: (state) => {
+      state.currentMealId = initialState.currentMealId;
+      state.currentMealAmount = initialState.currentMealAmount;
+      state.currentSpecialty = initialState.currentSpecialty;
+      state.modifiedCartItemIndex = initialState.modifiedCartItemIndex;
+      state.isModifiedCartItem = initialState.isModifiedCartItem;
     },
     updateSpecialty: (state, action: PayloadAction<{ selectedSpecialty: Specialty; selectedItem: SpecialtyItem }>) => {
       const { selectedSpecialty, selectedItem } = action.payload;
@@ -192,6 +202,9 @@ export const customerOrderSlice = createSlice({
       if (includedSpecialty) {
         if (isItemChecked) {
           includedSpecialty.items = includedSpecialty.items.filter((item) => item.id !== selectedItem.id);
+          if (includedSpecialty.items.length === 0) {
+            state.currentSpecialty = state.currentSpecialty.filter((item) => item.id !== includedSpecialty.id);
+          }
         } else {
           includedSpecialty.items = isSingle ? [selectedItem] : [...includedSpecialty.items, selectedItem];
         }
@@ -341,6 +354,7 @@ export const {
   closeDialog,
   openCustomizeDialog,
   closeCustomizeDialog,
+  resetSpecialty,
   setCurrentCategory,
   updateSpecialty,
   increaseMealAmount,
