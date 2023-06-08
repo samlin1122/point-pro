@@ -16,17 +16,6 @@ type SideBarType = {
 const SideBar = ({ path }: SideBarType) => {
   const [openList, setOpenList] = useState<SideBarItemOpenType>({});
   const navigate = useNavigate();
-  console.log("SideBar");
-
-  // useEffect(() => {
-  //   console.log("1");
-
-  //   sideBarItemList.map((e) => {
-  //     if (e.list) {
-  //       setOpenList({ ...openList, [e.id]: false });
-  //     }
-  //   });
-  // }, []);
 
   const handleClick = (item: { path?: string | undefined; id: string }) => {
     if (item.path) {

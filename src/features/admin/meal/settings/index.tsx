@@ -3,20 +3,18 @@ import { FC, useEffect, useState, ChangeEvent, Fragment } from "react";
 import { Button, IconButton, Stack, Typography } from "@mui/material";
 import { Base } from "~/components/layout";
 import { InputText } from "~/components/input";
-import { DrawerBase } from "~/components/drawer";
 import CloseIcon from "@mui/icons-material/Close";
 import AddIcon from "@mui/icons-material/Add";
 import FormatAlignJustifyIcon from "@mui/icons-material/FormatAlignJustify";
+import SpecialtyDetail from "./SpecialtyDetail";
 
 import { RouterProps, ICategory, ISpecialty } from "~/types";
 
 import { useAppDispatch, useAppSelector } from "~/app/hook";
-import { Categories } from "~/app/selector";
-import { Specialties } from "~/app/selector";
+import { Categories, Specialties } from "~/app/selector";
 import { getCategories, postCategory, deleteCategory } from "~/app/slices/category";
 import { getSpecialties } from "~/app/slices/specialty";
 import { cloneDeep } from "lodash";
-import SpecialtyDetail from "./SpecialtyDetail";
 
 const initCategory = { id: "", title: "" };
 

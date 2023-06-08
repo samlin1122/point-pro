@@ -7,9 +7,8 @@ import { RouterProps } from "~/types";
 
 import mainReducer, { initialState, defaultSetting, editField, convertToPayload } from "./reducers";
 import { useAppDispatch, useAppSelector } from "~/app/hook";
-import { getMealById, postMeal, patchMealById, deleteMeal } from "~/app/slices/meal";
-import { Categories } from "~/app/selector";
-import { Specialties } from "~/app/selector";
+import { getMealById, postMeal, putMealById, deleteMeal } from "~/app/slices/meal";
+import { Categories, Specialties } from "~/app/selector";
 
 export const MealListDetailContainer: FC<RouterProps> = ({ params, navigate }) => {
   const isCreate = params.meal_id === "create";
@@ -83,44 +82,32 @@ export const MealListDetailContainer: FC<RouterProps> = ({ params, navigate }) =
   ];
 
   const handleButtonClick = async (key: string) => {
-    switch (key) {
-      case "cancel":
-        navigate(-1);
-        break;
-      case "create":
-        try {
-          let payload = convertToPayload(state);
+    try {
+      let payload = convertToPayload(state);
+      switch (key) {
+        case "create":
           console.log({ payload });
           await dispatch(postMeal(payload));
-        } catch (error) {
-          console.log("create meal failed");
-        }
-        break;
-      case "save":
-        try {
-          let payload = convertToPayload(state);
+          break;
+        case "save":
           console.log({ payload });
-          await dispatch(patchMealById({ mealId: params.meal_id as string, payload }));
-        } catch (error) {
-          console.log("update meal failed");
-        }
-        break;
-      case "delete":
-        try {
+          await dispatch(putMealById({ mealId: params.meal_id as string, payload }));
+          break;
+        case "delete":
           await dispatch(deleteMeal(params.meal_id as string));
-          navigate({ pathname: "/admin/meal/list" });
-        } catch (error) {
-          console.log("delete meal failed", { error });
-        }
-        break;
+          break;
+        case "cancel":
+          break;
+      }
+      navigate({ pathname: "/admin/meal/list" });
+    } catch (error) {
+      console.log(`${key} meal failed`);
     }
   };
 
   const handleFieldChange = (props: { id: string; value: any }) => {
     reducerDispatch(editField(props));
   };
-  // console.log(state);
-
   return (
     <Base>
       <Stack sx={{ flexWrap: "wrap", maxHeight: "calc(100vh - 88px - 47px)", gap: 5 }}>

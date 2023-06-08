@@ -14,21 +14,20 @@ import {
   FormControlLabel
 } from "@mui/material";
 import Select, { SelectChangeEvent } from "@mui/material/Select";
-import { Base } from "~/components/layout";
 import SwitchBase from "~/components/switch";
 import AddIcon from "@mui/icons-material/Add";
 
 import { RouterProps, IMeal, ICategory } from "~/types";
 import { useAppDispatch, useAppSelector } from "~/app/hook";
-import { getMeals } from "~/app/slices/meal";
+import { getMeals, putMealById } from "~/app/slices/meal";
 import { Categories } from "~/app/selector";
-import appDayjs from "~/utils/dayjs.util";
+import appDayjs, { formatFullDate } from "~/utils/dayjs.util";
 
 export const MealListContainer: FC<RouterProps> = ({ navigate }) => {
   const dispatch = useAppDispatch();
   const [selectedCategory, setSelectedCategory] = useState<string>("all");
   const categories: ICategory[] = useAppSelector(Categories);
-  const [mealList, setMealList] = useState<IMeal[] | undefined>();
+  const [mealList, setMealList] = useState<IMeal[]>();
 
   useEffect(() => {
     dispatchGetMeals();
@@ -43,8 +42,22 @@ export const MealListContainer: FC<RouterProps> = ({ navigate }) => {
     setSelectedCategory(event.target.value as string);
   };
 
-  const handleSwitchChange = (event: ChangeEvent<HTMLInputElement>) => {
-    console.log(event.target.checked);
+  const handleSwitchChange = async (mealId: string, checked: boolean) => {
+    // console.log(event.target.checked);
+    let payload: { publishedAt: string | null } = { publishedAt: appDayjs().toISOString() };
+    if (checked) {
+      payload.publishedAt = appDayjs().toISOString();
+    } else {
+      payload.publishedAt = null;
+    }
+    console.log({ mealId, payload });
+
+    try {
+      await dispatch(putMealById({ mealId, payload }));
+      await dispatchGetMeals();
+    } catch (error) {
+      console.log("publishedAt failed");
+    }
   };
 
   const handleMealClick = (mealId: string) => {
@@ -85,26 +98,26 @@ export const MealListContainer: FC<RouterProps> = ({ navigate }) => {
       <List sx={{ mx: 0, p: 0 }}>
         {mealList?.map((meal) => (
           <Fragment key={`meal-${meal.id}`}>
-            {selectedCategory === "all" || meal.categories?.some((e) => e.categoryId === selectedCategory) ? (
+            {selectedCategory === "all" || meal.categories?.some((categoryId) => categoryId === selectedCategory) ? (
               <ListItemButton
                 sx={{ borderBottom: (theme) => `1px solid ${theme.palette.divider}` }}
                 onClick={() => handleMealClick(meal.id)}
               >
                 <ListItem>
-                  <ListItemText primary={meal.title} />
+                  <ListItemText sx={{ width: "40%" }} primary={meal.title} />
                   {appDayjs().isBefore(appDayjs(meal.publishedAt)) ? (
-                    <ListItemText primary={appDayjs(appDayjs(meal.publishedAt)).format("YYYY-MM-DD")} />
+                    <ListItemText primary={formatFullDate(meal.publishedAt)} />
                   ) : null}
                   <FormControlLabel
                     onClick={(eve) => eve.stopPropagation()}
                     control={
                       <SwitchBase
                         sx={{ mx: 2 }}
-                        onChange={handleSwitchChange}
-                        checked={appDayjs().isBefore(appDayjs(meal.publishedAt))}
+                        onChange={(event) => handleSwitchChange(meal.id, event.target.checked)}
+                        checked={appDayjs().isAfter(appDayjs(meal.publishedAt))}
                       />
                     }
-                    label={appDayjs().isBefore(appDayjs(meal.publishedAt)) ? "上架中" : "未上架"}
+                    label={appDayjs().isAfter(appDayjs(meal.publishedAt)) ? "上架中" : "未上架"}
                   />
                 </ListItem>
               </ListItemButton>

@@ -27,3 +27,25 @@ appDayjs.extend(relativeTime);
 appDayjs.locale("zh-tw");
 
 export default appDayjs;
+
+export const dateForm = {
+  fullDateWithTime: "YYYY-MM-DD HH:mm",
+  fullDate: "YYYY-MM-DD",
+  dateWithTimeAMPM: "MM-DD Ahh:mm",
+  dateOnly: "MM-DD",
+  yearOnly: "YYYY",
+  timeOnly: "HH:mm"
+};
+
+export const formatFullDateWithTime = (date: any) => {
+  return date ? appDayjs(date).format(dateForm.fullDateWithTime) : date;
+};
+export const formatFullDate = (date: any) => {
+  return date ? appDayjs(date).format(dateForm.fullDate) : date;
+};
+export const formatDateOnly = (date: any) => {
+  return date ? appDayjs(date).format(dateForm.dateOnly) : date;
+};
+export const formatTimeOnly = (date: any) => {
+  return date ? appDayjs(date).format(dateForm.timeOnly) : date;
+};

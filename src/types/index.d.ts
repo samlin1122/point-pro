@@ -23,12 +23,12 @@ export interface IMeal extends IBasicKey {
   description?: string;
   price?: number;
   position?: number;
-  publishedAt?: Date | null;
+  publishedAt?: string | null;
   isPopular?: boolean;
   createdAt?: Date;
   updatedAt?: Date;
-  categories?: CategoriesOnMeals[];
-  specialties?: SpecialtiesOnMeals[];
+  categories?: string[];
+  specialties?: string[];
 }
 
 export interface ICombineMenu extends ICategory {

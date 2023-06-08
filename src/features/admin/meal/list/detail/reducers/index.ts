@@ -1,6 +1,7 @@
 import { createSlice } from "@reduxjs/toolkit";
 import { isEmpty, forEach } from "lodash";
 import { IMeal } from "~/types";
+import appDayjs from "~/utils/dayjs.util";
 import { MakeFieldResponse, makeField } from "~/utils/makeField";
 
 interface StateProps {
@@ -14,7 +15,12 @@ const makeFieldsBase = (payload: IMeal): StateProps => {
     coverUrl: makeField(payload.coverUrl, "coverUrl", true, false),
     description: makeField(payload.description, "description", true, false),
     price: makeField(payload.price, "price", true, false),
-    publishedAt: makeField(payload.publishedAt, "publishedAt", true, false),
+    publishedAt: makeField(
+      payload.publishedAt ? appDayjs(payload.publishedAt) : payload.publishedAt,
+      "publishedAt",
+      true,
+      false
+    ),
     isPopular: makeField(payload.isPopular, "isPopular", true, false),
     categories: makeField(payload.categories, "categories", true, false),
     specialties: makeField(payload.specialties, "specialties", true, false)
@@ -45,7 +51,9 @@ const mainReducer = createSlice({
       console.log({ id, value });
 
       if (id === "publishedAt") {
-        state[id].value = value.startOf("day").valueOf();
+        state[id].value = value.toISOString();
+      } else if (id === "price") {
+        state[id].value = Number(value);
       } else {
         state[id].value = value;
       }

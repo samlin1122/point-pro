@@ -1,7 +1,7 @@
 import { FC, useState } from "react";
 import { Stack, Typography, ListItem, styled, Button, Box, Divider } from "@mui/material";
 import { Row } from "~/components/layout";
-import dayjs from "dayjs";
+import { formatFullDateWithTime, formatTimeOnly } from "~/utils/dayjs.util";
 import { DrawerBaseButtonType } from "~/components/drawer/drawer-base";
 import { DrawerBase } from "~/components/drawer";
 import TabsBase from "~/components/tabs";
@@ -158,7 +158,7 @@ export const SeatStatusBlock: FC<ReservationProps> = ({ reservations }) => {
               }
             >
               <Typography variant="body1" fontWeight={700}>
-                {dayjs(reservation.reservationTime).format("HH:mm")}
+                {formatTimeOnly(reservation.reservationTime)}
               </Typography>
             </SelectTab>
           </ListItem>
@@ -264,7 +264,7 @@ export const BookingModal: React.FC<BookingModalProps> = ({ open, onClose, seatR
           最近的預約
         </Typography>
         <Typography variant="h4" sx={{ pr: 3 }}>
-          {dayjs().format("YY/MM/DD HH:mm")}
+          {formatFullDateWithTime("YY/MM/DD HH:mm")}
         </Typography>
       </Stack>
       <Divider sx={{ py: 1 }} />

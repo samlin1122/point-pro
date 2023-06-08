@@ -37,7 +37,7 @@ import { CustomerBookingDialog } from "~/types/common";
 import { MobileButton, MobileDialogLayout } from "~/components/dialog";
 import { CheckboxBase } from "~/components/checkbox";
 // Others
-import appDayjs from "~/utils/dayjs.util";
+import appDayjs, { formatTimeOnly, formatDateOnly } from "~/utils/dayjs.util";
 import { useAppDispatch, useAppSelector } from "~/app/hook";
 import {
   setStep,
@@ -159,7 +159,7 @@ export const PeopleAndTime = () => {
               {!reservedAt && <MenuItem value="0"></MenuItem>}
               {availablePeriod.map((option) => (
                 <MenuItem value={`${option.startedAt}`} key={option.startedAt}>
-                  {appDayjs(option.startedAt).format("HH:mm")}
+                  {formatTimeOnly(option.startedAt)}
                 </MenuItem>
               ))}
             </Select>
@@ -367,8 +367,8 @@ export const ConfirmBookingInfo = (props: IConfirmBookingInfoProps) => {
         <Grid item xs={6} sx={{ padding: "0 1rem", borderLeft: ".1rem solid", borderColor: "common.black_40" }}>
           <Box sx={{ color: "common.black_60", fontWeight: 500 }}>入座時間</Box>
           <Box sx={{ fontSize: "h6.fontSize", fontWeight: 900, color: "common.black" }}>
-            <Box>{appDayjs(reservedAt).format("MM月DD日")}</Box>
-            <Box>{appDayjs(reservedAt).format("HH:mm")}</Box>
+            <Box>{formatDateOnly(reservedAt)}</Box>
+            <Box>{formatTimeOnly(reservedAt)}</Box>
           </Box>
         </Grid>
       </Grid>

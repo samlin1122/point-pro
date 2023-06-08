@@ -55,6 +55,9 @@ const mainReducer = createSlice({
         if (key === "title" && state.items.value[index][key] !== data) {
           state.items.value[index] = { ...initialItem };
         }
+        if (key === "price") {
+          data = Number(data);
+        }
         state.items.value[index][key] = data;
       } else {
         // select

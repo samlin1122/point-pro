@@ -19,7 +19,7 @@ import {
   GridValueGetterParams,
   GridRenderCellParams
 } from "@mui/x-data-grid";
-import appDayjs from "~/utils/dayjs.util";
+import appDayjs, { formatTimeOnly } from "~/utils/dayjs.util";
 
 const rows: GridRowsProp = [
   {
@@ -201,7 +201,7 @@ const columns: GridColDef[] = [
     minWidth: 140,
     flex: 0.5,
     valueFormatter: (params: GridValueFormatterParams<number>) => {
-      return params.value ? appDayjs(params.value).format("HH:mm") : "-";
+      return params.value ? formatTimeOnly(params.value) : "-";
     }
   },
   {
@@ -210,7 +210,7 @@ const columns: GridColDef[] = [
     minWidth: 140,
     flex: 0.5,
     valueFormatter: (params: GridValueFormatterParams<number>) => {
-      return params.value ? appDayjs(params.value).format("HH:mm") : "-";
+      return params.value ? formatTimeOnly(params.value) : "-";
     }
   },
   {

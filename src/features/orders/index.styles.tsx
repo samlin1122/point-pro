@@ -38,7 +38,7 @@ import { MobileDialogLayout } from "~/components/dialog";
 import { ModalBase } from "~/components/modals";
 import { CheckboxBase } from "~/components/checkbox";
 // Others
-import appDayjs from "~/utils/dayjs.util";
+import { formatFullDateWithTime } from "~/utils/dayjs.util";
 import { useAppDispatch, useAppSelector } from "~/app/hook";
 import {
   openDialog,
@@ -119,7 +119,7 @@ export const SeatInfo = () => {
             <Grid item xs={6} sx={{ padding: "0 1rem", borderLeft: "1px solid", borderColor: "common.black_40" }}>
               <Box sx={{ color: "common.black_60", fontWeight: 500 }}>入座時間</Box>
               <Box sx={{ fontSize: "h5.fontSize", fontWeight: 900, color: "common.black" }}>
-                {appDayjs(userInfo.startTime).format("YYYY/MM/DD HH:mm")}
+                {formatFullDateWithTime(userInfo.startTime)}
               </Box>
             </Grid>
           </Grid>
@@ -873,7 +873,7 @@ export const OrderDialog = () => {
                 <Box sx={{ width: "100%", borderBottom: "1px solid common.black_60" }}>
                   <Box sx={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
                     <Box sx={{ fontWeight: 700 }}>{order.type === OrderType.DineIn ? "內用訂單" : "外帶訂單"}</Box>
-                    <Box>{`${appDayjs(order.createdAt).format("YYYY/MM/DD HH:mm")}`}</Box>
+                    <Box>{`${formatFullDateWithTime(order.createdAt)}`}</Box>
                   </Box>
                   <Box
                     sx={{

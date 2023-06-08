@@ -19,11 +19,11 @@ interface SelectItemType {
 export default function SelectBase({ list, onChange, includeAll = false, ...props }: SelectBasePropsType) {
   const [select, setSelect] = useState("");
 
-  const handleSelectChange = (event: SelectChangeEvent<unknown>) => {
+  const handleSelectChange = (event: SelectChangeEvent<string>) => {
     let payload = { id: props.id, value: event.target.value };
     // console.log({ payload });
 
-    setSelect(event.target.value as string);
+    setSelect(event.target.value);
     onChange && onChange(payload);
   };
 

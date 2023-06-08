@@ -3,17 +3,15 @@ import { memo, useState, useEffect, FC } from "react";
 import { Box, Button, Badge, AppBar, Toolbar, IconButton, Typography, Drawer } from "@mui/material";
 import { DoubleArrow, NotificationsNone, PowerSettingsNew } from "@mui/icons-material";
 import SideBar from "~/components/side-bar";
-// Libs
 import HeaderLogo from "~/assets/images/header-logo.svg";
-import dayjs from "dayjs";
-
+// Libs
 import { useAppDispatch, useAppSelector } from "~/app/hook";
 import { getCategories } from "~/app/slices/category";
 import { getSpecialties } from "~/app/slices/specialty";
-import { Categories } from "~/app/selector";
-import { Specialties } from "~/app/selector";
+import { Categories, Specialties } from "~/app/selector";
 import { isEmpty } from "lodash";
 import { RouterProps } from "~/types";
+import appDayjs, { dateForm } from "~/utils/dayjs.util";
 
 const drawerWidth = "335px";
 
@@ -25,7 +23,6 @@ const Header: FC<RouterProps> = ({ location, navigate }) => {
   const specialties = useAppSelector(Specialties);
 
   useEffect(() => {
-    console.log("call api");
     if (isEmpty(categories)) {
       dispatch(getCategories());
     }
@@ -33,8 +30,6 @@ const Header: FC<RouterProps> = ({ location, navigate }) => {
       dispatch(getSpecialties());
     }
   }, []);
-
-  console.log("header rerender");
 
   const routerName = () => {
     switch (true) {
@@ -113,7 +108,7 @@ const Header: FC<RouterProps> = ({ location, navigate }) => {
             {routerName()}
           </Typography>
           <Typography component="p" sx={{ pr: 5 }}>
-            {dayjs().format("M月D日 Ahh:mm")}
+            {appDayjs().format(dateForm.dateWithTimeAMPM)}
           </Typography>
           {/* right */}
           <Box

@@ -78,6 +78,7 @@ export const FieldContainer: FC<FieldContainerPropsType> = ({ width = 500, label
         return (
           <CheckboxBase
             {...props}
+            checked={props.value}
             onChange={(event) => props.onChange({ id: props.id, value: event.target.checked })}
           />
         );

@@ -24,9 +24,13 @@ type MealResponse = ApiResponse<IMeal>;
 type MealsResponse = ApiResponse<IMeal[]>;
 
 interface PostMealPayload extends IMeal {}
-interface PatchMealByIdPayload {
+interface IMealWithOptionalKey extends IMeal {
+  id?: string;
+  title?: string;
+}
+interface PutMealByIdPayload {
   mealId: string;
-  payload: IMeal;
+  payload: IMealWithOptionalKey;
 }
 
 type CategoryResponse = ApiResponse<ICategory>;
@@ -43,7 +47,7 @@ interface PatchSpecialtyPayload {
   payload: ISpecialty;
 }
 
-interface PatchSpecialtyByIdPayload {
+interface PutSpecialtyById {
   specialtyId: string;
   payload: ISpecialty;
 }
