@@ -29,11 +29,11 @@ appDayjs.locale("zh-tw");
 export default appDayjs;
 
 export const dateForm = {
-  fullDateWithTime: "YYYY-MM-DD HH:mm",
-  fullDate: "YYYY-MM-DD",
-  dateWithTimeAMPM: "MM-DD Ahh:mm",
-  dateOnly: "MM-DD",
-  yearOnly: "YYYY",
+  fullDateWithTime: "YYYY年MM月DD日 HH:mm",
+  fullDate: "YYYY年MM月DD日",
+  dateWithTimeAMPM: "MM月DD日 Ah:mm",
+  dateOnly: "MM月DD日",
+  yearOnly: "YYYY年",
   timeOnly: "HH:mm"
 };
 
