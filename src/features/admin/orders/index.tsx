@@ -17,10 +17,12 @@ const STATUS = [
 export const OrdersContainer: FC<IOrdersContainerPros> = ({}) => {
   const dispatch = useAppDispatch();
 
+  const [orderStatus, setOrderStatus] = useState(STATUS[0].value);
+
   useEffect(() => {
     dispatch(getOrders());
   }, []);
-  const [orderStatus, setOrderStatus] = useState(STATUS[0].value);
+
   return (
     <Box>
       <OrderTabs orderStatus={orderStatus} setOrderStatus={setOrderStatus} />
