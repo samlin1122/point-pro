@@ -4,7 +4,7 @@ import {
   SpecialtiesResponse,
   SpecialtyResponse,
   PostSpecialtyPayload,
-  PutSpecialtyById,
+  PatchSpecialtyById,
   SpecialtyItemsResponse
 } from "~/types/api";
 
@@ -20,8 +20,8 @@ export const postSpecialty = (payload: PostSpecialtyPayload) => {
   return http.post<string, SpecialtyResponse>("specialty", payload);
 };
 
-export const putSpecialtyById = ({ specialtyId, payload }: PutSpecialtyById) => {
-  return http.put<string, SpecialtyResponse>(`specialty/${specialtyId}`, payload);
+export const patchSpecialtyById = ({ specialtyId, payload }: PatchSpecialtyById) => {
+  return http.patch<string, SpecialtyResponse>(`specialty/${specialtyId}`, payload);
 };
 
 export const deleteSpecialty = (specialtyId: Id) => {

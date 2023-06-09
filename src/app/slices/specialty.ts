@@ -60,11 +60,11 @@ export const postSpecialty = createAppAsyncThunk<SpecialtiesResponse, PostSpecia
   }
 );
 
-export const putSpecialtyById = createAppAsyncThunk<SpecialtiesResponse, PatchSpecialtyPayload>(
-  `${name}/putSpecialtyById`,
+export const patchSpecialtyById = createAppAsyncThunk<SpecialtiesResponse, PatchSpecialtyPayload>(
+  `${name}/patchSpecialtyById`,
   async (payload, { rejectWithValue }) => {
     try {
-      return await SpecialtyApi.putSpecialtyById(payload);
+      return await SpecialtyApi.patchSpecialtyById(payload);
     } catch (error) {
       if (error instanceof Error) {
         return rejectWithValue({ message: error.message });

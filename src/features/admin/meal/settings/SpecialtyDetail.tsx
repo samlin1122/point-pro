@@ -13,7 +13,7 @@ import {
   getSpecialtyById,
   getSpecialtyItems,
   postSpecialty,
-  putSpecialtyById,
+  patchSpecialtyById,
   deleteSpecialty
 } from "~/app/slices/specialty";
 import { SpecialtyTypeList } from "~/utils/constants";
@@ -149,7 +149,7 @@ const SpecialtyDetail = ({ specialtyId, open, onClose }: SpecialtyDetailProps) =
         try {
           let payload = convertToPayload(state);
           console.log({ payload });
-          await dispatch(putSpecialtyById({ specialtyId: specialtyId as string, payload }));
+          await dispatch(patchSpecialtyById({ specialtyId: specialtyId as string, payload }));
           onClose(true);
         } catch (error) {
           console.log("update specialty failed");

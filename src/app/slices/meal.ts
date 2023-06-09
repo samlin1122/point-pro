@@ -3,7 +3,7 @@ import { createSlice } from "@reduxjs/toolkit";
 import { MealApi } from "~/api";
 // Others
 import { createAppAsyncThunk } from "~/app/hook";
-import { MealsResponse, MealResponse, PostMealPayload, PutMealByIdPayload, Id } from "~/types/api";
+import { MealsResponse, MealResponse, PostMealPayload, PatchMealByIdPayload, Id } from "~/types/api";
 
 const name = "meal";
 
@@ -49,11 +49,11 @@ export const postMeal = createAppAsyncThunk<MealResponse, PostMealPayload>(
   }
 );
 
-export const putMealById = createAppAsyncThunk<MealResponse, PutMealByIdPayload>(
-  `${name}/putMealById`,
+export const patchMealById = createAppAsyncThunk<MealResponse, PatchMealByIdPayload>(
+  `${name}/patchMealById`,
   async (payload, { rejectWithValue }) => {
     try {
-      return await MealApi.putMealById(payload);
+      return await MealApi.patchMealById(payload);
     } catch (error) {
       if (error instanceof Error) {
         return rejectWithValue({ message: error.message });

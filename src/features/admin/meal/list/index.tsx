@@ -19,7 +19,7 @@ import AddIcon from "@mui/icons-material/Add";
 
 import { RouterProps, IMeal, ICategory } from "~/types";
 import { useAppDispatch, useAppSelector } from "~/app/hook";
-import { getMeals, putMealById } from "~/app/slices/meal";
+import { getMeals, patchMealById } from "~/app/slices/meal";
 import { Categories } from "~/app/selector";
 import appDayjs, { formatFullDate } from "~/utils/dayjs.util";
 
@@ -53,7 +53,7 @@ export const MealListContainer: FC<RouterProps> = ({ navigate }) => {
     console.log({ mealId, payload });
 
     try {
-      await dispatch(putMealById({ mealId, payload }));
+      await dispatch(patchMealById({ mealId, payload }));
       await dispatchGetMeals();
     } catch (error) {
       console.log("publishedAt failed");

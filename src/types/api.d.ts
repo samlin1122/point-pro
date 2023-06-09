@@ -28,7 +28,7 @@ interface IMealWithOptionalKey extends IMeal {
   id?: string;
   title?: string;
 }
-interface PutMealByIdPayload {
+interface PatchMealByIdPayload {
   mealId: string;
   payload: IMealWithOptionalKey;
 }
@@ -47,7 +47,7 @@ interface PatchSpecialtyPayload {
   payload: ISpecialty;
 }
 
-interface PutSpecialtyById {
+interface PatchSpecialtyById {
   specialtyId: string;
   payload: ISpecialty;
 }

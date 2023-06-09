@@ -1,5 +1,5 @@
 import http from "./http";
-import { Id, MealsResponse, MealResponse, PostMealPayload, PutMealByIdPayload } from "~/types/api";
+import { Id, MealsResponse, MealResponse, PostMealPayload, PatchMealByIdPayload } from "~/types/api";
 
 export const getMeals = () => {
   return http.get<string, MealsResponse>("meal");
@@ -13,8 +13,8 @@ export const postMeal = (payload: PostMealPayload) => {
   return http.post<string, MealResponse>("meal", payload);
 };
 
-export const putMealById = ({ mealId, payload }: PutMealByIdPayload) => {
-  return http.put<string, MealResponse>(`meal/${mealId}`, payload);
+export const patchMealById = ({ mealId, payload }: PatchMealByIdPayload) => {
+  return http.patch<string, MealResponse>(`meal/${mealId}`, payload);
 };
 
 export const deleteMeal = (mealId: Id) => {

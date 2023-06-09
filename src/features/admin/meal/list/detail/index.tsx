@@ -7,7 +7,7 @@ import { RouterProps } from "~/types";
 
 import mainReducer, { initialState, defaultSetting, editField, convertToPayload } from "./reducers";
 import { useAppDispatch, useAppSelector } from "~/app/hook";
-import { getMealById, postMeal, putMealById, deleteMeal } from "~/app/slices/meal";
+import { getMealById, postMeal, patchMealById, deleteMeal } from "~/app/slices/meal";
 import { Categories, Specialties } from "~/app/selector";
 
 export const MealListDetailContainer: FC<RouterProps> = ({ params, navigate }) => {
@@ -91,7 +91,7 @@ export const MealListDetailContainer: FC<RouterProps> = ({ params, navigate }) =
           break;
         case "save":
           console.log({ payload });
-          await dispatch(putMealById({ mealId: params.meal_id as string, payload }));
+          await dispatch(patchMealById({ mealId: params.meal_id as string, payload }));
           break;
         case "delete":
           await dispatch(deleteMeal(params.meal_id as string));
