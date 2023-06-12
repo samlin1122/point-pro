@@ -103,6 +103,7 @@ export type Order = {
   type: OrderType;
   orderMeals: {
     id: string;
+    mealId: string;
     title: string;
     specialties: Specialty[];
     price: number;
@@ -111,8 +112,9 @@ export type Order = {
     categories: Category[];
   }[];
   paymentLogs: any[];
-  createdAt: number;
-  updatedAt: number;
+  createdAt?: number;
+  updatedAt?: number;
+  seats?: string[];
 };
 
 export type CartItem = {

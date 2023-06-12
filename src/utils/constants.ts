@@ -10,11 +10,19 @@ export const SpecialtyTypeList = [
   { id: SpecialtyType.MULTIPLE, title: "多選" }
 ];
 
+export const ORDER_STATUS = [
+  { value: OrderStatus.PENDING, title: "準備中", id: OrderStatus.PENDING },
+  { value: OrderStatus.UNPAID, title: "未付款", id: OrderStatus.UNPAID },
+  { value: OrderStatus.SUCCESS, title: "已付款", id: OrderStatus.SUCCESS },
+  { value: OrderStatus.CANCEL, title: "已取消", id: OrderStatus.CANCEL }
+];
+
 // route
 import RestaurantMenuIcon from "@mui/icons-material/RestaurantMenu";
 import StickyNote2Icon from "@mui/icons-material/StickyNote2";
 import MenuBookIcon from "@mui/icons-material/MenuBook";
 import EventSeatIcon from "@mui/icons-material/EventSeat";
+import { OrderStatus } from "~/features/orders/type";
 
 export const sideBarItemList = [
   {

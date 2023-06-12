@@ -17,7 +17,8 @@ import {
 } from "./index.styles";
 // Others
 import { useAppDispatch } from "~/app/hook";
-import { getMenu, getOrders, getUserInfo } from "./slice";
+import { getMenu, getUserInfo } from "./slice";
+import { getOrders } from "~/app/slices/order";
 
 const Order = () => {
   const dispatch = useAppDispatch();
@@ -33,7 +34,7 @@ const Order = () => {
 
     dispatch(getUserInfo());
     dispatch(getMenu());
-    dispatch(getOrders());
+    dispatch(getOrders({}));
   }, [token]);
 
   return (

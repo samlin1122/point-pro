@@ -54,8 +54,18 @@ interface PatchSpecialtyById {
 type SpecialtyItemsResponse = ApiResponse<ISpecialtyItem[]>;
 
 type PostOrderResponse = ApiResponse<Order>;
+type DeleteOrderResponse = ApiResponse<Order>;
+type PatchOrderResponse = ApiResponse<Order>;
 type GetOrdersResponse = ApiResponse<Order[]>;
 type PostOrderPayload = {
+  orderMeals: {
+    amount: number;
+    id: string;
+    price: number;
+    specialties: Specialty[];
+  }[];
+};
+type PatchOrderPayload = {
   orderMeals: {
     amount: number;
     id: string;

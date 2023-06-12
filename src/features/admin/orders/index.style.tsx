@@ -1,4 +1,4 @@
-import { FC, useState } from "react";
+import { FC, ReactNode, useRef, useState } from "react";
 import {
   Accordion,
   AccordionSummary,
@@ -10,7 +10,15 @@ import {
   LinearProgress,
   LinearProgressProps,
   Box,
-  linearProgressClasses
+  linearProgressClasses,
+  Switch,
+  Select,
+  MenuItem,
+  Card,
+  CardHeader,
+  CardContent,
+  CardActions,
+  SelectChangeEvent
 } from "@mui/material";
 import { styled } from "@mui/material/styles";
 
@@ -19,11 +27,15 @@ import RemoveIcon from "@mui/icons-material/Remove";
 
 import { useAppDispatch, useAppSelector } from "~/app/hook";
 import { Column, Row } from "~/components/layout";
-import Switch from "~/components/switch";
 import TabsBase, { TabPanel } from "~/components/tabs";
 
 import theme from "~/theme";
-import { Order, OrderStatus } from "~/features/orders/type";
+import { Order, OrderStatus, OrderType } from "~/features/orders/type";
+import { ORDER_STATUS } from "~/utils/constants";
+import { deleteOrder, patchOrder, setOrderStatus } from "~/app/slices/order";
+import appDayjs from "~/utils/dayjs.util";
+import { ModalBase } from "~/components/modals";
+import usePrevious from "~/hooks/usePrevious";
 
 const StyledAccordion = styled(Accordion)({
   backgroundColor: "white",
@@ -34,7 +46,8 @@ const StyledAccordion = styled(Accordion)({
 const VerticalDivider = styled("div")(({ theme }) => ({
   height: "32px",
   width: "1px",
-  background: theme.palette.common.black_20
+  background: theme.palette.common.black_40,
+  margin: "0 1rem"
 }));
 
 const BorderLinearProgress = styled(LinearProgress)(({ theme }) => ({
@@ -61,230 +74,258 @@ function LinearProgressWithLabel(props: LinearProgressProps & { value: number })
   );
 }
 
-interface IInnerContentProps {
-  tag: string;
-  title: string;
-  listItems: string[];
+interface IOrderItemProps {
+  order: Order;
+  setDeleteOrderId: React.Dispatch<React.SetStateAction<string>>;
 }
 
-interface IAccordionProps {
-  uid: string;
-  title: string;
-  timestamp: string;
-  innerContent?: IInnerContentProps[];
-  orderMeals: Order["orderMeals"];
-  status: OrderStatus;
-  type: string;
-  progress: number;
-}
-
-export const OrderAccordions: FC<IAccordionProps> = ({ uid, title, timestamp, orderMeals, status, type, progress }) => {
+export const OrderItem = (props: IOrderItemProps) => {
   const dispatch = useAppDispatch();
+
+  const { order, setDeleteOrderId } = props;
+
+  const { id, status, type, orderMeals, createdAt, seats = [], paymentLogs = [] } = order;
+
+  const totalMeals = orderMeals.reduce((acc, meal) => (acc += meal.amount), 0);
+  const servedMeals = orderMeals.reduce((acc, meal) => (acc += meal.servedAmount), 0);
+  const progress = (servedMeals / totalMeals) * 100;
+
   const [expanded, setExpanded] = useState(false);
+  const originServedAmount = order.orderMeals.map((meal) => meal.servedAmount).join("");
+  const [tempServedAmount, setUpdatedServedAmount] = useState(originServedAmount);
+  const isUpdated = originServedAmount !== tempServedAmount;
+
   const handleExpand = () => {
-    setExpanded(!expanded);
+    setExpanded((prevExpand) => !prevExpand);
   };
-  const handleCancelOrder = (id: string) => {
-    console.log("cancel order", id);
+
+  const handleChangeServedAmount = (idx: number, value: number | string) => {
+    let newServedAmount = tempServedAmount.split("");
+    newServedAmount[idx] = `${value}`;
+    setUpdatedServedAmount(newServedAmount.join(""));
   };
+
+  const handleCancelOrder = (orderId: string) => {
+    setDeleteOrderId(orderId);
+  };
+
+  const handleUpdateOrder = () => {
+    dispatch(
+      patchOrder({
+        id,
+        status,
+        type,
+        orderMeals: order.orderMeals.map((meal, idx) => ({
+          ...meal,
+          servedAmount: +tempServedAmount.split("")[idx]
+        })),
+        paymentLogs
+      })
+    );
+  };
+
+  const handlePayment = () => {
+    // setOpenPayment(true);
+  };
+
   return (
-    <Box>
-      <StyledAccordion expanded={expanded} onChange={handleExpand}>
-        <AccordionSummary
-          sx={{
-            flexDirection: "row-reverse",
-            borderBottom: expanded ? `1px solid ${theme.palette.common.black_20}` : null
-          }}
-          expandIcon={
-            expanded ? (
-              <Box
-                width={40}
-                height={40}
-                sx={{
-                  display: "flex",
-                  justifyContent: "center",
-                  alignItems: "center",
-                  position: "relative"
-                }}
-              >
-                <RemoveIcon
-                  sx={{
-                    fontSize: "0.875rem",
-                    position: "absolute",
-                    top: "50%",
-                    left: "50%",
-                    transform: "translate(-50%, -50%)"
-                  }}
-                />
-              </Box>
-            ) : (
-              <Box
-                width={40}
-                height={40}
-                sx={{
-                  display: "flex",
-                  justifyContent: "center",
-                  alignItems: "center"
-                }}
-              >
-                <AddIcon
-                  sx={{
-                    fontSize: "0.875rem",
-                    position: "absolute",
-                    top: "50%",
-                    left: "50%",
-                    transform: "translate(-50%, -50%)"
-                  }}
-                />
-              </Box>
-            )
-          }
-        >
-          <Row
-            sx={{
-              justifyContent: "space-between",
-              padding: "1.5rem",
-              gap: "1.5rem",
-              width: "100%"
-            }}
-          >
-            <VerticalDivider />
-            <Typography sx={{ flex: "0 50%" }}>{uid}xxx-xxx-xxx</Typography>
-            <VerticalDivider />
-            <Column sx={{ flex: "0 50%", gap: "0.5rem" }}>
-              <Typography variant="body1" fontWeight={700}>
-                {type === "dine-in" ? "內用" : ""}
-              </Typography>
-              <Typography variant="h6" fontWeight={900}>
-                {title}編號xxx-xxx
-              </Typography>
-            </Column>
-            <VerticalDivider />
-            <Typography sx={{ flex: "0 100%" }}>{timestamp}</Typography>
-            <VerticalDivider />
-            <Box width={"100%"}>
-              <LinearProgressWithLabel value={progress} />
-            </Box>
-          </Row>
-        </AccordionSummary>
-        <AccordionDetails>
-          <List sx={{ marginBottom: "0.75rem" }}>
-            {orderMeals.map((orderMeal) => (
-              <ListItem key={orderMeal.id} sx={{ borderBottom: `1px solid ${theme.palette.common.black_20}` }}>
-                <Row
-                  justifyContent={"flex-start"}
-                  sx={{ width: "100%", gap: "1.5rem", padding: "0.75rem 0", alignItems: "flex-start" }}
-                >
-                  <Typography variant="h5" fontWeight={900} sx={{ minWidth: "14.625rem" }}>
-                    {orderMeal.categories[0].title}
-                  </Typography>
-                  <Typography variant="h5" fontWeight={900} sx={{ minWidth: "14.625rem" }}>
-                    {orderMeal.title}
-                  </Typography>
-                  <List sx={{ margin: 0, padding: 0 }}>
-                    {orderMeal.specialties.map((specialty) => (
-                      <ListItem key={specialty.id} sx={{ margin: 0, padding: 0 }}>
-                        {specialty.title}
-                      </ListItem>
-                    ))}
-                  </List>
-                  <Switch checked={orderMeal.servedAmount === orderMeal.amount} sx={{ marginLeft: "auto" }} />
-                </Row>
-              </ListItem>
-            ))}
-          </List>
-          {status === OrderStatus.UNPAID && (
-            <Box>
-              <Button
-                variant="outlined"
-                color="inherit"
-                sx={{ borderRadius: 0, padding: "0.75rem 1.5rem", minWidth: "20.9375rem" }}
-                onClick={() => handleCancelOrder(uid)}
-              >
-                <Typography variant="body1" fontWeight={700}>
-                  取消訂單
+    <Accordion
+      expanded={expanded}
+      onChange={handleExpand}
+      sx={{
+        bgcolor: "white",
+        boxShadow: "rgba(0, 0, 0, 0.24) 0px 3px 8px",
+        "&:before": {
+          height: 0
+        }
+      }}
+    >
+      <AccordionSummary
+        sx={{
+          flexDirection: "row-reverse",
+          borderBottom: expanded ? `1px solid ${theme.palette.common.black_20}` : null
+        }}
+        expandIcon={expanded ? <RemoveIcon /> : <AddIcon />}
+      >
+        <Row sx={{ width: "100%" }}>
+          <VerticalDivider />
+          <Column sx={{ flex: "0 70%" }}>
+            <Typography>訂單編號</Typography>
+            <Typography>{id.slice(-5)}</Typography>
+          </Column>
+          <VerticalDivider />
+          <Column sx={{ flex: "0 70%" }}>
+            <Typography variant="body1" fontWeight={700}>
+              {type === OrderType.DineIn ? "內用" : ""}
+            </Typography>
+            <Typography variant="h6" fontWeight={900}>
+              {seats.join(", ")}
+            </Typography>
+          </Column>
+          <VerticalDivider />
+          <Typography sx={{ flex: "0 50%" }}>{appDayjs(createdAt).format("YYYY/MM/DD HH:mm:ss")}</Typography>
+          <VerticalDivider />
+          <Box sx={{ flex: "0 50%" }}>
+            <LinearProgressWithLabel value={progress} />
+          </Box>
+        </Row>
+      </AccordionSummary>
+      <AccordionDetails sx={{ padding: "0 1rem .5rem" }}>
+        <List>
+          {orderMeals.map((orderMeal, idx) => (
+            <ListItem
+              key={orderMeal.id}
+              sx={{ borderBottom: `1px solid ${theme.palette.common.black_20}`, padding: ".5rem" }}
+            >
+              <Row sx={{ width: "100%", gap: "1rem" }}>
+                <Typography variant="body1" sx={{ minWidth: "9rem" }}>
+                  {orderMeal.categories[0].title}
                 </Typography>
+                <Typography variant="h6" fontWeight={700} sx={{ minWidth: "12rem" }}>
+                  {orderMeal.title}
+                </Typography>
+                <Typography variant="h6" fontWeight={700} sx={{ minWidth: "5rem" }}>
+                  x{orderMeal.amount}
+                </Typography>
+                <List sx={{ margin: 0, padding: 0 }}>
+                  {orderMeal.specialties.map((specialty) => (
+                    <ListItem key={specialty.id} sx={{ margin: 0, padding: 0, color: theme.palette.text.secondary }}>
+                      [{specialty.title}]: {specialty.items.map((item) => item.title).join("、")}
+                    </ListItem>
+                  ))}
+                </List>
+                {status === OrderStatus.PENDING && (
+                  <Box
+                    sx={{
+                      marginLeft: "auto",
+                      display: "flex",
+                      alignItems: "center",
+                      flexDirection: "column",
+                      minWidth: "7rem"
+                    }}
+                  >
+                    <Typography>已出餐數量</Typography>
+                    <Select
+                      value={tempServedAmount.split("")[idx]}
+                      onChange={(e) => handleChangeServedAmount(idx, e.target.value)}
+                      sx={{ width: "80%", height: "2rem" }}
+                    >
+                      {Array.from({ length: orderMeal.amount + 1 }, (_, idx) => idx).map((amount) => (
+                        <MenuItem key={amount} value={amount}>
+                          {amount}
+                        </MenuItem>
+                      ))}
+                    </Select>
+                  </Box>
+                )}
+              </Row>
+            </ListItem>
+          ))}
+        </List>
+        <Box sx={{ display: "flex" }}>
+          {status === OrderStatus.PENDING && (
+            <>
+              {progress === 0 && (
+                <Button
+                  variant="outlined"
+                  color="error"
+                  onClick={() => handleCancelOrder(id)}
+                  sx={{ fontSize: theme.typography.body1.fontSize, fontWeight: 700 }}
+                >
+                  取消訂單
+                </Button>
+              )}
+              <Button
+                variant="contained"
+                disabled={!isUpdated}
+                onClick={handleUpdateOrder}
+                sx={{ fontSize: theme.typography.body1.fontSize, fontWeight: 700, marginLeft: "auto" }}
+              >
+                更新訂單
               </Button>
-            </Box>
+            </>
           )}
-        </AccordionDetails>
-      </StyledAccordion>
-    </Box>
+          {status === OrderStatus.UNPAID && (
+            <Button
+              variant="contained"
+              onClick={handlePayment}
+              sx={{ fontSize: theme.typography.body1.fontSize, fontWeight: 700, marginLeft: "auto" }}
+            >
+              收款
+            </Button>
+          )}
+        </Box>
+      </AccordionDetails>
+    </Accordion>
   );
 };
 
-const STATUS = [
-  { value: OrderStatus.UNPAID, title: "未付款", id: OrderStatus.UNPAID },
-  { value: OrderStatus.SUCCESS, title: "已付款", id: OrderStatus.SUCCESS },
-  { value: OrderStatus.CANCEL, title: "已取消", id: OrderStatus.CANCEL },
-  { value: OrderStatus.PENDING, title: "準備中", id: OrderStatus.PENDING }
-];
+export const OrderTabs = () => {
+  const dispatch = useAppDispatch();
+  const status = useAppSelector(({ order }) => order.status);
 
-interface IOrderProps {
-  orderStatus: OrderStatus;
-  setOrderStatus: (status: OrderStatus) => void;
-}
-
-export const OrderTabs: FC<IOrderProps> = ({ orderStatus, setOrderStatus }) => {
   const handleSelected = (orderStatus: OrderStatus) => {
-    setOrderStatus(orderStatus);
+    dispatch(setOrderStatus(orderStatus));
   };
 
   return (
     <TabsBase
       sx={{ position: "sticky", top: "0", zIndex: "10", backgroundColor: theme.palette.background.paper }}
-      tabs={STATUS}
+      tabs={ORDER_STATUS}
       onChange={(_, value) => handleSelected(value as OrderStatus)}
-      value={orderStatus}
+      value={status}
     />
   );
 };
 
-export const OrderList: FC<IOrderProps> = ({ orderStatus, setOrderStatus }) => {
-  const orders = useAppSelector(({ customerOrder }) => customerOrder.orders);
+export const OrderList = () => {
+  const dispatch = useAppDispatch();
+  const orders = useAppSelector(({ order }) => order.orders);
+  const [deleteOrderId, setDeleteOrderId] = useState("");
 
-  const showOrders = orders.filter(({ paymentLogs }) => paymentLogs[0].status === orderStatus);
-
-  console.log("orderStatus", orderStatus);
-  console.log("showOrders", showOrders);
-
-  const calculateServedPercentage = (order: Order) => {
-    const totalMeals = order.orderMeals.length;
-    const servedMeals = order.orderMeals.filter((meal) => meal.amount === meal.servedAmount).length;
-
-    return (servedMeals / totalMeals) * 100;
+  const handleDeleteOrder = () => {
+    dispatch(deleteOrder({ orderId: deleteOrderId }));
+    setDeleteOrderId("");
   };
 
   return (
     <>
-      {showOrders.length === 0 ? (
-        <Column justifyContent={"center"} bgcolor={"background.paper"} height={"calc(92ch - 88px)"}>
-          <Typography component={"h2"} variant="h1" textAlign={"center"}>
+      {orders.length === 0 ? (
+        <Column justifyContent="center" bgcolor="background.paper" height="calc(80ch - 88px)">
+          <Typography variant="h4" textAlign="center" color="text.disabled">
             無此分類訂單
           </Typography>
         </Column>
       ) : (
-        STATUS.map(({ id }, idx) => (
-          <Box key={id} bgcolor={"background.paper"}>
-            <TabPanel value={idx} index={idx}>
-              <Box sx={{ display: "flex", flexDirection: "column", gap: "0.75rem", height: "100ch" }}>
-                {showOrders.map((order, idx) => (
-                  <OrderAccordions
-                    key={`${order.id}-${idx}`}
-                    uid={order.id}
-                    title={order.id}
-                    orderMeals={order.orderMeals}
-                    timestamp={new Date(order.updatedAt).toLocaleString()}
-                    status={order.status}
-                    type={order.type}
-                    progress={calculateServedPercentage(order)}
-                  />
-                ))}
-              </Box>
-            </TabPanel>
-          </Box>
-        ))
+        <Box sx={{ display: "flex", flexDirection: "column", gap: "0.75rem", margin: "0.75rem" }}>
+          {orders.map((order) => (
+            <OrderItem key={order.id} order={order} setDeleteOrderId={setDeleteOrderId} />
+          ))}
+        </Box>
       )}
+      <ModalBase open={!!deleteOrderId} onClose={() => setDeleteOrderId("")}>
+        <Box display="grid" sx={{ placeContent: "center" }} height={"100%"}>
+          <Card>
+            <CardHeader
+              title="取消訂單"
+              sx={{ backgroundColor: theme.palette.common.black, color: "white", textAlign: "center" }}
+            />
+            <CardContent sx={{ padding: "1.5rem 1.25rem", minWidth: "50cqw" }}>
+              <Typography component="p" variant="body1" fontWeight={700} textAlign={"center"}>
+                確定要取消此訂單？
+              </Typography>
+            </CardContent>
+            <CardActions sx={{ gap: "1.5rem", justifyContent: "center", alignItems: "center", padding: "1.5rem" }}>
+              <Button variant="outlined" color="inherit" fullWidth onClick={handleDeleteOrder}>
+                確定
+              </Button>
+              <Button variant="contained" color="secondary" fullWidth onClick={() => setDeleteOrderId("")}>
+                取消
+              </Button>
+            </CardActions>
+          </Card>
+        </Box>
+      </ModalBase>
     </>
   );
 };

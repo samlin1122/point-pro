@@ -56,12 +56,12 @@ import {
   // increaseCartItemAmount,
   // decreaseCartItemAmount,
   openModal,
-  closeModal,
-  postOrder
+  closeModal
 } from "./slice";
 import { SpecialtyItem, Specialty, CartItem, Order, OrderStatus, OrderType, MobileDialog, MobileModal } from "./type";
 import usePrevious from "~/hooks/usePrevious";
 import linePay from "~/assets/images/line-pay.png";
+import { postOrder } from "~/app/slices/order";
 
 export const Header = () => {
   const { pathname } = useLocation();
@@ -383,7 +383,7 @@ export const Footer = () => {
   const userInfo = useAppSelector(({ customerOrder }) => customerOrder.userInfo);
   const currentDialog = useAppSelector(({ customerOrder }) => customerOrder.currentDialog);
   const cart = useAppSelector(({ customerOrder }) => customerOrder.cart);
-  const orders = useAppSelector(({ customerOrder }) => customerOrder.orders);
+  const orders = useAppSelector(({ order }) => order.orders);
 
   const cartAmount = useMemo(() => cart.reduce((acc, item) => (acc += item.amount), 0), [cart]);
   const unPaidOrderAmount = useMemo(
@@ -813,7 +813,7 @@ const STATUS_TAB = [
 export const OrderDialog = () => {
   const dispatch = useAppDispatch();
   const currentDialog = useAppSelector(({ customerOrder }) => customerOrder.currentDialog);
-  const orders = useAppSelector(({ customerOrder }) => customerOrder.orders);
+  const orders = useAppSelector(({ order }) => order.orders);
 
   const [orderStatus, setOrderStatus] = useState(0);
   const [toggleList, setToggleList] = useState<Order["id"][]>([]);
@@ -862,14 +862,16 @@ export const OrderDialog = () => {
       onCloseDialog={handleClose}
       actionButton={
         <>
-          <Box sx={{ display: "flex", justifyContent: "space-between", alignItems: "center", width: "100%" }}>
-            <Typography variant="h6" fontWeight={900}>
-              總計
-            </Typography>
-            <Typography variant="h6" fontWeight={900}>
-              {totalPrice}元
-            </Typography>
-          </Box>
+          {orderStatus !== 2 && (
+            <Box sx={{ display: "flex", justifyContent: "space-between", alignItems: "center", width: "100%" }}>
+              <Typography variant="h6" fontWeight={900}>
+                總計
+              </Typography>
+              <Typography variant="h6" fontWeight={900}>
+                {totalPrice}元
+              </Typography>
+            </Box>
+          )}
           {orderStatus === 0 && showOrders.length > 0 && <Button onClick={handleCheckout}>前往結帳</Button>}
         </>
       }
@@ -954,10 +956,10 @@ export const OrderDialog = () => {
                 <Box sx={{ width: "100%", display: toggleList.includes(order.id) ? "block" : "none" }}>
                   {order.orderMeals.map((meal) => (
                     <Grid container key={meal.id} sx={{ borderBottom: "1px solid common.black_60", fontWeight: 700 }}>
-                      <Grid item xs={1.5}>
-                        <Checkbox checked={meal.amount === meal.servedAmount} sx={{ padding: 0 }} />
+                      <Grid item xs={1}>
+                        <Checkbox checked={meal.amount === meal.servedAmount} size="small" sx={{ padding: 0 }} />
                       </Grid>
-                      <Grid item sx={{ flexGrow: 1 }} xs={7.5}>
+                      <Grid item sx={{ flexGrow: 1 }} xs={7}>
                         <Box sx={{ paddingBottom: ".5rem" }}>{meal.title}</Box>
                         {meal.specialties.map((specialty) => (
                           <Box
@@ -975,10 +977,10 @@ export const OrderDialog = () => {
                           </Box>
                         ))}
                       </Grid>
-                      <Grid item xs={1.5}>
+                      <Grid item xs={1}>
                         <Box>x{meal.amount}</Box>
                       </Grid>
-                      <Grid item sx={{ textAlign: "right" }} xs={1.5}>
+                      <Grid item sx={{ textAlign: "right" }} xs={3}>
                         <Box>{meal.price / meal.amount}元</Box>
                       </Grid>
                     </Grid>

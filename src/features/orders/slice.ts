@@ -1,10 +1,9 @@
 // Libs
 import { PayloadAction, createSlice } from "@reduxjs/toolkit";
-import { AuthApi, MenuApi, OrderApi } from "~/api";
+import { AuthApi, MenuApi } from "~/api";
 
 // Others
 import { createAppAsyncThunk } from "~/app/hook";
-import appDayjs from "~/utils/dayjs.util";
 import {
   CartItem,
   Category,
@@ -90,60 +89,6 @@ export const getMenu = createAppAsyncThunk(`${name}/getMenu`, async (_, { reject
     }
   }
 });
-
-export const getOrders = createAppAsyncThunk(`${name}/getOrders`, async (_, { rejectWithValue }) => {
-  try {
-    const orderRes = await OrderApi.getOrders();
-    const { result = [] } = orderRes;
-    const orders = result.sort(
-      (a: Order, b: Order) => appDayjs(b.createdAt).valueOf() - appDayjs(a.createdAt).valueOf()
-    );
-
-    return { orders };
-  } catch (error) {
-    if (error instanceof Error) {
-      return rejectWithValue({ message: error.message });
-    } else {
-      return rejectWithValue({ message: "unknown error" });
-    }
-  }
-});
-
-export const postOrder = createAppAsyncThunk(
-  `${name}/postOrder`,
-  async (_, { getState, dispatch, rejectWithValue }) => {
-    try {
-      const cart = getState()[name].cart;
-      const orderMeals = cart.map(({ amount, id, price, specialties }) => {
-        // 計算方式：mealsPrice = amount * price + specialties price
-        const mealsPrice =
-          price * amount +
-          specialties.reduce(
-            (acc, specialty) => (acc += specialty.items.reduce((acc, item) => (acc += item.price), 0)),
-            0
-          );
-        return {
-          amount,
-          id,
-          price: mealsPrice,
-          specialties
-        };
-      });
-
-      await OrderApi.postOrder({ orderMeals });
-
-      dispatch(clearCart());
-      dispatch(getOrders());
-      dispatch(openDialog({ type: MobileDialog.ORDER }));
-    } catch (error) {
-      if (error instanceof Error) {
-        return rejectWithValue({ message: error.message });
-      } else {
-        return rejectWithValue({ message: "unknown error" });
-      }
-    }
-  }
-);
 
 export const customerOrderSlice = createSlice({
   name,
@@ -318,32 +263,6 @@ export const customerOrderSlice = createSlice({
         state.categories = initialState.categories;
         state.currentCategory = initialState.currentCategory;
         state.meals = initialState.meals;
-        state.isLoading = false;
-      })
-
-      .addCase(getOrders.pending, (state) => {
-        state.isLoading = true;
-      })
-      .addCase(getOrders.fulfilled, (state, action) => {
-        const { orders } = action.payload;
-        state.orders = orders;
-        state.isLoading = false;
-      })
-      .addCase(getOrders.rejected, (state, action) => {
-        // const { message } = action.payload;
-        state.orders = initialState.orders;
-        state.isLoading = false;
-      })
-
-      .addCase(postOrder.pending, (state) => {
-        state.isLoading = true;
-      })
-      .addCase(postOrder.fulfilled, (state, action) => {
-        // [TODO]: handle order data
-        state.isLoading = false;
-      })
-      .addCase(postOrder.rejected, (state) => {
-        // [TODO]: handle error
         state.isLoading = false;
       });
   }

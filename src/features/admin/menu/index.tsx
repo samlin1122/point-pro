@@ -2,17 +2,18 @@ import { FC, useEffect, useRef } from "react";
 import { CartList, MealList, MenuTabs, MealDrawer } from "./index.style";
 
 import { useAppDispatch } from "~/app/hook";
-import { getMenu, getOrders } from "~/features/orders/slice";
+import { getMenu } from "~/features/orders/slice";
 import { Grid } from "@mui/material";
 import theme from "~/theme";
+import { getOrders } from "~/app/slices/order";
 
 interface IMenuContainerPros {}
 
 export const MenuContainer: FC<IMenuContainerPros> = ({}) => {
   const dispatch = useAppDispatch();
+
   useEffect(() => {
     dispatch(getMenu());
-    dispatch(getOrders());
   }, []);
 
   return (

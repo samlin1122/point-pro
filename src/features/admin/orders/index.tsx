@@ -1,33 +1,23 @@
-import { FC, useEffect, useState } from "react";
-import { Box } from "@mui/material";
+import { useEffect } from "react";
 import { OrderList, OrderTabs } from "./index.style";
+import { useAppDispatch, useAppSelector } from "~/app/hook";
+import { getOrders, setOrderStatus } from "~/app/slices/order";
 import { OrderStatus } from "~/features/orders/type";
-import { useAppDispatch } from "~/app/hook";
-import { getOrders } from "~/features/orders/slice";
 
-interface IOrdersContainerPros {}
-
-const STATUS = [
-  { value: OrderStatus.UNPAID, title: "未付款", id: OrderStatus.UNPAID },
-  { value: OrderStatus.SUCCESS, title: "已付款", id: OrderStatus.SUCCESS },
-  { value: OrderStatus.CANCEL, title: "已取消", id: OrderStatus.CANCEL },
-  { value: OrderStatus.PENDING, title: "準備中", id: OrderStatus.PENDING }
-];
-
-export const OrdersContainer: FC<IOrdersContainerPros> = ({}) => {
+export const OrdersContainer = () => {
   const dispatch = useAppDispatch();
-
-  const [orderStatus, setOrderStatus] = useState(STATUS[0].value);
+  const status = useAppSelector(({ order }) => order.status);
 
   useEffect(() => {
-    dispatch(getOrders());
-  }, []);
+    !status && dispatch(setOrderStatus(OrderStatus.PENDING));
+    status && dispatch(getOrders({ status }));
+  }, [status]);
 
   return (
-    <Box>
-      <OrderTabs orderStatus={orderStatus} setOrderStatus={setOrderStatus} />
-      <OrderList orderStatus={orderStatus} setOrderStatus={setOrderStatus} />
-    </Box>
+    <>
+      <OrderTabs />
+      <OrderList />
+    </>
   );
 };
 

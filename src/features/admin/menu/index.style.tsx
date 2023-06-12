@@ -59,6 +59,7 @@ import { ReactComponent as LinePayIcon } from "~/assets/line-pay-solid.svg";
 import { InputNumber } from "~/features/orders/index.styles";
 import theme from "~/theme";
 import { CartItem, Meal, Specialty, SpecialtyItem } from "~/features/orders/type";
+import PaymentDrawer from "~/components/payment";
 
 export const MenuTabs = () => {
   const dispatch = useAppDispatch();
@@ -125,7 +126,12 @@ const MealCard = (props: IMealCardProps) => {
         {title}
       </Typography>
       <Box height="6rem" sx={{ bgcolor: theme.palette.common.black, textAlign: "center" }}>
-        <Box component="img" src={coverUrl} alt={title} sx={{ objectFit: "fill", height: "100%", maxWidth: "100%" }} />
+        <Box
+          component="img"
+          src={coverUrl.split(".jpeg")[0] + "b" + ".jpeg"}
+          alt={title}
+          sx={{ objectFit: "fill", height: "100%", maxWidth: "100%" }}
+        />
       </Box>
       <Typography textAlign="center">{price}元</Typography>
       <Row justifyContent="space-between" alignItems="center"></Row>
@@ -429,145 +435,17 @@ export const CartList: FC = () => {
 
   const cart = useAppSelector(({ customerOrder }) => customerOrder.cart);
 
-  const headerRef = useRef<HTMLDivElement>(null);
-  const footerRef = useRef<HTMLDivElement>(null);
-  const [headerHeight, setHeaderHeight] = useState(0);
-  const [footerHeight, setFooterHeight] = useState(0);
-
-  const [openPayment, setOpenPayment] = useState(false);
   const [openDialog, setOpenDialog] = useState(false);
-
-  useEffect(() => {
-    if (headerRef.current && footerRef.current) {
-      setHeaderHeight(headerRef.current.offsetHeight);
-      setFooterHeight(footerRef.current.offsetHeight);
-    }
-  }, []);
+  const [openPayment, setOpenPayment] = useState(false);
 
   const handleClearCart = () => {
     dispatch(clearCart());
     setOpenDialog(false);
   };
 
-  const handleCloseDrawer = () => {
-    setOpenPayment(false);
-  };
-
-  const handleCreatePayment = () => {
-    console.log("handleCreatePayment");
-    setOpenPayment(false);
-  };
-
-  const handleUpdateCartItem = () => {
-    dispatch(updateCartItem());
-  };
-
   const handleSubmitOrders = () => {
-    console.log("handleSubmitOrders");
-    console.log(cart);
     setOpenPayment(true);
   };
-
-  const handleCompleteOrder = (id: string) => {
-    console.log("handleCompleteOrder" + id);
-    console.log(cart);
-    setOpenPayment(false);
-  };
-
-  const paymentButton = (
-    <Button
-      variant="contained"
-      color="inherit"
-      sx={{
-        width: "100%",
-        padding: "0.75rem 1.5rem",
-        backgroundColor: "common.black_20",
-        color: "common.black_40"
-      }}
-      onClick={() => setOpenPayment(true)}
-    >
-      結帳
-    </Button>
-  );
-
-  const paymentBtn = () => [
-    {
-      label: "結帳",
-      onClick: handleCompleteOrder
-    }
-  ];
-
-  const CashPaymentForm = ({ onSubmit }: { onSubmit: (id: string) => void }) => {
-    const handleSubmit = (e: SyntheticEvent) => {
-      e.preventDefault();
-    };
-    return (
-      <FormControl onSubmit={handleSubmit} fullWidth>
-        <FormControl fullWidth sx={{ marginBottom: "1.5rem" }}>
-          <Typography component="label" variant="body1" htmlFor="cash" fontWeight={700} mb={1.5}>
-            結帳
-          </Typography>
-          <Input
-            id="cash"
-            sx={{ width: "100%", backgroundColor: "common.black_20", padding: "0.75rem 1rem" }}
-            placeholder="請輸入現場收取的現金"
-          />
-        </FormControl>
-        <Row justifyContent={"space-between"}>
-          <Typography component="h3" variant="body1" fontWeight={700}>
-            找錢
-          </Typography>
-          <Typography component="h3" variant="h6" fontWeight={900}>
-            $---
-          </Typography>
-        </Row>
-      </FormControl>
-    );
-  };
-
-  const CreditCardPaymentForm = ({ onSubmit }: { onSubmit: (id: string) => void }) => {
-    const handleSubmit = (e: SyntheticEvent) => {
-      e.preventDefault();
-    };
-    return (
-      <FormControl fullWidth onSubmit={handleSubmit}>
-        <Button variant="contained" color="inherit" sx={{ width: "100%", padding: "0.75rem 1.5rem" }}>
-          結帳
-        </Button>
-      </FormControl>
-    );
-  };
-
-  const LinePaymentForm = ({ onSubmit }: { onSubmit: (id: string) => void }) => {
-    const handleSubmit = (e: SyntheticEvent) => {
-      e.preventDefault();
-    };
-    return (
-      <FormControl fullWidth onSubmit={handleSubmit}>
-        <Button variant="contained" color="inherit" sx={{ width: "100%", padding: "0.75rem 1.5rem" }}>
-          結帳
-        </Button>
-      </FormControl>
-    );
-  };
-
-  const paymentFunction = [
-    {
-      label: "現金結帳",
-      icon: <MoneyIcon />,
-      content: <CashPaymentForm onSubmit={handleCompleteOrder} />
-    },
-    {
-      label: "信用卡結帳",
-      icon: <CreditCardIcon />,
-      content: <CreditCardPaymentForm onSubmit={handleCompleteOrder} />
-    },
-    {
-      label: "Line Pay",
-      icon: <LinePayIcon width="2.5rem" />,
-      content: <LinePaymentForm onSubmit={handleCompleteOrder} />
-    }
-  ];
 
   const totalPrice = cart.reduce((acc, cartItem) => {
     const speicaltiesPrice = cartItem.specialties.reduce(
@@ -581,7 +459,7 @@ export const CartList: FC = () => {
     <>
       <Column bgcolor="background.paper" height="100%">
         {cart.length > 0 && (
-          <Row justifyContent="space-between" ref={headerRef} sx={{ padding: "0.5rem" }}>
+          <Row justifyContent="space-between" sx={{ padding: "0.5rem" }}>
             <Typography variant="h5" fontWeight={900}>
               已點項目
             </Typography>
@@ -593,7 +471,7 @@ export const CartList: FC = () => {
                   color="common.black"
                   sx={{ textDecorationLine: "underline", textUnderlineOffset: "0.25rem" }}
                 >
-                  清空訂單
+                  清空購物車
                 </Typography>
               </ButtonBase>
             </Box>
@@ -603,12 +481,12 @@ export const CartList: FC = () => {
           <Box display="grid" sx={{ placeContent: "center" }} height={"100%"}>
             <Card>
               <CardHeader
-                title="清空訂單"
+                title="清空購物車"
                 sx={{ backgroundColor: theme.palette.common.black, color: "white", textAlign: "center" }}
               />
               <CardContent sx={{ padding: "1.5rem 1.25rem", minWidth: "50cqw" }}>
                 <Typography component="p" variant="body1" fontWeight={700} textAlign={"center"}>
-                  確定要刪除此項目嗎？
+                  確定要刪除購物車內所有項目？
                 </Typography>
               </CardContent>
               <CardActions sx={{ gap: "1.5rem", justifyContent: "center", alignItems: "center", padding: "1.5rem" }}>
@@ -638,11 +516,7 @@ export const CartList: FC = () => {
                 </ListItem>
               ))}
             </List>
-            <Box
-              ref={footerRef}
-              sx={{ borderTop: `1px dashed ${theme.palette.common.black_40}` }}
-              bgcolor={"background.paper"}
-            >
+            <Box sx={{ borderTop: `1px dashed ${theme.palette.common.black_40}` }} bgcolor={"background.paper"}>
               <Column sx={{ padding: "0.75rem 1.5rem", gap: "0.75rem" }}>
                 <Row justifyContent={"space-between"} alignItems={"flex-end"}>
                   <Typography variant="body1" fontWeight={700}>
@@ -686,70 +560,7 @@ export const CartList: FC = () => {
           </Typography>
         )}
       </Column>
-      <DrawerBase title="結帳" open={openPayment} onClose={handleCloseDrawer} buttonList={paymentBtn()}>
-        <Column p={3}>
-          <Row justifyContent="space-between">
-            <Typography variant="body1" fontWeight={700}>
-              類型
-            </Typography>
-            <Typography variant="h5" fontWeight={900}>
-              外帶
-            </Typography>
-          </Row>
-        </Column>
-        <Divider />
-        <Column p={3}>
-          {paymentFunction.map((payment, idx) => (
-            <Accordion
-              key={payment.label}
-              square
-              sx={{
-                width: "100%",
-                boxShadow: 0,
-                outline: `1px solid ${theme.palette.common.black_40}`
-              }}
-            >
-              <AccordionSummary
-                sx={{
-                  color: "common.black",
-                  "&.Mui-expanded": {
-                    backgroundColor: theme.palette.common.black,
-                    color: "white",
-                    fill: "white"
-                  },
-                  "& .MuiAccordionSummary-expandIconWrapper.Mui-expanded": {
-                    color: "white"
-                  }
-                }}
-                expandIcon={<ExpandMoreIcon />}
-                aria-controls="panel1a-content"
-                id="panel1a-header"
-              >
-                <Row justifyContent={"flex-start"} gap={3} width={"100%"}>
-                  <Box>{payment.icon}</Box>
-                  <Typography component="h3" variant="h6" fontWeight={900}>
-                    {payment.label}
-                  </Typography>
-                </Row>
-              </AccordionSummary>
-              <AccordionDetails sx={{ padding: "2.25rem 1.5rem" }}>{payment.content}</AccordionDetails>
-            </Accordion>
-          ))}
-        </Column>
-        <Row
-          mt={"auto"}
-          justifyContent={"space-between"}
-          p={3}
-          sx={{ borderTop: `1px dashed ${theme.palette.common.black_40}` }}
-        >
-          <Typography component="h4" variant="body1" fontWeight={700}>
-            總金額
-          </Typography>
-          <Typography component="h4" variant="h6" fontWeight={900}>
-            {totalPrice}
-          </Typography>
-        </Row>
-      </DrawerBase>
+      <PaymentDrawer open={openPayment} cart={cart} totalPrice={totalPrice} setOpen={setOpenPayment} />
     </>
   );
 };
