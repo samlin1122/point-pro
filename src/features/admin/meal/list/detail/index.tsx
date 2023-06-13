@@ -5,7 +5,14 @@ import { Base, FieldContainer } from "~/components/layout";
 
 import { RouterProps } from "~/types";
 
-import mainReducer, { initialState, defaultSetting, editField, convertToPayload } from "./reducers";
+import mainReducer, {
+  initialState,
+  defaultSetting,
+  editField,
+  convertToPayload,
+  validateCheck,
+  validator
+} from "./reducers";
 import { useAppDispatch, useAppSelector } from "~/app/hook";
 import { getMealById, postMeal, patchMealById, deleteMeal } from "~/app/slices/meal";
 import { Categories, Specialties } from "~/app/selector";
@@ -83,23 +90,35 @@ export const MealListDetailContainer: FC<RouterProps> = ({ params, navigate }) =
 
   const handleButtonClick = async (key: string) => {
     try {
-      let payload = convertToPayload(state);
       switch (key) {
         case "create":
-          console.log({ payload });
-          await dispatch(postMeal(payload));
+          if (validateCheck(state)) {
+            let payload = convertToPayload(state);
+            console.log({ payload });
+            await dispatch(postMeal(payload));
+            navigate({ pathname: "/admin/meal/list" });
+          } else {
+            reducerDispatch(validator());
+          }
           break;
         case "save":
-          console.log({ payload });
-          await dispatch(patchMealById({ mealId: params.meal_id as string, payload }));
+          if (validateCheck(state)) {
+            let payload = convertToPayload(state);
+            console.log({ payload });
+            await dispatch(patchMealById({ mealId: params.meal_id as string, payload }));
+            navigate({ pathname: "/admin/meal/list" });
+          } else {
+            reducerDispatch(validator());
+          }
           break;
         case "delete":
           await dispatch(deleteMeal(params.meal_id as string));
+          navigate({ pathname: "/admin/meal/list" });
           break;
         case "cancel":
+          navigate({ pathname: "/admin/meal/list" });
           break;
       }
-      navigate({ pathname: "/admin/meal/list" });
     } catch (error) {
       console.log(`${key} meal failed`);
     }
@@ -117,6 +136,7 @@ export const MealListDetailContainer: FC<RouterProps> = ({ params, navigate }) =
             width={200}
             value={state[config.id].value}
             onChange={handleFieldChange}
+            error={state[config.id].invalid}
             {...config}
           />
         ))}

@@ -53,6 +53,7 @@ export const FieldContainer: FC<FieldContainerPropsType> = ({ width = 500, label
           />
         );
       case "textarea":
+        delete props.error;
         return (
           <InputTextarea
             sx={sx}
@@ -66,7 +67,7 @@ export const FieldContainer: FC<FieldContainerPropsType> = ({ width = 500, label
             sx={sx}
             type="number"
             {...props}
-            onChange={(event) => props.onChange({ id: props.id, value: event.target.value })}
+            onChange={(event) => props.onChange({ id: props.id, value: event.target.value.replace(/^0+(?!$)/, "") })}
             startAdornment={<InputAdornment position="start">$</InputAdornment>}
           />
         );
@@ -75,6 +76,7 @@ export const FieldContainer: FC<FieldContainerPropsType> = ({ width = 500, label
       case "date":
         return <InputDate sx={sx} {...props} onChange={(value) => props.onChange({ id: props.id, value })} />;
       case "checkbox":
+        delete props.error;
         return (
           <CheckboxBase
             {...props}
@@ -85,6 +87,7 @@ export const FieldContainer: FC<FieldContainerPropsType> = ({ width = 500, label
       case "select":
         return <SelectBase list={list} sx={sx} {...props} />;
       case "button":
+        delete props.error;
         return (
           <Button variant="contained" sx={sx} {...props}>
             {props.text}

@@ -24,6 +24,8 @@ import mainReducer, {
   addItem,
   deleteItem,
   editItem,
+  validator,
+  validateCheck,
   convertToPayload
 } from "./reducers";
 import { ISpecialtyItem } from "~/types";
@@ -131,38 +133,38 @@ const SpecialtyDetail = ({ specialtyId, open, onClose }: SpecialtyDetailProps) =
   };
 
   const handleButtonClick = async (key: string) => {
-    switch (key) {
-      case "cancel":
-        onClose();
-        break;
-      case "create":
-        try {
-          let payload = convertToPayload(state);
-          console.log({ payload });
-          await dispatch(postSpecialty(payload));
-          onClose(true);
-        } catch (error) {
-          console.log("create specialty failed");
-        }
-        break;
-      case "save":
-        try {
-          let payload = convertToPayload(state);
-          console.log({ payload });
-          await dispatch(patchSpecialtyById({ specialtyId: specialtyId as string, payload }));
-          onClose(true);
-        } catch (error) {
-          console.log("update specialty failed");
-        }
-        break;
-      case "delete":
-        try {
+    try {
+      switch (key) {
+        case "create":
+          if (validateCheck(state)) {
+            let payload = convertToPayload(state);
+            console.log({ payload });
+            await dispatch(postSpecialty(payload));
+            onClose(true);
+          } else {
+            reducerDispatch(validator());
+          }
+          break;
+        case "save":
+          if (validateCheck(state)) {
+            let payload = convertToPayload(state);
+            console.log({ payload });
+            await dispatch(patchSpecialtyById({ specialtyId: specialtyId as string, payload }));
+            onClose(true);
+          } else {
+            reducerDispatch(validator());
+          }
+          break;
+        case "delete":
           await dispatch(deleteSpecialty(specialtyId as string));
           onClose(true);
-        } catch (error) {
-          console.log("delete specialty failed", { error });
-        }
-        break;
+          break;
+        case "cancel":
+          onClose();
+          break;
+      }
+    } catch (error) {
+      console.log(`${key} specialty failed`);
     }
   };
 
@@ -188,6 +190,7 @@ const SpecialtyDetail = ({ specialtyId, open, onClose }: SpecialtyDetailProps) =
             key={`specialty-input-${field.id}`}
             value={state[field.id].value}
             onChange={handleFieldChange}
+            error={state[field.id].invalid}
             {...field}
           />
         ))}
@@ -216,7 +219,9 @@ const SpecialtyDetail = ({ specialtyId, open, onClose }: SpecialtyDetailProps) =
             <InputText
               type="number"
               value={item.price}
-              onChange={(event) => handleSpecialtyItemChange({ index, key: "price", value: event.target.value })}
+              onChange={(event) =>
+                handleSpecialtyItemChange({ index, key: "price", value: event.target.value.replace(/^0+(?!$)/, "") })
+              }
               startAdornment={<InputAdornment position="start">$</InputAdornment>}
             />
             <IconButton sx={{ width: "10%" }} onClick={() => reducerDispatch(deleteItem(index))}>

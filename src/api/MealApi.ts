@@ -2,7 +2,7 @@ import http from "./http";
 import { Id, MealsResponse, MealResponse, PostMealPayload, PatchMealByIdPayload } from "~/types/api";
 
 export const getMeals = () => {
-  return http.get<string, MealsResponse>("meal");
+  return http.get<string, MealsResponse>("meal", { params: { maxResult: 999 } });
 };
 
 export const getMealById = (mealId: Id) => {
