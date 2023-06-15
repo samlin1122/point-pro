@@ -2,23 +2,13 @@
 import { useEffect } from "react";
 import { useSearchParams } from "react-router-dom";
 // Components
-import {
-  SeatInfo,
-  CategoryNavbar,
-  Meals,
-  Header,
-  Footer,
-  CustomizedDialog,
-  CartDialog,
-  OrderDialog,
-  PaymentModal,
-  CounterReminderModal,
-  ConfirmRemoveCartItemModal
-} from "./index.styles";
+import { SeatInfo, CategoryNavbar, Meals, Header, Footer } from "./index.styles";
 // Others
 import { useAppDispatch } from "~/app/hook";
 import { getMenu, getUserInfo } from "./slice";
 import { getOrders } from "~/app/slices/order";
+import { MobileModal } from "~/components/modals";
+import { DialogType } from "~/components/dialog";
 
 const Order = () => {
   const dispatch = useAppDispatch();
@@ -45,13 +35,15 @@ const Order = () => {
       <Meals />
       <Footer />
 
-      <CustomizedDialog />
-      <CartDialog />
-      <OrderDialog />
+      {/* 客製化、購物車、訂單畫面 */}
+      <DialogType.Customized />
+      <DialogType.Cart />
+      <DialogType.Orders />
 
-      <ConfirmRemoveCartItemModal />
-      <PaymentModal />
-      <CounterReminderModal />
+      {/* 提示彈窗 */}
+      <MobileModal.ConfirmRemoveCartItem />
+      <MobileModal.Payment />
+      <MobileModal.CounterReminder />
     </>
   );
 };

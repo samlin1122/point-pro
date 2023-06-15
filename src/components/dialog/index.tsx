@@ -17,6 +17,7 @@ import CancelIcon from "@mui/icons-material/Cancel";
 import { Variant } from "@mui/material/styles/createTypography";
 import { ButtonBase } from "../buttons";
 
+// [TODO] move to mobile-dialog file
 interface IMobileDialogLayout {
   title?: React.ReactNode;
   titleSize?: Variant;
@@ -126,3 +127,5 @@ export const MobileButton = styled(ButtonBase)(({ theme }) => ({
     color: theme.palette.common.black_60
   }
 }));
+
+export { default as DialogType } from "./mobile-dialog";

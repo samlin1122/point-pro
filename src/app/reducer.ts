@@ -1,6 +1,6 @@
 import { combineReducers } from "@reduxjs/toolkit";
 
-import { customerOrderSlice } from "~/features/orders/slice";
+import { takeOrderSlice } from "~/features/orders/slice";
 import { counterSlice } from "../features/home/slice";
 import { customerBookingSlice } from "~/features/booking/slice";
 // api
@@ -11,7 +11,7 @@ import { orderSlice } from "./slices/order";
 
 const reducer = combineReducers({
   [counterSlice.name]: counterSlice.reducer,
-  [customerOrderSlice.name]: customerOrderSlice.reducer,
+  [takeOrderSlice.name]: takeOrderSlice.reducer,
   [customerBookingSlice.name]: customerBookingSlice.reducer,
   [authSlice.name]: authSlice.reducer,
   [categorySlice.name]: categorySlice.reducer,

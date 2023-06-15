@@ -1,75 +1,45 @@
 // Lib
-import { FC, SyntheticEvent, useEffect, useRef, useState } from "react";
-import {
-  Accordion,
-  AccordionDetails,
-  AccordionSummary,
-  Box,
-  Button,
-  Card,
-  CardActions,
-  CardContent,
-  CardHeader,
-  Chip,
-  Divider,
-  Drawer,
-  FormControl,
-  Input,
-  List,
-  ListItem,
-  ListItemText,
-  Tab,
-  Tabs,
-  Typography,
-  styled,
-  tabsClasses
-} from "@mui/material";
+import { useState } from "react";
+import { Box, Chip, List, ListItem, ListItemText, Tab, Tabs, Typography, styled, tabsClasses } from "@mui/material";
 import DoneIcon from "@mui/icons-material/Done";
 import DeleteIcon from "@mui/icons-material/Delete";
 import ShoppingCartIcon from "@mui/icons-material/ShoppingCart";
-import MoneyIcon from "@mui/icons-material/Money";
-import CreditCardIcon from "@mui/icons-material/CreditCard";
-import ExpandMoreIcon from "@mui/icons-material/ExpandMore";
 // Components
 import { TabPanel } from "~/components/tabs";
 import { Column, Row } from "~/components/layout";
 import GridBase, { GridItemBase } from "~/components/grid";
 import { ButtonBase, ButtonIcon, CloseButton } from "~/components/buttons";
-import { DrawerBase } from "~/components/drawer";
-import { ModalBase } from "~/components/modals";
+import { TabletModal } from "~/components/modals";
 // Others
 import { useAppDispatch, useAppSelector } from "~/app/hook";
 import {
-  clearCart,
-  closeCustomizeDialog,
+  closeDialog,
   createCartItem,
-  // decreaseCartItemAmount,
   decreaseMealAmount,
   deleteCartItem,
-  // increaseCartItemAmount,
   increaseMealAmount,
-  openCustomizeDialog,
-  resetSpecialty,
+  openDialog,
   setCurrentCategory,
+  setNotModifiedCartItem,
   updateCartItem,
   updateSpecialty,
   viewCartItemCustomized
 } from "~/features/orders/slice";
-import { ReactComponent as LinePayIcon } from "~/assets/line-pay-solid.svg";
 import { InputNumber } from "~/features/orders/index.styles";
 import theme from "~/theme";
-import { CartItem, Meal, Specialty, SpecialtyItem } from "~/features/orders/type";
+import { CartItem, Meal, DialogType, Specialty, SpecialtyItem } from "~/features/orders/type";
 import PaymentDrawer from "~/components/payment";
+import { calculateCartPrice } from "~/utils/price.utils";
 
 export const MenuTabs = () => {
   const dispatch = useAppDispatch();
 
-  const categories = useAppSelector(({ customerOrder }) => customerOrder.categories);
-  const currentCategory = useAppSelector(({ customerOrder }) => customerOrder.currentCategory);
+  const categories = useAppSelector(({ takeOrder }) => takeOrder.categories);
+  const currentCategory = useAppSelector(({ takeOrder }) => takeOrder.currentCategory);
 
   const handleClickCategory = (categoryId: string) => {
     dispatch(setCurrentCategory(categoryId));
-    dispatch(closeCustomizeDialog());
+    dispatch(closeDialog());
   };
 
   return (
@@ -94,46 +64,48 @@ export const MenuTabs = () => {
   );
 };
 
-interface IMealCardProps extends Meal {
-  currentMealId: string;
-}
-const MealCard = (props: IMealCardProps) => {
+type MealItemProps = {
+  meal: Meal;
+};
+const MealItem = (props: MealItemProps) => {
   const dispatch = useAppDispatch();
 
-  const { id, title, price, coverUrl, currentMealId } = props;
+  const { meal } = props;
 
-  const isModifiedCartItem = useAppSelector(({ customerOrder }) => customerOrder.isModifiedCartItem);
-  const isSelected = id === currentMealId && !isModifiedCartItem;
+  const isModifiedCartItem = useAppSelector(({ takeOrder }) => takeOrder.isModifiedCartItem);
+  const customized = useAppSelector(({ takeOrder }) => takeOrder.customized);
+  const isSelected = meal.id === customized?.id && !isModifiedCartItem;
 
-  const handleSelectedMeal = (currentMealId: string) => () => {
-    dispatch(resetSpecialty());
-    dispatch(openCustomizeDialog(currentMealId));
+  const handleSelectedMeal = () => {
+    dispatch(openDialog({ type: DialogType.CUSTOMIZED, data: { ...meal, amount: 1, specialties: [] } }));
+    dispatch(setNotModifiedCartItem());
   };
+
   return (
     <Box
-      key={id}
+      key={meal.id}
       sx={{
         backgroundColor: isSelected ? "primary.main" : "transparent",
         boxShadow: "rgba(0, 0, 0, 0.5) 0px 1px 4px"
       }}
-      onClick={handleSelectedMeal(id)}
+      onClick={handleSelectedMeal}
     >
       <Typography
         fontWeight={600}
         textAlign="center"
         sx={{ textOverflow: "ellipsis", whiteSpace: "nowrap", overflow: "hidden", padding: ".3rem" }}
       >
-        {title}
+        {meal.title}
       </Typography>
       <Box height="6rem" sx={{ bgcolor: theme.palette.common.black, textAlign: "center" }}>
         <Box
           component="img"
-          src={coverUrl.split(".jpeg")[0] + "b" + ".jpeg"}
-          alt={title}
+          src={meal.coverUrl.split(".jpeg")[0] + "b" + ".jpeg"}
+          alt={meal.title}
           sx={{ objectFit: "fill", height: "100%", maxWidth: "100%" }}
         />
       </Box>
-      <Typography textAlign="center">{price}元</Typography>
+      <Typography textAlign="center">{meal.price}元</Typography>
       <Row justifyContent="space-between" alignItems="center"></Row>
     </Box>
   );
@@ -142,14 +114,13 @@ const MealCard = (props: IMealCardProps) => {
 export const MealDrawer = () => {
   const dispatch = useAppDispatch();
 
-  const meals = useAppSelector(({ customerOrder }) => customerOrder.meals);
-  const currentMealId = useAppSelector(({ customerOrder }) => customerOrder.currentMealId);
-  const currentMealAmount = useAppSelector(({ customerOrder }) => customerOrder.currentMealAmount);
-  const currentSpecialty = useAppSelector(({ customerOrder }) => customerOrder.currentSpecialty);
-  const isModifiedCartItem = useAppSelector(({ customerOrder }) => customerOrder.isModifiedCartItem);
+  const meals = useAppSelector(({ takeOrder }) => takeOrder.meals);
+  const customized = useAppSelector(({ takeOrder }) => takeOrder.customized);
+  const isModifiedCartItem = useAppSelector(({ takeOrder }) => takeOrder.isModifiedCartItem);
 
-  const currentMeal = meals.find((meal) => meal.id === currentMealId);
-  const specialtyItems = currentSpecialty.reduce((acc, cur) => acc.concat(cur.items), [] as SpecialtyItem[]);
+  const customizedSpecialties = meals?.find((meal) => meal.id === customized?.id)?.specialties ?? [];
+
+  const items = customized?.specialties?.reduce((acc, cur) => acc.concat(cur.items), [] as SpecialtyItem[]);
 
   const handleClickItem = (selectedSpecialty: Specialty, selectedItem: SpecialtyItem) => () => {
     dispatch(updateSpecialty({ selectedSpecialty, selectedItem }));
@@ -165,6 +136,7 @@ export const MealDrawer = () => {
 
   const handleUpdateCartItem = () => {
     dispatch(updateCartItem());
+    dispatch(closeDialog());
   };
 
   const handleAddToCart = () => {
@@ -172,7 +144,7 @@ export const MealDrawer = () => {
   };
 
   const handleClose = () => {
-    dispatch(closeCustomizeDialog());
+    dispatch(closeDialog());
   };
 
   return (
@@ -181,20 +153,20 @@ export const MealDrawer = () => {
         position: "fixed",
         bottom: 0,
         transition: "transform 0.3s",
-        transform: currentMeal ? "translateY(0)" : "translateY(100%)",
+        transform: customized ? "translateY(0)" : "translateY(100%)",
         width: "66.6vw"
       }}
     >
       <Box
         bgcolor="white"
         sx={{
-          borderTop: `1px solid ${theme.palette.common.black_40}`,
+          borderTop: "1px solid common.black_40",
           position: "relative",
           padding: ".5rem"
         }}
       >
-        <Typography variant="h4" sx={{ fontWeight: 900, color: theme.palette.common.black }}>
-          {currentMeal?.title}
+        <Typography variant="h4" sx={{ fontWeight: 900, color: "common.black" }}>
+          {customized?.title}
         </Typography>
         <CloseButton
           onClick={handleClose}
@@ -207,8 +179,8 @@ export const MealDrawer = () => {
           }}
         />
         <Box>
-          {currentMeal?.specialties?.length
-            ? currentMeal.specialties.map((specialty) => (
+          {customizedSpecialties.length
+            ? customizedSpecialties.map((specialty) => (
                 <Box key={specialty.id}>
                   <Typography
                     variant="h6"
@@ -232,11 +204,11 @@ export const MealDrawer = () => {
                         key={item.id}
                         label={item.title}
                         color="primary"
-                        variant={specialtyItems.find(({ id }) => id === item.id) ? "filled" : "outlined"}
+                        variant={items?.find(({ id }) => id === item.id) ? "filled" : "outlined"}
                         icon={
                           <DoneIcon
                             sx={{
-                              display: specialtyItems.find(({ id }) => id === item.id) ? "block" : "none",
+                              display: items?.find(({ id }) => id === item.id) ? "block" : "none",
                               fontSize: theme.typography.body1.fontSize
                             }}
                           />
@@ -256,36 +228,37 @@ export const MealDrawer = () => {
               ))
             : null}
         </Box>
-        <Box sx={{ marginTop: "1rem", display: "flex", justifyContent: "end" }}>
-          <InputNumber value={currentMealAmount} onAdd={handleAdd} onMinus={handleMinus} />
-          <ButtonBase
-            sx={{
-              backgroundColor: theme.palette.common.black,
-              color: "white",
-              padding: ".5rem 1rem",
-              marginLeft: "1.5rem",
-              "&:hover": {
-                backgroundColor: theme.palette.common.black_80,
-                color: theme.palette.common.black_20
-              }
-            }}
-            onClick={isModifiedCartItem ? handleUpdateCartItem : handleAddToCart}
-            startIcon={isModifiedCartItem ? <DoneIcon /> : <ShoppingCartIcon />}
-          >
-            <Typography variant="body1" fontWeight={700}>
-              {isModifiedCartItem ? "確認修改" : "加入購物車"}
-            </Typography>
-          </ButtonBase>
-        </Box>
+        {customized && (
+          <Box sx={{ marginTop: "1rem", display: "flex", justifyContent: "end" }}>
+            <InputNumber value={customized.amount} onAdd={handleAdd} onMinus={handleMinus} />
+            <ButtonBase
+              sx={{
+                backgroundColor: "common.black",
+                color: "white",
+                padding: ".5rem 1rem",
+                marginLeft: "1.5rem",
+                "&:hover": {
+                  backgroundColor: "common.black_80",
+                  color: "common.black_20"
+                }
+              }}
+              onClick={isModifiedCartItem ? handleUpdateCartItem : handleAddToCart}
+              startIcon={isModifiedCartItem ? <DoneIcon /> : <ShoppingCartIcon />}
+            >
+              <Typography variant="body1" fontWeight={700}>
+                {isModifiedCartItem ? "確認修改" : "加入購物車"}
+              </Typography>
+            </ButtonBase>
+          </Box>
+        )}
       </Box>
     </Box>
   );
 };
 
 export const MealList = () => {
-  const menu = useAppSelector(({ customerOrder }) => customerOrder.menu);
-  const currentCategory = useAppSelector(({ customerOrder }) => customerOrder.currentCategory);
-  const currentMealId = useAppSelector(({ customerOrder }) => customerOrder.currentMealId);
+  const menu = useAppSelector(({ takeOrder }) => takeOrder.menu);
+  const currentCategory = useAppSelector(({ takeOrder }) => takeOrder.currentCategory);
 
   return (
     <>
@@ -314,7 +287,7 @@ export const MealList = () => {
                         }}
                         key={meal.id}
                       >
-                        <MealCard {...meal} currentMealId={currentMealId} />
+                        <MealItem meal={meal} />
                       </GridItemBase>
                     ))}
                 </GridBase>
@@ -326,22 +299,11 @@ export const MealList = () => {
   );
 };
 
-const SpecialtiesCartList = styled(List)(({ theme }) => ({
-  padding: 0,
-  margin: 0
-}));
-
-const SpecialtiesCartItem = styled(ListItem)(({ theme }) => ({
-  padding: 0,
-  margin: 0
-}));
-
-interface ICartMealProps {
+type CartMealProps = {
   idx: number;
   cartItem: CartItem;
-}
-
-const CartMeal = ({ idx, cartItem }: ICartMealProps) => {
+};
+const CartMeal = ({ idx, cartItem }: CartMealProps) => {
   const dispatch = useAppDispatch();
 
   const { title, amount, specialties, price } = cartItem;
@@ -360,14 +322,6 @@ const CartMeal = ({ idx, cartItem }: ICartMealProps) => {
     e.stopPropagation();
     dispatch(deleteCartItem(idx));
   };
-
-  // [TODO] remove?
-  // const handleAdd = (idx: number) => {
-  //   dispatch(increaseCartItemAmount(idx));
-  // };
-  // const handleMinus = (idx: number) => {
-  //   dispatch(decreaseCartItemAmount(idx));
-  // };
 
   return (
     <Column
@@ -390,12 +344,10 @@ const CartMeal = ({ idx, cartItem }: ICartMealProps) => {
         </ButtonIcon>
       </Row>
       <Row sx={{ gap: "0.5rem" }} alignItems="flex-start">
-        {/* [TODO] remove? */}
-        {/* <Box component="img" height={64} width={64} src={coverUrl} alt={title} sx={{ objectFit: "cover" }} /> */}
         <Column>
-          <SpecialtiesCartList dense={true}>
+          <List dense={true} sx={{ padding: 0, margin: 0 }}>
             {specialties.map((specialty) => (
-              <SpecialtiesCartItem key={specialty.id}>
+              <ListItem key={specialty.id} sx={{ padding: 0, margin: 0 }}>
                 <ListItemText
                   secondary={specialty.items.map((item) => (
                     <Typography
@@ -409,19 +361,12 @@ const CartMeal = ({ idx, cartItem }: ICartMealProps) => {
                     </Typography>
                   ))}
                 />
-              </SpecialtiesCartItem>
+              </ListItem>
             ))}
-          </SpecialtiesCartList>
+          </List>
         </Column>
       </Row>
-      <Box
-        sx={{
-          width: "100%",
-          textAlign: "right"
-        }}
-      >
-        {/* [TODO] remove? */}
-        {/* <InputNumber value={amount} onAdd={() => handleAdd(idx)} onMinus={() => handleMinus(idx)} /> */}
+      <Box sx={{ width: "100%", textAlign: "right" }}>
         <Typography variant="body1" sx={{ fontWeight: 900 }}>
           {`${price}${specialtiesPrice ? `(+${specialtiesPrice})` : ""} x ${amount} = ${totalPrice}元`}
         </Typography>
@@ -430,78 +375,47 @@ const CartMeal = ({ idx, cartItem }: ICartMealProps) => {
   );
 };
 
-export const CartList: FC = () => {
-  const dispatch = useAppDispatch();
-
-  const cart = useAppSelector(({ customerOrder }) => customerOrder.cart);
-
-  const [openDialog, setOpenDialog] = useState(false);
+export const CartList = () => {
+  const cart = useAppSelector(({ takeOrder }) => takeOrder.cart);
+  const hasCartItems = cart.length > 0;
+  const [openClearCartConfirmModal, setoOenClearCartConfirmModal] = useState(false);
+  const [openSubmitOrderConfirmModal, setOpenSubmitOrderConfirmModal] = useState(false);
   const [openPayment, setOpenPayment] = useState(false);
 
-  const handleClearCart = () => {
-    dispatch(clearCart());
-    setOpenDialog(false);
-  };
-
   const handleSubmitOrders = () => {
-    setOpenPayment(true);
+    setOpenSubmitOrderConfirmModal(true);
   };
 
-  const totalPrice = cart.reduce((acc, cartItem) => {
-    const speicaltiesPrice = cartItem.specialties.reduce(
-      (acc, specialty) => (acc += specialty.items.reduce((acc, specialtyItem) => (acc += specialtyItem.price), 0)),
-      0
-    );
-    return (acc += cartItem.amount * (cartItem.price + speicaltiesPrice));
-  }, 0);
+  const totalPrice = calculateCartPrice(cart);
 
   return (
     <>
       <Column bgcolor="background.paper" height="100%">
-        {cart.length > 0 && (
-          <Row justifyContent="space-between" sx={{ padding: "0.5rem" }}>
-            <Typography variant="h5" fontWeight={900}>
-              已點項目
-            </Typography>
-            <Box>
-              <ButtonBase size={"small"} color="inherit" disableRipple onClick={() => setOpenDialog(true)}>
-                <Typography
-                  component="span"
-                  variant="body1"
-                  color="common.black"
-                  sx={{ textDecorationLine: "underline", textUnderlineOffset: "0.25rem" }}
-                >
-                  清空購物車
-                </Typography>
-              </ButtonBase>
-            </Box>
-          </Row>
-        )}
-        <ModalBase open={openDialog} onClose={() => setOpenDialog(false)}>
-          <Box display="grid" sx={{ placeContent: "center" }} height={"100%"}>
-            <Card>
-              <CardHeader
-                title="清空購物車"
-                sx={{ backgroundColor: theme.palette.common.black, color: "white", textAlign: "center" }}
-              />
-              <CardContent sx={{ padding: "1.5rem 1.25rem", minWidth: "50cqw" }}>
-                <Typography component="p" variant="body1" fontWeight={700} textAlign={"center"}>
-                  確定要刪除購物車內所有項目？
-                </Typography>
-              </CardContent>
-              <CardActions sx={{ gap: "1.5rem", justifyContent: "center", alignItems: "center", padding: "1.5rem" }}>
-                <Button variant="outlined" color="inherit" fullWidth onClick={handleClearCart}>
-                  確定
-                </Button>
-                <Button variant="contained" color="secondary" fullWidth onClick={() => setOpenDialog(false)}>
-                  取消
-                </Button>
-              </CardActions>
-            </Card>
-          </Box>
-        </ModalBase>
-        {cart.length > 0 ? (
+        {hasCartItems ? (
           <>
+            <Row justifyContent="space-between" sx={{ padding: "0.5rem" }}>
+              <Typography variant="h5" fontWeight={900}>
+                已點項目
+              </Typography>
+              <Box>
+                <ButtonBase
+                  size={"small"}
+                  color="inherit"
+                  disableRipple
+                  onClick={() => setoOenClearCartConfirmModal(true)}
+                >
+                  <Typography
+                    component="span"
+                    variant="body1"
+                    color="common.black"
+                    sx={{ textDecorationLine: "underline", textUnderlineOffset: "0.25rem" }}
+                  >
+                    清空購物車
+                  </Typography>
+                </ButtonBase>
+              </Box>
+            </Row>
+            {/* 購物車項目 */}
             <List
               sx={{
                 overflowY: "scroll",
@@ -542,7 +456,7 @@ export const CartList: FC = () => {
                 color="primary"
               >
                 <Typography variant="h6" fontWeight={900} textAlign="center">
-                  結帳
+                  送出訂單
                 </Typography>
               </ButtonBase>
             </Box>
@@ -560,7 +474,9 @@ export const CartList: FC = () => {
           </Typography>
         )}
       </Column>
-      <PaymentDrawer open={openPayment} cart={cart} totalPrice={totalPrice} setOpen={setOpenPayment} />
+      <PaymentDrawer open={openPayment} item={cart} totalPrice={totalPrice} setOpen={setOpenPayment} />
+      <TabletModal.ClearCartConfirm open={openClearCartConfirmModal} setOpen={setoOenClearCartConfirmModal} />
+      <TabletModal.SubmitOrderConfirm open={openSubmitOrderConfirmModal} setOpen={setOpenSubmitOrderConfirmModal} />
     </>
   );
 };

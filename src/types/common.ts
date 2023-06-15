@@ -1,62 +1,64 @@
-export const enum SpecialtyType {
+export enum SpecialtyType {
   SINGLE = "SINGLE",
   MULTIPLE = "MULTIPLE"
 }
 
-export const enum OrderType {
+export enum OrderType {
   DineIn = "DineIn",
   TakeOut = "TakeOut"
 }
 
-export const enum OrderStatus {
+export enum OrderStatus {
+  PENDING = "PENDING",
   UNPAID = "UNPAID",
   SUCCESS = "SUCCESS",
-  CANCEL = "CANCEL",
-  PENDING = "PENDING"
+  CANCEL = "CANCEL"
 }
 
-export const enum PaymentGateway {
+export enum OrderStatusTitle {
+  PENDING = "準備中",
+  UNPAID = "未付款",
+  SUCCESS = "已付款",
+  CANCEL = "已取消"
+}
+
+export enum PaymentGateway {
   linepay = "linepay",
   cash = "cash",
   card = "card"
 }
 
-export const enum BookingType {
+export enum BookingType {
   "online-booking" = "online-booking",
   "phone-booking" = "phone-booking",
   "walk-in-seating" = "walk-in-seating"
 }
 
-export const enum Gender {
+export enum Gender {
   male,
   female,
   other
 }
 
-export const enum CustomerOrderDialog {
-  CUSTOMIZED = "CUSTOMIZED",
-  CART = "CART",
-  ORDER = "ORDER"
-}
-
-export const enum CustomerBookingDialog {
+export enum CustomerBookingDialog {
   RECORD_QUERY = "RECORD_QUERY",
   PRIVACY_POLICY = "PRIVACY_POLICY",
   REMINDER = "REMINDER",
   QRCODE = "QRCODE"
 }
 
-export const enum MobileModal {
+export enum MobileModal {
   PAYMENT = "PAYMENT",
-  COUNTER_REMINDER = "COUNTER_REMINDER"
+  COUNTER_REMINDER = "COUNTER_REMINDER",
+  REMOVE_CART_CONFIRM = "REMOVE_CART_CONFIRM"
 }
 
-export const enum MemberRole {
+export enum MemberRole {
   MERCHANT = "MERCHANT",
   CUSTOMER = "CUSTOMER"
 }
 
-export const enum SeatStatus {
+export enum SeatStatus {
   AVAILABLE = "AVAILABLE",
   BOOKED = "BOOKED",
   INUSE = "INUSE"

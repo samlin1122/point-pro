@@ -1,4 +1,5 @@
-import { SpecialtyType } from "~/types/common";
+import { OrderStatus, SpecialtyType, OrderStatusTitle } from "~/types/common";
+
 // 專門放固定參數
 export const genderList = [
   { id: "male", name: "男生" },
@@ -11,10 +12,44 @@ export const SpecialtyTypeList = [
 ];
 
 export const ORDER_STATUS = [
-  { value: OrderStatus.PENDING, title: "準備中", id: OrderStatus.PENDING },
-  { value: OrderStatus.UNPAID, title: "未付款", id: OrderStatus.UNPAID },
-  { value: OrderStatus.SUCCESS, title: "已付款", id: OrderStatus.SUCCESS },
-  { value: OrderStatus.CANCEL, title: "已取消", id: OrderStatus.CANCEL }
+  {
+    id: OrderStatus.PENDING,
+    value: OrderStatus.PENDING,
+    title: OrderStatusTitle.PENDING
+  },
+
+  {
+    id: OrderStatus.UNPAID,
+    value: OrderStatus.UNPAID,
+    title: OrderStatusTitle.UNPAID
+  },
+
+  {
+    id: OrderStatus.SUCCESS,
+    value: OrderStatus.SUCCESS,
+    title: OrderStatusTitle.SUCCESS
+  },
+
+  {
+    id: OrderStatus.CANCEL,
+    value: OrderStatus.CANCEL,
+    title: OrderStatusTitle.CANCEL
+  }
+];
+
+export const MOBILE_ORDER_STATUS_TAB = [
+  {
+    type: [OrderStatus.PENDING, OrderStatus.UNPAID],
+    title: OrderStatusTitle.UNPAID
+  },
+  {
+    type: [OrderStatus.SUCCESS],
+    title: OrderStatusTitle.SUCCESS
+  },
+  {
+    type: [OrderStatus.CANCEL],
+    title: OrderStatusTitle.CANCEL
+  }
 ];
 
 // route
@@ -22,7 +57,6 @@ import RestaurantMenuIcon from "@mui/icons-material/RestaurantMenu";
 import StickyNote2Icon from "@mui/icons-material/StickyNote2";
 import MenuBookIcon from "@mui/icons-material/MenuBook";
 import EventSeatIcon from "@mui/icons-material/EventSeat";
-import { OrderStatus } from "~/features/orders/type";
 
 export const sideBarItemList = [
   {

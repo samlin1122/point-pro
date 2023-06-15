@@ -1,73 +1,35 @@
 // Lib
-import { FC, SyntheticEvent, useEffect, useRef, useState } from "react";
+import { SyntheticEvent } from "react";
 import {
   Accordion,
   AccordionDetails,
   AccordionSummary,
   Box,
   Button,
-  Card,
-  CardActions,
-  CardContent,
-  CardHeader,
-  Chip,
   Divider,
-  Drawer,
   FormControl,
   Input,
-  List,
-  ListItem,
-  ListItemText,
-  Tab,
-  Tabs,
-  Typography,
-  styled,
-  tabsClasses
+  Typography
 } from "@mui/material";
-import DoneIcon from "@mui/icons-material/Done";
-import DeleteIcon from "@mui/icons-material/Delete";
-import ShoppingCartIcon from "@mui/icons-material/ShoppingCart";
 import MoneyIcon from "@mui/icons-material/Money";
 import CreditCardIcon from "@mui/icons-material/CreditCard";
 import ExpandMoreIcon from "@mui/icons-material/ExpandMore";
 // Components
-import { TabPanel } from "~/components/tabs";
 import { Column, Row } from "~/components/layout";
-import GridBase, { GridItemBase } from "~/components/grid";
-import { ButtonBase, ButtonIcon, CloseButton } from "~/components/buttons";
 import { DrawerBase } from "~/components/drawer";
-import { ModalBase } from "~/components/modals";
 // Others
-import { useAppDispatch, useAppSelector } from "~/app/hook";
-import {
-  clearCart,
-  closeCustomizeDialog,
-  createCartItem,
-  // decreaseCartItemAmount,
-  decreaseMealAmount,
-  deleteCartItem,
-  // increaseCartItemAmount,
-  increaseMealAmount,
-  openCustomizeDialog,
-  resetSpecialty,
-  setCurrentCategory,
-  updateCartItem,
-  updateSpecialty,
-  viewCartItemCustomized
-} from "~/features/orders/slice";
 import { ReactComponent as LinePayIcon } from "~/assets/line-pay-solid.svg";
-import { InputNumber } from "~/features/orders/index.styles";
 import theme from "~/theme";
-import { CartItem, Meal, Specialty, SpecialtyItem } from "~/features/orders/type";
+import { CartItem } from "~/features/orders/type";
 
 type PaymentDrawerProps = {
   open: boolean;
   totalPrice: number;
-  cart: CartItem[];
+  item: CartItem[];
   setOpen: React.Dispatch<React.SetStateAction<boolean>>;
 };
 const PaymentDrawer = (props: PaymentDrawerProps) => {
-  const { open, cart, totalPrice, setOpen } = props;
+  const { open, item, totalPrice, setOpen } = props;
 
   const CashPaymentForm = ({ onSubmit }: { onSubmit: (id: string) => void }) => {
     const handleSubmit = (e: SyntheticEvent) => {

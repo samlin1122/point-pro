@@ -4,7 +4,6 @@ import {
   BookingStepType,
   BookingType,
   Gender,
-  CustomerOrderDialog,
   OrderStatus,
   OrderType,
   PaymentGateway,
@@ -84,23 +83,6 @@ export interface OrderMeal {
   isServed: boolean;
   specialties: ISpecialty[];
   categories: ICategory[];
-}
-
-export interface ICustomerOrderSliceState {
-  categories: ICategory[];
-  menu: IMeal[];
-  combinedMenu: ICombineMenu[];
-  cart: ICartItem[];
-  orders: IOrder[];
-  currentCategory: ICategory["id"];
-  currentMealId: IMeal["id"];
-  currentMealAmount: number;
-  currentSpecialty: ISpecialty[];
-  currentDialog: string;
-  currentModal: string;
-  modifiedCartItemIndex: number;
-  isModifiedCartItem: boolean;
-  isLoading: boolean;
 }
 
 export interface IBookingInfo {

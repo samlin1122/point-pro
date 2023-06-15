@@ -1,43 +1,15 @@
+import { OrderStatus, OrderType, SpecialtyType } from "~/types/common";
+
 export enum BookingType {
   OnlineBooking = "OnlineBooking",
   PhoneBooking = "PhoneBooking",
   WalkInSeating = "WalkInSeating"
 }
 
-export enum SpecialtyType {
-  SINGLE = "SINGLE",
-  MULTIPLE = "MULTIPLE"
-}
-
-export enum OrderStatus {
-  UNPAID = "UNPAID",
-  SUCCESS = "SUCCESS",
-  CANCEL = "CANCEL",
-  PENDING = "PENDING"
-}
-
-export enum OrderType {
-  DineIn = "DineIn",
-  TakeOut = "TakeOut"
-}
-
-export enum MobileDialog {
+export enum DialogType {
   CUSTOMIZED = "CUSTOMIZED",
   CART = "CART",
   ORDER = "ORDER"
-}
-
-export enum CustomerBookingDialog {
-  RECORD_QUERY = "RECORD_QUERY",
-  PRIVACY_POLICY = "PRIVACY_POLICY",
-  REMINDER = "REMINDER",
-  QRCODE = "QRCODE"
-}
-
-export enum MobileModal {
-  PAYMENT = "PAYMENT",
-  COUNTER_REMINDER = "COUNTER_REMINDER",
-  REMOVE_CART_CONFIRM = "REMOVE_CART_CONFIRM"
 }
 
 // [TODO]
@@ -97,34 +69,27 @@ export type Menu = Category & {
   meals: Meal[];
 };
 
+export type OrderMeal = {
+  id: string;
+  mealId: string;
+  title: string;
+  specialties: Specialty[];
+  price: number;
+  amount: number;
+  servedAmount: number;
+  categories: Category[];
+  mealPrice: number;
+};
+
 export type Order = {
   id: string;
   status: OrderStatus;
   type: OrderType;
-  orderMeals: {
-    id: string;
-    mealId: string;
-    title: string;
-    specialties: Specialty[];
-    price: number;
-    amount: number;
-    servedAmount: number;
-    categories: Category[];
-  }[];
+  orderMeals: OrderMeal[];
   paymentLogs: any[];
   createdAt?: number;
   updatedAt?: number;
   seats?: string[];
 };
 
-export type CartItem = {
-  id: string;
-  title: string;
-  position: number;
-  coverUrl: string;
-  description: string;
-  price: number;
-  isPopular?: boolean;
-  specialties: Specialty[];
-  amount: number;
-};
+export type CartItem = Meal & { amount: number };

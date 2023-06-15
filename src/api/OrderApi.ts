@@ -1,7 +1,8 @@
 import { DeleteOrderResponse, GetOrdersResponse, PostOrderPayload, PostOrderResponse } from "~/types/api";
 import http from "./http";
-import { Order, OrderStatus } from "~/features/orders/type";
+import { Order } from "~/features/orders/type";
 import { PatchOrderResponse } from "~/types/api";
+import { OrderStatus } from "~/types/common";
 
 export const postOrderRequest = (payload: PostOrderPayload) => {
   return http.post<string, PostOrderResponse>("/order", payload);

@@ -4,32 +4,19 @@ import { AuthApi, MenuApi } from "~/api";
 
 // Others
 import { createAppAsyncThunk } from "~/app/hook";
-import {
-  CartItem,
-  Category,
-  MobileDialog,
-  Meal,
-  Menu,
-  MobileModal,
-  Order,
-  Specialty,
-  SpecialtyItem,
-  UserInfo
-} from "./type";
+import { CartItem, Category, DialogType, Meal, Menu, Order, Specialty, SpecialtyItem, UserInfo } from "./type";
+import { SpecialtyType, MobileModal } from "~/types/common";
 
-type CustomerOrderSliceState = {
+type TakeOrderSliceState = {
   userInfo: UserInfo;
   menu: Menu[];
   categories: Category[];
   meals: Meal[];
+  customized: CartItem | null;
   cart: CartItem[];
   orders: Order[];
   currentCategory: Category["id"];
-  currentMealId: Meal["id"];
-  currentMealAmount: number;
-  currentSpecialty: Specialty[];
-  currentDialog: MobileDialog | "";
-  dialogData: any;
+  currentDialog: DialogType | "";
   currentModal: MobileModal | "";
   modalData: any;
   modifiedCartItemIndex: number;
@@ -37,20 +24,17 @@ type CustomerOrderSliceState = {
   isLoading: boolean;
 };
 
-const name = "customerOrder";
-const initialState: CustomerOrderSliceState = {
+const name = "takeOrder";
+const initialState: TakeOrderSliceState = {
   userInfo: null,
   menu: [],
   categories: [],
   meals: [],
+  customized: null,
   cart: [],
   orders: [],
   currentCategory: "",
-  currentMealId: "",
-  currentMealAmount: 1,
-  currentSpecialty: [],
   currentDialog: "",
-  dialogData: {},
   currentModal: "",
   modalData: {},
   modifiedCartItemIndex: 0,
@@ -90,16 +74,16 @@ export const getMenu = createAppAsyncThunk(`${name}/getMenu`, async (_, { reject
   }
 });
 
-export const customerOrderSlice = createSlice({
+export const takeOrderSlice = createSlice({
   name,
   initialState,
   reducers: {
     // Category Tab Focus
-    setCurrentCategory: (state, action: PayloadAction<CustomerOrderSliceState["currentCategory"]>) => {
+    setCurrentCategory: (state, action: PayloadAction<TakeOrderSliceState["currentCategory"]>) => {
       state.currentCategory = action.payload;
     },
     // Modal
-    openModal: (state, action: PayloadAction<{ type: CustomerOrderSliceState["currentModal"]; data?: any }>) => {
+    openModal: (state, action: PayloadAction<{ type: TakeOrderSliceState["currentModal"]; data?: any }>) => {
       const { type, data = {} } = action.payload;
       state.currentModal = type;
       state.modalData = data;
@@ -109,108 +93,88 @@ export const customerOrderSlice = createSlice({
       state.modalData = initialState.modalData;
     },
     // Dialog
-    openDialog: (state, action: PayloadAction<{ type: CustomerOrderSliceState["currentDialog"]; data?: any }>) => {
-      const { type, data = {} } = action.payload;
+    openDialog: (
+      state,
+      action: PayloadAction<{
+        type: TakeOrderSliceState["currentDialog"];
+        data?: TakeOrderSliceState["customized"];
+      }>
+    ) => {
+      const { type, data = null } = action.payload;
       state.currentDialog = type;
-      state.dialogData = data;
+      if (type === DialogType.CUSTOMIZED) {
+        state.customized = data as TakeOrderSliceState["customized"];
+      }
     },
     closeDialog: (state) => {
       state.currentDialog = initialState.currentDialog;
-      state.dialogData = initialState.dialogData;
-    },
-    // [TODO] replace to openDialog
-    openCustomizeDialog: (state, action: PayloadAction<CustomerOrderSliceState["currentMealId"]>) => {
-      state.currentMealId = action.payload;
-      state.currentDialog = MobileDialog.CUSTOMIZED;
-    },
-    closeCustomizeDialog: (state) => {
-      customerOrderSlice.caseReducers.resetSpecialty(state);
-      state.currentDialog = initialState.currentDialog;
-      state.modifiedCartItemIndex = initialState.modifiedCartItemIndex;
-      state.isModifiedCartItem = initialState.isModifiedCartItem;
-    },
-    // Specialty
-    resetSpecialty: (state) => {
-      state.currentMealId = initialState.currentMealId;
-      state.currentMealAmount = initialState.currentMealAmount;
-      state.currentSpecialty = initialState.currentSpecialty;
-      state.modifiedCartItemIndex = initialState.modifiedCartItemIndex;
-      state.isModifiedCartItem = initialState.isModifiedCartItem;
+      state.customized = initialState.customized;
+      takeOrderSlice.caseReducers.setNotModifiedCartItem(state);
     },
     updateSpecialty: (state, action: PayloadAction<{ selectedSpecialty: Specialty; selectedItem: SpecialtyItem }>) => {
       const { selectedSpecialty, selectedItem } = action.payload;
       const { id, title, type } = selectedSpecialty;
-      const includedSpecialty = state.currentSpecialty.find((specialty) => specialty.id === id);
-      const isItemChecked = includedSpecialty?.items.find((item) => item.id === selectedItem.id);
-      const isSingle = type === "SINGLE";
+      if (state.customized) {
+        const includedSpecialty = state.customized.specialties.find(
+          (specialty) => specialty.id === selectedSpecialty.id
+        );
+        const isItemChecked = !!includedSpecialty?.items.find((item) => item.id === selectedItem.id);
+        const isSingle = selectedSpecialty.type === SpecialtyType.SINGLE;
 
-      if (includedSpecialty) {
-        if (isItemChecked) {
-          includedSpecialty.items = includedSpecialty.items.filter((item) => item.id !== selectedItem.id);
-          if (includedSpecialty.items.length === 0) {
-            state.currentSpecialty = state.currentSpecialty.filter((item) => item.id !== includedSpecialty.id);
+        // [TODO]: refactor
+        // 有選擇過該客製化類別
+        if (includedSpecialty) {
+          if (isItemChecked) {
+            // 該客製化選項已勾選，則取消勾選
+            includedSpecialty.items = includedSpecialty.items.filter((item) => item.id !== selectedItem.id);
+            // 該客製化類別中選項為空，移除該客製化類別
+            if (includedSpecialty.items.length === 0) {
+              state.customized.specialties = state.customized.specialties.filter(
+                (item) => item.id !== includedSpecialty.id
+              );
+            }
+          } else {
+            // 該客製化選項未勾選，則勾選
+            includedSpecialty.items = isSingle ? [selectedItem] : [...includedSpecialty.items, selectedItem];
           }
         } else {
-          includedSpecialty.items = isSingle ? [selectedItem] : [...includedSpecialty.items, selectedItem];
+          // 無選擇過該客製化類別，將類別與選項塞入
+          state.customized.specialties.push({ id, type, title, items: [selectedItem] });
         }
-      } else {
-        state.currentSpecialty.push({ id, type, title, items: [selectedItem] });
       }
     },
     increaseMealAmount: (state) => {
-      if (state.currentMealAmount < 5) state.currentMealAmount++;
+      if (state.customized) {
+        state.customized.amount < 5 && state.customized.amount++;
+      }
     },
     decreaseMealAmount: (state) => {
-      if (state.currentMealAmount > 1) state.currentMealAmount--;
+      if (state.customized) {
+        state.customized.amount > 1 && state.customized.amount--;
+      }
+    },
+    setNotModifiedCartItem: (state) => {
+      state.isModifiedCartItem = initialState.isModifiedCartItem;
+      state.modifiedCartItemIndex = initialState.modifiedCartItemIndex;
     },
     createCartItem: (state) => {
-      const { currentMealId, currentMealAmount, currentSpecialty } = state;
-      const currentMeal = state.meals.find((meal) => meal.id === currentMealId);
-      if (currentMeal) {
-        const { id, title, position, description, coverUrl, price } = currentMeal;
-        const newItem = {
-          id,
-          title,
-          position,
-          description,
-          coverUrl,
-          price,
-          isPopular: false,
-          amount: currentMealAmount,
-          specialties: currentSpecialty
-        };
-        state.cart.push(newItem);
-        customerOrderSlice.caseReducers.closeCustomizeDialog(state);
+      if (state.customized) {
+        state.cart.push(state.customized);
+        takeOrderSlice.caseReducers.closeDialog(state);
       }
     },
     viewCartItemCustomized: (state, action: PayloadAction<{ cartItem: CartItem; idx: number }>) => {
       const { cartItem, idx } = action.payload;
-      const { id, specialties, amount } = cartItem;
-      state.currentMealId = id;
-      state.currentMealAmount = amount;
-      state.currentSpecialty = specialties;
-      state.currentDialog = MobileDialog.CUSTOMIZED;
+      state.customized = cartItem;
+      state.currentDialog = DialogType.CUSTOMIZED;
       state.modifiedCartItemIndex = idx;
       state.isModifiedCartItem = true;
     },
     updateCartItem: (state) => {
-      const { currentMealId, currentMealAmount, currentSpecialty } = state;
-      const currentMeal = state.meals.find((meal) => meal.id === currentMealId) as Meal;
-      const { id, title, position, description, coverUrl, price } = currentMeal;
-      const newItem = {
-        id,
-        title,
-        position,
-        description,
-        coverUrl,
-        price,
-        isPopular: false,
-        amount: currentMealAmount,
-        specialties: currentSpecialty
-      };
-      state.cart.splice(state.modifiedCartItemIndex, 1, newItem);
-      customerOrderSlice.caseReducers.closeCustomizeDialog(state);
-      state.currentDialog = MobileDialog.CART;
+      if (state.customized) {
+        state.cart.splice(state.modifiedCartItemIndex, 1, state.customized);
+        state.currentDialog = DialogType.CART;
+      }
     },
     deleteCartItem: (state, action: PayloadAction<number>) => {
       state.cart.splice(action.payload, 1);
@@ -219,19 +183,8 @@ export const customerOrderSlice = createSlice({
       state.cart = initialState.cart;
       state.modifiedCartItemIndex = initialState.modifiedCartItemIndex;
       state.isModifiedCartItem = initialState.isModifiedCartItem;
-      state.currentMealId = initialState.currentMealId;
-      state.currentMealAmount = initialState.currentMealAmount;
-      state.currentSpecialty = initialState.currentSpecialty;
       state.currentDialog = initialState.currentDialog;
       state.currentModal = initialState.currentModal;
-    },
-    increaseCartItemAmount: (state, action: PayloadAction<number>) => {
-      const theCartItem = state.cart.find((cartItem, idx) => idx === action.payload) as CartItem;
-      if (theCartItem.amount < 5) theCartItem.amount++;
-    },
-    decreaseCartItemAmount: (state, action: PayloadAction<number>) => {
-      const theCartItem = state.cart.find((cartItem, idx) => idx === action.payload) as CartItem;
-      if (theCartItem.amount > 1) theCartItem.amount--;
     }
   },
   extraReducers: (builder) => {
@@ -271,20 +224,16 @@ export const customerOrderSlice = createSlice({
 export const {
   openDialog,
   closeDialog,
-  openCustomizeDialog,
-  closeCustomizeDialog,
-  resetSpecialty,
+  openModal,
+  closeModal,
   setCurrentCategory,
   updateSpecialty,
   increaseMealAmount,
   decreaseMealAmount,
-  createCartItem,
+  setNotModifiedCartItem,
   viewCartItemCustomized,
+  createCartItem,
   updateCartItem,
   deleteCartItem,
-  clearCart,
-  increaseCartItemAmount,
-  decreaseCartItemAmount,
-  openModal,
-  closeModal
-} = customerOrderSlice.actions;
+  clearCart
+} = takeOrderSlice.actions;

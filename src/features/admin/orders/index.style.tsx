@@ -1,4 +1,5 @@
-import { FC, ReactNode, useRef, useState } from "react";
+// Libs
+import { useState } from "react";
 import {
   Accordion,
   AccordionSummary,
@@ -11,37 +12,25 @@ import {
   LinearProgressProps,
   Box,
   linearProgressClasses,
-  Switch,
   Select,
-  MenuItem,
-  Card,
-  CardHeader,
-  CardContent,
-  CardActions,
-  SelectChangeEvent
+  MenuItem
 } from "@mui/material";
 import { styled } from "@mui/material/styles";
-
 import AddIcon from "@mui/icons-material/Add";
 import RemoveIcon from "@mui/icons-material/Remove";
-
-import { useAppDispatch, useAppSelector } from "~/app/hook";
+// Components
 import { Column, Row } from "~/components/layout";
-import TabsBase, { TabPanel } from "~/components/tabs";
-
-import theme from "~/theme";
-import { Order, OrderStatus, OrderType } from "~/features/orders/type";
+import TabsBase from "~/components/tabs";
+// Others
+import { useAppDispatch, useAppSelector } from "~/app/hook";
+import { patchOrder, setOrderStatus } from "~/app/slices/order";
+import { Order } from "~/features/orders/type";
 import { ORDER_STATUS } from "~/utils/constants";
-import { deleteOrder, patchOrder, setOrderStatus } from "~/app/slices/order";
 import appDayjs from "~/utils/dayjs.util";
-import { ModalBase } from "~/components/modals";
-import usePrevious from "~/hooks/usePrevious";
-
-const StyledAccordion = styled(Accordion)({
-  backgroundColor: "white",
-  boxShadow: "0 0 0 0",
-  borderRadius: "0 !important"
-});
+import { calculateOrderPrice } from "~/utils/price.utils";
+import theme from "~/theme";
+import { TabletModal } from "~/components/modals";
+import { OrderStatus, OrderType } from "~/types/common";
 
 const VerticalDivider = styled("div")(({ theme }) => ({
   height: "32px",
@@ -77,12 +66,12 @@ function LinearProgressWithLabel(props: LinearProgressProps & { value: number })
 interface IOrderItemProps {
   order: Order;
   setDeleteOrderId: React.Dispatch<React.SetStateAction<string>>;
+  setOpenPayment: React.Dispatch<React.SetStateAction<boolean>>;
 }
-
 export const OrderItem = (props: IOrderItemProps) => {
   const dispatch = useAppDispatch();
 
-  const { order, setDeleteOrderId } = props;
+  const { order, setDeleteOrderId, setOpenPayment } = props;
 
   const { id, status, type, orderMeals, createdAt, seats = [], paymentLogs = [] } = order;
 
@@ -125,7 +114,7 @@ export const OrderItem = (props: IOrderItemProps) => {
   };
 
   const handlePayment = () => {
-    // setOpenPayment(true);
+    setOpenPayment(true);
   };
 
   return (
@@ -156,10 +145,11 @@ export const OrderItem = (props: IOrderItemProps) => {
           <VerticalDivider />
           <Column sx={{ flex: "0 70%" }}>
             <Typography variant="body1" fontWeight={700}>
-              {type === OrderType.DineIn ? "內用" : ""}
+              {type === OrderType.DineIn ? "內用" : "外帶"}
             </Typography>
             <Typography variant="h6" fontWeight={900}>
-              {seats.join(", ")}
+              {/* [TODO] */}
+              {seats[0] !== "-0" && seats.join(", ")}
             </Typography>
           </Column>
           <VerticalDivider />
@@ -218,6 +208,19 @@ export const OrderItem = (props: IOrderItemProps) => {
                     </Select>
                   </Box>
                 )}
+                {status === OrderStatus.UNPAID && (
+                  <Box
+                    sx={{
+                      marginLeft: "auto",
+                      display: "flex",
+                      alignItems: "center",
+                      flexDirection: "column",
+                      minWidth: "7rem"
+                    }}
+                  >
+                    <Typography>{orderMeal.price}元</Typography>
+                  </Box>
+                )}
               </Row>
             </ListItem>
           ))}
@@ -251,7 +254,7 @@ export const OrderItem = (props: IOrderItemProps) => {
               onClick={handlePayment}
               sx={{ fontSize: theme.typography.body1.fontSize, fontWeight: 700, marginLeft: "auto" }}
             >
-              收款
+              收款 {calculateOrderPrice(order)} 元
             </Button>
           )}
         </Box>
@@ -278,15 +281,13 @@ export const OrderTabs = () => {
   );
 };
 
-export const OrderList = () => {
-  const dispatch = useAppDispatch();
+type OrderListProps = {
+  setOpenPayment: React.Dispatch<React.SetStateAction<boolean>>;
+};
+export const OrderList = (props: OrderListProps) => {
+  const { setOpenPayment } = props;
   const orders = useAppSelector(({ order }) => order.orders);
   const [deleteOrderId, setDeleteOrderId] = useState("");
-
-  const handleDeleteOrder = () => {
-    dispatch(deleteOrder({ orderId: deleteOrderId }));
-    setDeleteOrderId("");
-  };
 
   return (
     <>
@@ -299,33 +300,16 @@ export const OrderList = () => {
       ) : (
         <Box sx={{ display: "flex", flexDirection: "column", gap: "0.75rem", margin: "0.75rem" }}>
           {orders.map((order) => (
-            <OrderItem key={order.id} order={order} setDeleteOrderId={setDeleteOrderId} />
+            <OrderItem
+              key={order.id}
+              order={order}
+              setDeleteOrderId={setDeleteOrderId}
+              setOpenPayment={setOpenPayment}
+            />
           ))}
         </Box>
       )}
-      <ModalBase open={!!deleteOrderId} onClose={() => setDeleteOrderId("")}>
-        <Box display="grid" sx={{ placeContent: "center" }} height={"100%"}>
-          <Card>
-            <CardHeader
-              title="取消訂單"
-              sx={{ backgroundColor: theme.palette.common.black, color: "white", textAlign: "center" }}
-            />
-            <CardContent sx={{ padding: "1.5rem 1.25rem", minWidth: "50cqw" }}>
-              <Typography component="p" variant="body1" fontWeight={700} textAlign={"center"}>
-                確定要取消此訂單？
-              </Typography>
-            </CardContent>
-            <CardActions sx={{ gap: "1.5rem", justifyContent: "center", alignItems: "center", padding: "1.5rem" }}>
-              <Button variant="outlined" color="inherit" fullWidth onClick={handleDeleteOrder}>
-                確定
-              </Button>
-              <Button variant="contained" color="secondary" fullWidth onClick={() => setDeleteOrderId("")}>
-                取消
-              </Button>
-            </CardActions>
-          </Card>
-        </Box>
-      </ModalBase>
+      <TabletModal.CancelOrderConfirm deleteOrderId={deleteOrderId} setDeleteOrderId={setDeleteOrderId} />
     </>
   );
 };

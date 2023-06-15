@@ -1,22 +1,24 @@
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import { OrderList, OrderTabs } from "./index.style";
 import { useAppDispatch, useAppSelector } from "~/app/hook";
-import { getOrders, setOrderStatus } from "~/app/slices/order";
-import { OrderStatus } from "~/features/orders/type";
+import { getOrders } from "~/app/slices/order";
+import PaymentDrawer from "~/components/payment";
 
 export const OrdersContainer = () => {
   const dispatch = useAppDispatch();
   const status = useAppSelector(({ order }) => order.status);
 
+  const [openPayment, setOpenPayment] = useState(false);
+
   useEffect(() => {
-    !status && dispatch(setOrderStatus(OrderStatus.PENDING));
-    status && dispatch(getOrders({ status }));
+    dispatch(getOrders({ status }));
   }, [status]);
 
   return (
     <>
       <OrderTabs />
-      <OrderList />
+      <OrderList setOpenPayment={setOpenPayment} />
+      <PaymentDrawer open={openPayment} item={[]} totalPrice={0} setOpen={setOpenPayment} />
     </>
   );
 };

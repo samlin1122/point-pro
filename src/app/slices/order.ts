@@ -1,19 +1,21 @@
 import { createSlice } from "@reduxjs/toolkit";
-import { MobileDialog, Order, OrderStatus } from "~/features/orders/type";
+import { DialogType, Order } from "~/features/orders/type";
 import { createAppAsyncThunk } from "../hook";
 import { OrderApi } from "~/api";
 import { clearCart, openDialog } from "~/features/orders/slice";
 import appDayjs from "~/utils/dayjs.util";
+import { calculateCartItemPrice } from "~/utils/price.utils";
+import { OrderStatus } from "~/types/common";
 
 type OrderSliceState = {
-  status: OrderStatus | "";
+  status: OrderStatus;
   orders: Order[];
   isLoading: boolean;
 };
 
 const name = "order";
 const initialState: OrderSliceState = {
-  status: "",
+  status: OrderStatus.PENDING,
   orders: [],
   isLoading: false
 };
@@ -44,28 +46,26 @@ export const postOrder = createAppAsyncThunk(
   `${name}/postOrder`,
   async (_, { getState, dispatch, rejectWithValue }) => {
     try {
-      const cart = getState().customerOrder.cart;
-      const orderMeals = cart.map(({ amount, id, price, specialties }) => {
-        // 計算方式：mealsPrice = amount * price + specialties price
-        const mealsPrice =
-          price * amount +
-          specialties.reduce(
-            (acc, specialty) => (acc += specialty.items.reduce((acc, item) => (acc += item.price), 0)),
-            0
-          );
+      const cart = getState().takeOrder.cart;
+      const orderMeals = cart.map((cartItem) => {
+        const { amount, id, specialties, title } = cartItem;
+        const mealsPrice = calculateCartItemPrice(cartItem);
         return {
-          amount,
           id,
+          title,
+          amount,
           price: mealsPrice,
           specialties
         };
       });
 
-      await OrderApi.postOrderRequest({ orderMeals });
+      const order = await OrderApi.postOrderRequest({ orderMeals });
 
       dispatch(clearCart());
       dispatch(getOrders({}));
-      dispatch(openDialog({ type: MobileDialog.ORDER }));
+      dispatch(openDialog({ type: DialogType.ORDER }));
+
+      return order;
     } catch (error) {
       if (error instanceof Error) {
         return rejectWithValue({ message: error.message });
