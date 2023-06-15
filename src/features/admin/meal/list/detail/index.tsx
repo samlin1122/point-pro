@@ -15,6 +15,7 @@ import mainReducer, {
 } from "./reducers";
 import { useAppDispatch, useAppSelector } from "~/app/hook";
 import { getMealById, postMeal, patchMealById, deleteMeal } from "~/app/slices/meal";
+import { uploadImg } from "~/app/slices/imgur";
 import { Categories, Specialties } from "~/app/selector";
 
 export const MealListDetailContainer: FC<RouterProps> = ({ params, navigate }) => {
@@ -94,7 +95,11 @@ export const MealListDetailContainer: FC<RouterProps> = ({ params, navigate }) =
         case "create":
           if (validateCheck(state)) {
             let payload = convertToPayload(state);
+            if (payload.coverUrl) {
+              payload.coverUrl = await updateImage(payload.coverUrl);
+            }
             console.log({ payload });
+
             await dispatch(postMeal(payload));
             navigate({ pathname: "/admin/meal/list" });
           } else {
@@ -104,6 +109,9 @@ export const MealListDetailContainer: FC<RouterProps> = ({ params, navigate }) =
         case "save":
           if (validateCheck(state)) {
             let payload = convertToPayload(state);
+            if (payload.coverUrl && typeof payload.coverUrl !== "string") {
+              payload.coverUrl = await updateImage(payload.coverUrl);
+            }
             console.log({ payload });
             await dispatch(patchMealById({ mealId: params.meal_id as string, payload }));
             navigate({ pathname: "/admin/meal/list" });
@@ -126,6 +134,17 @@ export const MealListDetailContainer: FC<RouterProps> = ({ params, navigate }) =
 
   const handleFieldChange = (props: { id: string; value: any }) => {
     reducerDispatch(editField(props));
+  };
+  const updateImage = async (file: string) => {
+    try {
+      let formData = new FormData();
+      formData.append("image", file);
+      let { result } = await dispatch(uploadImg(formData)).unwrap();
+      return result;
+    } catch (error) {
+      console.log("upload file error : ", error);
+      return null;
+    }
   };
   return (
     <Base>

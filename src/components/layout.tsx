@@ -72,7 +72,7 @@ export const FieldContainer: FC<FieldContainerPropsType> = ({ width = 500, label
           />
         );
       case "file":
-        return <File width={width} {...props} />;
+        return <File width={width} handleChange={(value) => props.onChange({ id: props.id, value })} {...props} />;
       case "date":
         return <InputDate sx={sx} {...props} onChange={(value) => props.onChange({ id: props.id, value })} />;
       case "checkbox":

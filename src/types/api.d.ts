@@ -75,3 +75,6 @@ type PatchOrderPayload = {
 };
 
 type GetMenuResponse = ApiResponse<Menu[]>;
+
+interface updateImgPayload {}
+type updateImgResponse = ApiResponse<{ string }>;

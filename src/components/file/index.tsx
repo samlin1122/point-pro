@@ -9,16 +9,27 @@ import ImageIcon from "@mui/icons-material/Image";
 interface FileProps {
   width: number;
   value?: any;
-  onChange?: () => void;
+  handleChange: (value: any) => void;
 }
 
-const File = ({ width, value }: FileProps) => {
+const File = ({ width, value, handleChange, ...props }: FileProps) => {
   const fileInputRef = useRef<HTMLInputElement>(null);
-
   const [preview, setPreview] = useState<string>();
 
   useEffect(() => {
-    setPreview(value ? value : undefined);
+    if (!!value) {
+      if (typeof value === "string") {
+        setPreview(value);
+      } else {
+        const reader = new FileReader();
+        reader.readAsDataURL(value);
+        reader.onloadend = () => {
+          setPreview(reader.result as string);
+        };
+      }
+    } else {
+      setPreview(undefined);
+    }
   }, [value]);
 
   const handleFileChange = () => {
@@ -27,7 +38,7 @@ const File = ({ width, value }: FileProps) => {
       const reader = new FileReader();
       reader.readAsDataURL(file);
       reader.onloadend = () => {
-        setPreview(reader.result as string);
+        handleChange(file);
       };
     }
   };
@@ -51,7 +62,7 @@ const File = ({ width, value }: FileProps) => {
         }}
       >
         {preview ? (
-          <img src={preview} width="200px" />
+          <Box component="img" src={preview} sx={{ width: "200px", height: "200px", objectFit: "contain" }} />
         ) : (
           <ImageIcon color="primary" sx={{ width: "100px", height: "100px" }} />
         )}
