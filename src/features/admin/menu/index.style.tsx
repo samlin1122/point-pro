@@ -1,5 +1,5 @@
 // Lib
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { Box, Chip, List, ListItem, ListItemText, Tab, Tabs, Typography, styled, tabsClasses } from "@mui/material";
 import DoneIcon from "@mui/icons-material/Done";
 import DeleteIcon from "@mui/icons-material/Delete";
@@ -376,6 +376,8 @@ const CartMeal = ({ idx, cartItem }: CartMealProps) => {
 };
 
 export const CartList = () => {
+  const dispatch = useAppDispatch();
+  const meals = useAppSelector(({ takeOrder }) => takeOrder.meals);
   const cart = useAppSelector(({ takeOrder }) => takeOrder.cart);
   const hasCartItems = cart.length > 0;
   const [openClearCartConfirmModal, setoOenClearCartConfirmModal] = useState(false);
@@ -387,6 +389,17 @@ export const CartList = () => {
   };
 
   const totalPrice = calculateCartPrice(cart);
+
+  useEffect(() => {
+    cart.forEach((cartItem, idx) => {
+      const meal = meals.find((meal) => meal.id === cartItem.id);
+      if (!meal) {
+        dispatch(deleteCartItem(idx));
+      }
+    });
+  }, [cart, meals]);
+
+  // [TODO] cart item remove reminder
 
   return (
     <>

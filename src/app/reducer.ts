@@ -8,6 +8,7 @@ import { authSlice } from "~/app/slices/auth";
 import { categorySlice } from "./slices/category";
 import { specialtySlice } from "./slices/specialty";
 import { orderSlice } from "./slices/order";
+import { socketSlice } from "./slices/socket";
 
 const reducer = combineReducers({
   [counterSlice.name]: counterSlice.reducer,
@@ -16,7 +17,8 @@ const reducer = combineReducers({
   [authSlice.name]: authSlice.reducer,
   [categorySlice.name]: categorySlice.reducer,
   [specialtySlice.name]: specialtySlice.reducer,
-  [orderSlice.name]: orderSlice.reducer
+  [orderSlice.name]: orderSlice.reducer,
+  [socketSlice.name]: socketSlice.reducer
 });
 
 export default reducer;

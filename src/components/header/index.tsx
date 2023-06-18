@@ -12,6 +12,7 @@ import { Categories, Specialties } from "~/app/selector";
 import { isEmpty } from "lodash";
 import { RouterProps } from "~/types";
 import appDayjs, { dateForm } from "~/utils/dayjs.util";
+import { useSocket } from "~/hooks/useSocket";
 
 const drawerWidth = "335px";
 
@@ -21,6 +22,8 @@ const Header: FC<RouterProps> = ({ location, navigate }) => {
 
   const categories = useAppSelector(Categories);
   const specialties = useAppSelector(Specialties);
+
+  useSocket({ ns: "admin" });
 
   useEffect(() => {
     if (isEmpty(categories)) {

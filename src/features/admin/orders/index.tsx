@@ -1,18 +1,9 @@
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import { OrderList, OrderTabs } from "./index.style";
-import { useAppDispatch, useAppSelector } from "~/app/hook";
-import { getOrders } from "~/app/slices/order";
 import PaymentDrawer from "~/components/payment";
 
 export const OrdersContainer = () => {
-  const dispatch = useAppDispatch();
-  const status = useAppSelector(({ order }) => order.status);
-
   const [openPayment, setOpenPayment] = useState(false);
-
-  useEffect(() => {
-    dispatch(getOrders({ status }));
-  }, [status]);
 
   return (
     <>
