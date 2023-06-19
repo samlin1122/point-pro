@@ -9,9 +9,9 @@ interface FooterProps {}
 
 const Footer: React.FC<FooterProps> = () => {
   return (
-    <Box sx={{ bgcolor: "common.black", }} py={3}>
+    <Box sx={{ bgcolor: "common.black" }} py={3}>
       <Typography variant="small" color="white" align="center">
-        © {new Date().getFullYear()} PointPro. 版權所有。保留一切權利。.
+        © {new Date().getFullYear()} PointPro. 版權所有。保留一切權利。
       </Typography>
     </Box>
   );

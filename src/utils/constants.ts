@@ -111,3 +111,30 @@ export const sideBarItemList: SideBarItemType[] = [
 export const flatSideBarItemList = sideBarItemList.flatMap((item) => {
   return item.list ? item.list : item;
 });
+
+export const cityList = [
+  "臺北市",
+  "新北市",
+  "桃園市",
+  "新竹市",
+  "臺中市",
+  "臺南市",
+  "高雄市",
+  "基隆市",
+  "新竹縣",
+  "苗栗縣",
+  "彰化縣",
+  "南投縣",
+  "雲林縣",
+  "嘉義縣",
+  "嘉義市",
+  "屏東縣",
+  "宜蘭縣",
+  "花蓮縣",
+  "臺東縣",
+  "金門縣",
+  "澎湖縣",
+  "連江縣"
+];
+
+export const contactTimeList = ["9:00~11:30", "13:00~18:00", "18:00之後"];
