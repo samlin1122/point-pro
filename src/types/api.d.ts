@@ -1,5 +1,5 @@
 import { Menu, Order, Specialty, UserInfo } from "~/features/orders/type";
-import { Member, IMeal, ICategory, ISpecialty, ISpecialtyItem } from ".";
+import { Member, IMeal, ICategory, ISpecialty, ISpecialtyItem, Seat, ReservationInfo } from ".";
 
 type Id = string;
 
@@ -78,3 +78,10 @@ type GetMenuResponse = ApiResponse<Menu[]>;
 
 interface updateImgPayload {}
 type updateImgResponse = ApiResponse<{ string }>;
+
+type SeatsResponse = ApiResponse<Seat[]>;
+
+type ReservationResponse = ApiResponse<ReservationInfo>;
+type ReservationsResponse = ApiResponse<ReservationInfo[]>;
+
+interface PostReservationPayload extends ReservationInfo {}
