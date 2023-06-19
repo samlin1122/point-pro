@@ -1,5 +1,5 @@
 // Libs
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import {
   Accordion,
   AccordionSummary,
@@ -23,7 +23,7 @@ import { Column, Row } from "~/components/layout";
 import TabsBase from "~/components/tabs";
 // Others
 import { useAppDispatch, useAppSelector } from "~/app/hook";
-import { patchOrder, setOrderStatus } from "~/app/slices/order";
+import { getOrders, patchOrder, setOrderStatus } from "~/app/slices/order";
 import { Order } from "~/features/orders/type";
 import { ORDER_STATUS } from "~/utils/constants";
 import appDayjs from "~/utils/dayjs.util";
@@ -289,8 +289,15 @@ type OrderListProps = {
 };
 export const OrderList = (props: OrderListProps) => {
   const { setOpenPayment, onPayment } = props;
+
+  const dispatch = useAppDispatch();
+  const status = useAppSelector(({ order }) => order.status);
   const orders = useAppSelector(({ order }) => order.orders);
   const [deleteOrderId, setDeleteOrderId] = useState("");
+
+  useEffect(() => {
+    dispatch(getOrders({ status }));
+  }, [status]);
 
   return (
     <>

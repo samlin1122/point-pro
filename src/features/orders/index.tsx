@@ -9,11 +9,13 @@ import { getMenu, getUserInfo } from "./slice";
 import { getOrders } from "~/app/slices/order";
 import { MobileModal } from "~/components/modals";
 import { DialogType } from "~/components/dialog";
+import { useSocket } from "~/hooks/useSocket";
 
 const Order = () => {
   const dispatch = useAppDispatch();
   const [searchParams] = useSearchParams();
   const token = searchParams.get("token");
+  useSocket({ ns: "user" });
 
   useEffect(() => {
     if (token) {
@@ -44,6 +46,7 @@ const Order = () => {
       <MobileModal.ConfirmRemoveCartItem />
       <MobileModal.Payment />
       <MobileModal.CounterReminder />
+      <MobileModal.CartItemIsOffReminder />
     </>
   );
 };

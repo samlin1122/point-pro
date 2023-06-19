@@ -108,7 +108,7 @@ export const takeOrderSlice = createSlice({
     },
     closeDialog: (state) => {
       state.currentDialog = initialState.currentDialog;
-      state.customized = initialState.customized;
+      takeOrderSlice.caseReducers.resetCustomized(state);
       takeOrderSlice.caseReducers.setNotModifiedCartItem(state);
     },
     updateSpecialty: (state, action: PayloadAction<{ selectedSpecialty: Specialty; selectedItem: SpecialtyItem }>) => {
@@ -185,6 +185,9 @@ export const takeOrderSlice = createSlice({
       state.isModifiedCartItem = initialState.isModifiedCartItem;
       state.currentDialog = initialState.currentDialog;
       state.currentModal = initialState.currentModal;
+    },
+    resetCustomized: (state) => {
+      state.customized = initialState.customized;
     }
   },
   extraReducers: (builder) => {

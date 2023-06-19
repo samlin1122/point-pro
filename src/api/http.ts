@@ -1,6 +1,6 @@
 import axios, { AxiosRequestConfig } from "axios";
 
-const apiHost = import.meta.env.DEV ? import.meta.env.VITE_API_HOST_DEV : import.meta.env.VITE_API_HOST_PROD;
+export const apiHost = import.meta.env.DEV ? import.meta.env.VITE_API_HOST_DEV : import.meta.env.VITE_API_HOST_PROD;
 
 let http = axios.create({ baseURL: `${apiHost}/api` });
 
@@ -34,14 +34,14 @@ http.interceptors.response.use(
 
 const errorCodeCheck = (status: number) => {
   switch (status) {
+    case 401:
+    case 403:
     case 500:
       if (location.href.includes("admin")) {
         localStorage.removeItem("token");
         location.replace(`${location.origin}/admin`);
-      } else {
-        location.replace(location.origin);
       }
-      return;
+      break;
     default:
       break;
   }

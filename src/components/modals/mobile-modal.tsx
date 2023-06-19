@@ -158,4 +158,22 @@ const CounterReminder = () => {
   );
 };
 
-export default { ConfirmRemoveCartItem, Payment, CounterReminder };
+const CartItemIsOffReminder = () => {
+  const currentModal = useAppSelector(({ takeOrder }) => takeOrder.currentModal);
+  const data = useAppSelector(({ takeOrder }) => takeOrder.modalData);
+
+  return (
+    <MobileModalLayout open={currentModal === MobileModal.CART_ITEM_IS_OFF}>
+      <Typography variant="h6" fontWeight={700}>
+        「{data.title}」已被下架
+      </Typography>
+    </MobileModalLayout>
+  );
+};
+
+export default {
+  ConfirmRemoveCartItem,
+  Payment,
+  CounterReminder,
+  CartItemIsOffReminder
+};

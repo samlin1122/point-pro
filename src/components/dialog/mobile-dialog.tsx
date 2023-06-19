@@ -30,7 +30,8 @@ import {
   decreaseMealAmount,
   createCartItem,
   updateCartItem,
-  openModal
+  openModal,
+  deleteCartItem
 } from "~/features/orders/slice";
 import { SpecialtyItem, Specialty, Order, DialogType } from "~/features/orders/type";
 import { postOrder } from "~/app/slices/order";
@@ -99,9 +100,8 @@ const CustomizedSpecialties = () => {
 
 const Customized = () => {
   const dispatch = useAppDispatch();
-  const [searchParams] = useSearchParams();
-  const token = searchParams.get("token");
 
+  const userInfo = useAppSelector(({ takeOrder }) => takeOrder.userInfo);
   const currentDialog = useAppSelector(({ takeOrder }) => takeOrder.currentDialog);
   const customized = useAppSelector(({ takeOrder }) => takeOrder.customized);
   const isModifiedCartItem = useAppSelector(({ takeOrder }) => takeOrder.isModifiedCartItem);
@@ -135,7 +135,7 @@ const Customized = () => {
       onCloseDialog={handleClose}
       actionButton={
         <>
-          {token && (
+          {userInfo && (
             <>
               <Box sx={{ display: "flex", justifyContent: "space-between", alignItems: "center", width: "100%" }}>
                 <InputNumber value={customized.amount} onAdd={handleAdd} onMinus={handleMinus} />
@@ -162,6 +162,7 @@ const Cart = () => {
   const dispatch = useAppDispatch();
 
   const currentDialog = useAppSelector(({ takeOrder }) => takeOrder.currentDialog);
+  const meals = useAppSelector(({ takeOrder }) => takeOrder.meals);
   const cart = useAppSelector(({ takeOrder }) => takeOrder.cart);
 
   const totalAmount = cart.reduce((acc, cur) => (acc += cur.amount), 0);
@@ -174,6 +175,16 @@ const Cart = () => {
   const handleSubmitOrders = () => {
     dispatch(postOrder());
   };
+
+  useEffect(() => {
+    cart.forEach((cartItem, idx) => {
+      const meal = meals.find((meal) => meal.id === cartItem.id);
+      if (!meal) {
+        dispatch(openModal({ type: MobileModal.CART_ITEM_IS_OFF, data: cartItem }));
+        dispatch(deleteCartItem(idx));
+      }
+    });
+  }, [meals, cart]);
 
   return (
     <MobileDialogLayout

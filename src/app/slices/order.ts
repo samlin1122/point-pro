@@ -6,6 +6,7 @@ import { clearCart, openDialog } from "~/features/orders/slice";
 import appDayjs from "~/utils/dayjs.util";
 import { calculateCartItemPrice } from "~/utils/price.utils";
 import { OrderStatus } from "~/types/common";
+import { SocketTopic } from "~/hooks/useSocket";
 
 type OrderSliceState = {
   status: OrderStatus;
@@ -47,6 +48,7 @@ export const postOrder = createAppAsyncThunk(
   async (_, { getState, dispatch, rejectWithValue }) => {
     try {
       const cart = getState().takeOrder.cart;
+      const socket = getState().socket.socket;
       const orderMeals = cart.map((cartItem) => {
         const { amount, id, specialties, title } = cartItem;
         const mealsPrice = calculateCartItemPrice(cartItem);
@@ -61,6 +63,7 @@ export const postOrder = createAppAsyncThunk(
 
       const order = await OrderApi.postOrderRequest({ orderMeals });
 
+      socket && socket.emit(SocketTopic.ORDER, order);
       dispatch(clearCart());
       dispatch(getOrders({}));
       dispatch(openDialog({ type: DialogType.ORDER }));
@@ -80,7 +83,9 @@ export const deleteOrder = createAppAsyncThunk(
   `${name}/deleteOrder`,
   async (payload: { orderId: string }, { getState, dispatch, rejectWithValue }) => {
     try {
-      await OrderApi.deleteOrderRequest(payload);
+      const socket = getState().socket.socket;
+      const deleteOrder = await OrderApi.deleteOrderRequest(payload);
+      socket && socket.emit(SocketTopic.ORDER, deleteOrder);
       dispatch(getOrders({ status: getState()[name].status }));
     } catch (error) {
       if (error instanceof Error) {
@@ -96,7 +101,9 @@ export const patchOrder = createAppAsyncThunk(
   `${name}/patchOrder`,
   async (order: Order, { getState, dispatch, rejectWithValue }) => {
     try {
-      await OrderApi.patchOrderRequest(order);
+      const socket = getState().socket.socket;
+      const updatedOrder = await OrderApi.patchOrderRequest(order);
+      socket && socket.emit(SocketTopic.ORDER, updatedOrder);
       dispatch(getOrders({ status: getState()[name].status }));
     } catch (error) {
       if (error instanceof Error) {

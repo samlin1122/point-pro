@@ -3,6 +3,7 @@ import { createSlice } from "@reduxjs/toolkit";
 import { MealApi } from "~/api";
 // Others
 import { createAppAsyncThunk } from "~/app/hook";
+import { SocketTopic } from "~/hooks/useSocket";
 import { MealsResponse, MealResponse, PostMealPayload, PatchMealByIdPayload, Id } from "~/types/api";
 
 const name = "meal";
@@ -36,9 +37,12 @@ export const getMealById = createAppAsyncThunk<MealResponse, Id>(
 
 export const postMeal = createAppAsyncThunk<MealResponse, PostMealPayload>(
   `${name}/postMeal`,
-  async (payload, { rejectWithValue }) => {
+  async (payload, { getState, rejectWithValue }) => {
     try {
-      return await MealApi.postMeal(payload);
+      const socket = getState().socket.socket;
+      const newMeal = await MealApi.postMeal(payload);
+      socket && socket.emit(SocketTopic.MENU, newMeal);
+      return newMeal;
     } catch (error) {
       if (error instanceof Error) {
         return rejectWithValue({ message: error.message });
@@ -51,9 +55,12 @@ export const postMeal = createAppAsyncThunk<MealResponse, PostMealPayload>(
 
 export const patchMealById = createAppAsyncThunk<MealResponse, PatchMealByIdPayload>(
   `${name}/patchMealById`,
-  async (payload, { rejectWithValue }) => {
+  async (payload, { getState, rejectWithValue }) => {
     try {
-      return await MealApi.patchMealById(payload);
+      const socket = getState().socket.socket;
+      const updatedMeal = await MealApi.patchMealById(payload);
+      socket && socket.emit(SocketTopic.MENU, updatedMeal);
+      return updatedMeal;
     } catch (error) {
       if (error instanceof Error) {
         return rejectWithValue({ message: error.message });
@@ -66,9 +73,12 @@ export const patchMealById = createAppAsyncThunk<MealResponse, PatchMealByIdPayl
 
 export const deleteMeal = createAppAsyncThunk<MealResponse, Id>(
   `${name}/deleteMeal`,
-  async (payload, { rejectWithValue }) => {
+  async (payload, { getState, rejectWithValue }) => {
     try {
-      return await MealApi.deleteMeal(payload);
+      const socket = getState().socket.socket;
+      const deletedMeal = await MealApi.deleteMeal(payload);
+      socket && socket.emit(SocketTopic.MENU, deletedMeal);
+      return deletedMeal;
     } catch (error) {
       if (error instanceof Error) {
         return rejectWithValue({ message: error.message });
