@@ -1,6 +1,6 @@
 // Lib
 import { useEffect, useState } from "react";
-import { Box, Chip, List, ListItem, ListItemText, Tab, Tabs, Typography, styled, tabsClasses } from "@mui/material";
+import { Box, Chip, List, ListItem, ListItemText, Tab, Tabs, Typography, tabsClasses } from "@mui/material";
 import DoneIcon from "@mui/icons-material/Done";
 import DeleteIcon from "@mui/icons-material/Delete";
 import ShoppingCartIcon from "@mui/icons-material/ShoppingCart";

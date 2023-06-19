@@ -1,10 +1,12 @@
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useRef } from "react";
+import { useLocation } from "react-router-dom";
 import io from "socket.io-client";
 import { apiHost } from "~/api/http";
 import { useAppDispatch, useAppSelector } from "~/app/hook";
 import { getOrders } from "~/app/slices/order";
-import { resetSocket, setSocket } from "~/app/slices/socket";
+import { addNotifications, resetSocket, setSocket } from "~/app/slices/socket";
 import { closeDialog, getMenu } from "~/features/orders/slice";
+import { useLocalStorage } from "./useLocalStorage";
 
 export enum SocketTopic {
   MENU = "MENU",
@@ -18,7 +20,7 @@ type useSocketProps = {
 export const useSocket = (props: useSocketProps) => {
   const { ns } = props;
 
-  const token = localStorage.getItem("token");
+  const { pathname } = useLocation();
 
   const dispatch = useAppDispatch();
 
@@ -27,15 +29,15 @@ export const useSocket = (props: useSocketProps) => {
   // Socket Instance
   const { current: socket } = useRef(
     io(`${apiHost}/${ns}`, {
-      transports: ["polling", "websocket"],
+      transports: ["websocket", "polling"],
       autoConnect: false,
       auth: {
-        token
+        token: localStorage.getItem("token")
       }
     })
   );
 
-  // Connect to server & save sokect instance
+  // Connect to server & save socket instance
   useEffect(() => {
     socket.connect();
     dispatch(setSocket(socket));
@@ -44,7 +46,7 @@ export const useSocket = (props: useSocketProps) => {
       socket.disconnect();
       dispatch(resetSocket());
     };
-  }, [token, socket]);
+  }, [socket]);
 
   // CONNECTION listener
   useEffect(() => {
@@ -70,17 +72,27 @@ export const useSocket = (props: useSocketProps) => {
   // MENU listener
   useEffect(() => {
     socket.on(SocketTopic.MENU, (data) => {
-      // [TODO]
-      const routerIsMenuOrMeal = true;
-      if (ns === "user" || (ns === "admin" && routerIsMenuOrMeal)) {
+      if (ns === "user") {
         dispatch(getMenu());
         dispatch(closeDialog());
       }
+
+      if (ns === "admin") {
+        dispatch(addNotifications({ ...data, isRead: false, notiType: SocketTopic.MENU }));
+        if (pathname.includes("/admin/menu")) {
+          dispatch(getMenu());
+          dispatch(closeDialog());
+        }
+        if (pathname.includes("/admin/meal")) {
+          dispatch(getMenu());
+        }
+      }
     });
+
     return () => {
       socket.off(SocketTopic.MENU);
     };
-  }, [socket, ns]);
+  }, [socket, ns, pathname]);
 
   // ORDER listener
   useEffect(() => {
@@ -90,23 +102,37 @@ export const useSocket = (props: useSocketProps) => {
       }
 
       if (ns === "admin") {
-        dispatch(getOrders({ status: orderStatus }));
+        dispatch(addNotifications({ ...data, isRead: false, notiType: SocketTopic.ORDER }));
+
+        if (pathname.includes("/admin/orders")) {
+          dispatch(getOrders({ status: orderStatus }));
+        }
       }
     });
 
     return () => {
       socket.off(SocketTopic.ORDER);
     };
-  }, [socket, ns, orderStatus]);
+  }, [socket, ns, orderStatus, pathname]);
 
   // RESERVATION listener
   useEffect(() => {
     socket.on(SocketTopic.RESERVATION, (data) => {
-      console.log(SocketTopic.RESERVATION, data);
+      if (ns === "user") {
+        // [TODO] update available date, etc.
+      }
+
+      if (ns === "admin") {
+        dispatch(addNotifications({ ...data, isRead: false, notiType: SocketTopic.RESERVATION }));
+
+        if (pathname.includes("/admin/seat")) {
+          // [TODO] get reservation api, etc.
+        }
+      }
     });
 
     return () => {
       socket.off(SocketTopic.RESERVATION);
     };
-  }, [socket]);
+  }, [socket, ns, pathname]);
 };

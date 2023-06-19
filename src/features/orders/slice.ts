@@ -181,10 +181,8 @@ export const takeOrderSlice = createSlice({
     },
     clearCart: (state) => {
       state.cart = initialState.cart;
-      state.modifiedCartItemIndex = initialState.modifiedCartItemIndex;
-      state.isModifiedCartItem = initialState.isModifiedCartItem;
-      state.currentDialog = initialState.currentDialog;
-      state.currentModal = initialState.currentModal;
+      takeOrderSlice.caseReducers.closeModal(state);
+      takeOrderSlice.caseReducers.closeDialog(state);
     },
     resetCustomized: (state) => {
       state.customized = initialState.customized;

@@ -2,7 +2,6 @@ import { memo, useState, useEffect, FC } from "react";
 // Components
 import { Box, Button, Badge, AppBar, Toolbar, IconButton, Typography, Drawer } from "@mui/material";
 import { DoubleArrow, NotificationsNone, PowerSettingsNew } from "@mui/icons-material";
-import SideBar from "~/components/side-bar";
 import HeaderLogo from "~/assets/images/header-logo.svg";
 // Libs
 import { useAppDispatch, useAppSelector } from "~/app/hook";
@@ -12,18 +11,25 @@ import { Categories, Specialties } from "~/app/selector";
 import { isEmpty } from "lodash";
 import { RouterProps } from "~/types";
 import appDayjs, { dateForm } from "~/utils/dayjs.util";
-import { useSocket } from "~/hooks/useSocket";
+import theme from "~/theme";
+import LeftMenuDrawer from "../drawer/LeftMenuDrawer";
+import NotificationDrawer from "../drawer/NotificationDrawer";
+import { flatSideBarItemList } from "~/utils/constants";
 
-const drawerWidth = "335px";
+const drawerWidth = "300px";
+export const headerHeight = "73px";
 
 const Header: FC<RouterProps> = ({ location, navigate }) => {
-  const [open, setOpen] = useState(false);
   const dispatch = useAppDispatch();
+
+  const [isLeftMenuOpen, setIsLeftMenuOpen] = useState(false);
+  const [isNotificationOpen, setIsNotificationOpen] = useState(false);
 
   const categories = useAppSelector(Categories);
   const specialties = useAppSelector(Specialties);
 
-  useSocket({ ns: "admin" });
+  const notifications = useAppSelector(({ socket }) => socket.notifications);
+  const badgeNumber = notifications.filter((noti) => noti.isRead === false).length;
 
   useEffect(() => {
     if (isEmpty(categories)) {
@@ -34,67 +40,70 @@ const Header: FC<RouterProps> = ({ location, navigate }) => {
     }
   }, []);
 
-  const routerName = () => {
-    switch (true) {
-      case location.pathname.includes("/admin/orders"):
-        return "訂單系統";
-      case location.pathname.includes("/admin/menu"):
-        return "點餐系統";
-      case location.pathname.includes("/admin/seat"):
-        return "座位系統";
-      case location.pathname.includes("/admin/meal/list"):
-        const id = location.pathname.split("/admin/meal/list/")[1];
-        if (id) {
-          return id === "create" ? "新增菜單" : "編輯菜單";
-        } else {
-          return "菜單列表";
-        }
-      case location.pathname.includes("/admin/meal/settings"):
-        return "菜單設置";
-      default:
-        return location.pathname;
-    }
-  };
-
   const handleLogout = () => {
     localStorage.removeItem("token");
     navigate({ pathname: "/admin" });
   };
 
   return (
-    <Box sx={{ display: "flex" }}>
+    <>
+      {/* header */}
       <AppBar
-        position="static"
+        position="sticky"
         sx={{
           bgcolor: (theme) => theme.palette.background.paper,
           zIndex: (theme) => theme.zIndex.drawer + 100,
-          height: "88px",
-          boxShadow: "none",
           borderBottom: 0.5,
-          borderColor: "divider"
+          borderColor: "divider",
+          boxShadow: "none",
+          "& .MuiToolbar-root": {
+            padding: 0
+          }
         }}
       >
-        <Toolbar sx={{ paddingLeft: "0 !important" }}>
-          {/* left */}
+        <Toolbar>
+          {/* logo */}
           <Button
-            onClick={() => setOpen((val) => !val)}
+            onClick={() => setIsLeftMenuOpen((val) => !val)}
             sx={{
               bgcolor: (theme) => theme.palette.primary.main,
-              width: open ? drawerWidth : "136px",
-              p: 3,
+              width: isLeftMenuOpen ? drawerWidth : "100px",
+              py: 2,
+              pl: 2,
+              position: "relative",
               display: "flex",
               alignItems: "center",
               justifyContent: "space-between",
-              gap: 2,
+              gap: 1,
               borderRadius: 0,
-              transition: "225ms cubic-bezier(0, 0, 0.2, 1) ",
+              overflow: "hidden",
+              whiteSpace: "nowrap",
+              transition: "225ms cubic-bezier(0, 0, 0.2, 1)",
               borderBottom: (theme) => `1px solid ${theme.palette.divider}`,
               "&:hover": {
-                bgcolor: (theme) => theme.palette.primary.dark
+                bgcolor: (theme) => theme.palette.primary.main
               }
             }}
           >
             <Box component="img" src={HeaderLogo} sx={{ width: "40px", height: "40px" }} />
+            <Box
+              component="div"
+              sx={{
+                textAlign: "left",
+                position: "absolute",
+                left: "80px",
+                top: "13%",
+                opacity: isLeftMenuOpen ? 1 : 0,
+                transiton: "opacity 225ms"
+              }}
+            >
+              <Typography variant="h5" color={theme.palette.common.black} fontWeight={900} lineHeight={1}>
+                港都熱炒
+              </Typography>
+              <Typography variant="tiny" color={theme.palette.common.black}>
+                Point Pro 餐飲系統
+              </Typography>
+            </Box>
             <DoubleArrow
               color="secondary"
               sx={{
@@ -102,55 +111,43 @@ const Header: FC<RouterProps> = ({ location, navigate }) => {
                 width: "24px",
                 height: "24px",
                 transition: "0.5s cubic-bezier(0, 0, 0.2, 1) ",
-                transform: `rotateY(${open ? 180 : 0}deg)`
+                transform: `rotateY(${isLeftMenuOpen ? 180 : 0}deg)`
               }}
             />
           </Button>
-          {/* middle */}
-          <Typography variant="h2" component="div" sx={{ flexGrow: 1, pl: 5 }}>
-            {routerName()}
+
+          {/* page title */}
+          <Typography variant="h2" sx={{ flexGrow: 1, pl: 2 }}>
+            {flatSideBarItemList.find((item) => item.path === location.pathname)?.name ?? ""}
           </Typography>
-          <Typography component="p" sx={{ pr: 5 }}>
-            {appDayjs().format(dateForm.dateWithTimeAMPM)}
-          </Typography>
-          {/* right */}
+          <Typography sx={{ pr: 2 }}>{appDayjs().format(dateForm.dateWithTimeAMPM)}</Typography>
+
+          {/* action icon */}
           <Box
             sx={{
-              px: 3,
+              px: 2,
               display: "flex",
               alignItems: "center",
-              gap: 3,
-              borderLeft: (theme) => `1px solid ${theme.palette.divider}`,
-              height: "100%"
+              gap: 2,
+              borderLeft: (theme) => `1px solid ${theme.palette.divider}`
             }}
           >
-            <IconButton color="inherit">
-              <Badge badgeContent={17} color="error">
-                <NotificationsNone sx={{ width: "40px", height: "40px" }} />
+            <IconButton color="inherit" onClick={() => setIsNotificationOpen(true)}>
+              <Badge badgeContent={badgeNumber} color="error">
+                <NotificationsNone sx={{ width: "30px", height: "30px" }} />
               </Badge>
             </IconButton>
             <IconButton onClick={handleLogout} color="inherit" edge="end">
-              <PowerSettingsNew sx={{ width: "40px", height: "40px" }} />
+              <PowerSettingsNew sx={{ width: "30px", height: "30px" }} />
             </IconButton>
           </Box>
         </Toolbar>
       </AppBar>
 
-      <Drawer
-        open={open}
-        onClose={() => {
-          setOpen(false);
-          console.log("close");
-        }}
-        sx={{
-          width: drawerWidth,
-          flexShrink: 0,
-          [`& .MuiDrawer-paper`]: { width: drawerWidth, boxSizing: "border-box" }
-        }}
-      >
-        <SideBar path={location.pathname} />
-      </Drawer>
-    </Box>
+      {/* drawers */}
+      <LeftMenuDrawer drawerWidth={drawerWidth} open={isLeftMenuOpen} setOpen={setIsLeftMenuOpen} />
+      <NotificationDrawer open={isNotificationOpen} setOpen={setIsNotificationOpen} />
+    </>
   );
 };
 

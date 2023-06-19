@@ -57,25 +57,37 @@ import RestaurantMenuIcon from "@mui/icons-material/RestaurantMenu";
 import StickyNote2Icon from "@mui/icons-material/StickyNote2";
 import MenuBookIcon from "@mui/icons-material/MenuBook";
 import EventSeatIcon from "@mui/icons-material/EventSeat";
+import { OverridableComponent } from "@mui/material/OverridableComponent";
+import { SvgIconTypeMap } from "@mui/material";
 
-export const sideBarItemList = [
+export type SideBarItemType = {
+  id: string;
+  name: string;
+  src?: OverridableComponent<SvgIconTypeMap<{}, "svg">> & {
+    muiName: string;
+  };
+  path?: string;
+  list?: SideBarItemType[];
+};
+
+export const sideBarItemList: SideBarItemType[] = [
   {
     id: "orders",
     name: "訂單系統",
     src: RestaurantMenuIcon,
-    path: "orders"
+    path: "/admin/orders"
   },
   {
     id: "menu",
     name: "點餐系統",
     src: StickyNote2Icon,
-    path: "menu"
+    path: "/admin/menu"
   },
   {
     id: "seat",
     name: "座位系統",
     src: EventSeatIcon,
-    path: "seat"
+    path: "/admin/seat"
   },
   {
     id: "meal",
@@ -85,15 +97,17 @@ export const sideBarItemList = [
       {
         id: "list",
         name: "菜單列表",
-        src: "frame-204",
-        path: "meal/list"
+        path: "/admin/meal/list"
       },
       {
         id: "settings",
         name: "菜單設置",
-        src: "frame-204",
-        path: "meal/settings"
+        path: "/admin/meal/settings"
       }
     ]
   }
 ];
+
+export const flatSideBarItemList = sideBarItemList.flatMap((item) => {
+  return item.list ? item.list : item;
+});
