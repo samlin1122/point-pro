@@ -56,6 +56,7 @@ import {
   postBookingRecord,
   resetUserInfo
 } from "./slice";
+import { QRCodeSVG } from "qrcode.react";
 
 const genderObj = {
   0: "先生",
@@ -706,6 +707,7 @@ export const BookingQRCodeModal = () => {
   const dispatch = useAppDispatch();
 
   const dialog = useAppSelector(({ customerBooking }) => customerBooking.dialog);
+  const token = useAppSelector(({ customerBooking }) => customerBooking.token);
 
   const handleClose = () => {
     dispatch(setDialog(CustomerBookingDialog.REMINDER));
@@ -731,7 +733,9 @@ export const BookingQRCodeModal = () => {
           alignItems: "center"
         }}
       >
-        <QrCodeIcon sx={{ fontSize: "20rem" }} />
+        <QRCodeSVG
+          value={(import.meta.env.DEV ? "http://" : "https://") + window.location.host + "/order?token=" + token ?? ""}
+        ></QRCodeSVG>
       </Box>
       <ConfirmBookingTextField label="訂位編號" value={"5f02-4e28-eo29"} icon={<QrCodeIcon />} />
     </MobileDialogLayout>

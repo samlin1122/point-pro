@@ -8,6 +8,10 @@ interface ApiResponse<result> {
   result;
 }
 
+interface GenerateTokenPayload {
+  reservationLogId: string;
+}
+
 interface LoginPayload {
   account: string;
   password: string;
@@ -17,6 +21,8 @@ type LoginResponse = ApiResponse<{
   authToken: string;
   member: Member;
 }>;
+
+type GenerateTokenResponse = ApiResponse<{ token: string }>;
 
 type GetUserInfoResponse = ApiResponse<UserInfo>; // [TODO]
 
@@ -93,4 +99,30 @@ type DatePeriodInfo = {
   totalAvailable: number;
 };
 
+type SeatInfo = {
+  id: string;
+  seatNo: string;
+  amount: number;
+};
+
+type ReservationInfo = {
+  id: string;
+  reservedAt: Date;
+  type: string;
+  options: { [key as string]: any };
+  periodStartedAt: Date;
+  periodEndedAt: Date;
+  seats: SeatInfo[];
+};
+
+interface PostReservationPayload {
+  type: string;
+  options: { [key as string]: any };
+  amount: number;
+  periodStartedAt: Date;
+}
+
+type GenericResponse = ApiResponse<>;
+
 type GetPeriodsResponse = ApiResponse<DatePeriod>;
+type PostReservationResponse = ApiResponse<ReservationInfo>;
