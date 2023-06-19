@@ -160,7 +160,7 @@ export const MealDrawer = () => {
       <Box
         bgcolor="white"
         sx={{
-          borderTop: "1px solid common.black_40",
+          borderTop: `1px solid ${theme.palette.common.black_40}`,
           position: "relative",
           padding: ".5rem"
         }}
