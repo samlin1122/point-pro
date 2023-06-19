@@ -7,6 +7,7 @@ import Drawer from "@mui/material/Drawer";
 export type DrawerBaseButtonType = {
   label: string;
   onClick: (data: string) => void;
+  isEnabled?: boolean;
 };
 
 export type DrawerBaseProps = {
@@ -54,6 +55,7 @@ export const DrawerBase: FC<DrawerBaseProps> = ({ title, open, onClose, children
             fullWidth
             variant="contained"
             onClick={() => btn.onClick(btn.label)}
+            disabled={!btn.isEnabled}
             sx={{ height: 80 }}
             color={key % 2 ? "secondary" : "primary"}
           >

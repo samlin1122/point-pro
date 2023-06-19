@@ -67,11 +67,12 @@ interface IOrderItemProps {
   order: Order;
   setDeleteOrderId: React.Dispatch<React.SetStateAction<string>>;
   setOpenPayment: React.Dispatch<React.SetStateAction<boolean>>;
+  onPayment: (order: Order) => void;
 }
 export const OrderItem = (props: IOrderItemProps) => {
   const dispatch = useAppDispatch();
 
-  const { order, setDeleteOrderId, setOpenPayment } = props;
+  const { order, setDeleteOrderId, setOpenPayment, onPayment } = props;
 
   const { id, status, type, orderMeals, createdAt, seats = [], paymentLogs = [] } = order;
 
@@ -114,6 +115,7 @@ export const OrderItem = (props: IOrderItemProps) => {
   };
 
   const handlePayment = () => {
+    onPayment(order);
     setOpenPayment(true);
   };
 
@@ -283,9 +285,10 @@ export const OrderTabs = () => {
 
 type OrderListProps = {
   setOpenPayment: React.Dispatch<React.SetStateAction<boolean>>;
+  onPayment: (order: Order) => void;
 };
 export const OrderList = (props: OrderListProps) => {
-  const { setOpenPayment } = props;
+  const { setOpenPayment, onPayment } = props;
   const orders = useAppSelector(({ order }) => order.orders);
   const [deleteOrderId, setDeleteOrderId] = useState("");
 
@@ -305,6 +308,7 @@ export const OrderList = (props: OrderListProps) => {
               order={order}
               setDeleteOrderId={setDeleteOrderId}
               setOpenPayment={setOpenPayment}
+              onPayment={onPayment}
             />
           ))}
         </Box>

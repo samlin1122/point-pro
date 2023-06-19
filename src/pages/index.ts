@@ -10,3 +10,6 @@ export { default as AdminSeat } from "./Admin/Seat";
 // Customer page
 export { default as Orders } from "./Orders";
 export { default as Booking } from "./Booking";
+
+export { default as PaymentReturn } from "./Payment/return";
+export { default as PaymentCancel } from "./Payment/cancel";

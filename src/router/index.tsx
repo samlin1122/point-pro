@@ -11,7 +11,9 @@ import {
   AdminSeat,
   AdminMealList,
   AdminMealListDetail,
-  AdminMealSettings
+  AdminMealSettings,
+  PaymentReturn,
+  PaymentCancel
 } from "../pages";
 import { ProtectedRoute } from "./protected";
 
@@ -69,6 +71,19 @@ const router = createBrowserRouter([
             element: <AdminMealSettings />
           }
         ]
+      }
+    ]
+  },
+  {
+    path: "payment",
+    children: [
+      {
+        path: "confirm",
+        element: <PaymentReturn />
+      },
+      {
+        path: "cancel",
+        element: <PaymentCancel />
       }
     ]
   }

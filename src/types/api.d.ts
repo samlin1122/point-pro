@@ -1,9 +1,9 @@
 import { Menu, Order, Specialty, UserInfo } from "~/features/orders/type";
-import { Member, IMeal, ICategory, ISpecialty, ISpecialtyItem } from ".";
+import { Member, IMeal, ICategory, ISpecialty, ISpecialtyItem, IPaymentLog } from ".";
 
 type Id = string;
 
-interface ApiResopnse<result> {
+interface ApiResponse<result> {
   message: string;
   result;
 }
@@ -78,3 +78,61 @@ type GetMenuResponse = ApiResponse<Menu[]>;
 
 interface updateImgPayload {}
 type updateImgResponse = ApiResponse<{ string }>;
+
+interface LinePayRequestBody {
+  orderId: Id;
+  confirmUrl: string;
+  cancelUrl: string;
+}
+
+interface LinePayConfirmProps {
+  transactionId: string;
+  orderId: string;
+}
+
+interface EcPayResponseBody {
+  orderId: Id;
+  confirmUrl: string;
+}
+
+interface LinePayPayload {
+  returnCode: string;
+  returnMessage: string;
+  info: {
+    paymentUrl: {
+      web: string;
+      app: string;
+    };
+    transactionId: string;
+    paymentAccessToken: string;
+  };
+}
+
+interface EcPayPayload {
+  RtnCode: string;
+  RtnMsg: string;
+  TradeNo: string;
+  TradeAmt: string;
+  PaymentDate: string;
+  PaymentType: string;
+  PaymentTypeChargeFee: string;
+  TradeDate: string;
+  SimulatePaid: string;
+}
+
+interface CashPaymentPayload {
+  order: Order[];
+  paymentLog: IPaymentLog;
+}
+
+type LinePayResponse = ApiResponse<LinePayPayload>;
+type EcPayResponse = ApiResponse<EcPayPayload>;
+type CashPaymentResponse = ApiResponse<CashPaymentPayload>;
+
+type PaymentSliceState = {
+  isLoading: boolean;
+  error: string | null;
+  linePayResponse: LinePayResponse;
+  ecPayResponse: EcPayResponse;
+  cashPaymentResponse: CashPaymentResponse;
+};
