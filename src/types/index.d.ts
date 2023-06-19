@@ -118,6 +118,7 @@ export interface ICreateBookingParams {
 
 export interface ICustomerBookingSliceState {
   step: number;
+  token?: string;
   availableBookings: IAvailableBooking[];
   choosedDate: Timestamp;
   availablePeriod: IAvailableBookingPeriod[];

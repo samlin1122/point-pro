@@ -56,6 +56,7 @@ import {
   postBookingRecord,
   resetUserInfo
 } from "./slice";
+import { QRCodeSVG } from "qrcode.react";
 
 const genderObj = {
   0: "先生",
@@ -74,7 +75,10 @@ export const PeopleAndTime = () => {
 
   const availableDate = availableBookings.map((availableBooking) => availableBooking.date);
   const choosedPeriodInfo = availablePeriod.find((availablePeriod) => availablePeriod.startedAt === reservedAt);
-  const adultOptionList = Array.from({ length: choosedPeriodInfo?.peopleAmount ?? 1 }, (_, i) => i + 1);
+  const adultOptionList =
+    choosedPeriodInfo?.peopleAmount && choosedPeriodInfo?.peopleAmount > 10
+      ? [1, 2, 3, 4, 7, 8, 9, 10]
+      : Array.from({ length: choosedPeriodInfo?.peopleAmount ?? 1 }, (_, i) => i + 1);
 
   // [TODO]: add or remove children amount
   // const children = useAppSelector(({ customerBooking }) => customerBooking.bookingParams.user.children);
@@ -703,6 +707,7 @@ export const BookingQRCodeModal = () => {
   const dispatch = useAppDispatch();
 
   const dialog = useAppSelector(({ customerBooking }) => customerBooking.dialog);
+  const token = useAppSelector(({ customerBooking }) => customerBooking.token);
 
   const handleClose = () => {
     dispatch(setDialog(CustomerBookingDialog.REMINDER));
@@ -728,7 +733,9 @@ export const BookingQRCodeModal = () => {
           alignItems: "center"
         }}
       >
-        <QrCodeIcon sx={{ fontSize: "20rem" }} />
+        <QRCodeSVG
+          value={(import.meta.env.DEV ? "http://" : "https://") + window.location.host + "/order?token=" + token ?? ""}
+        ></QRCodeSVG>
       </Box>
       <ConfirmBookingTextField label="訂位編號" value={"5f02-4e28-eo29"} icon={<QrCodeIcon />} />
     </MobileDialogLayout>
