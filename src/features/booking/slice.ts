@@ -6,6 +6,8 @@ import appDayjs from "~/utils/dayjs.util";
 import { createAppAsyncThunk } from "~/app/hook";
 import { IAvailableBooking, IBookingInfo, ICustomerBookingSliceState } from "~/types";
 import { BookingType, CustomerBookingDialog, Gender } from "~/types/common";
+import { getAvailablePeriods } from "~/api/BookingApi";
+import { DatePeriodInfo, PeriodInfo } from "~/types/api";
 
 const name = "customerBooking";
 const initialState: ICustomerBookingSliceState = {
@@ -28,18 +30,28 @@ const initialState: ICustomerBookingSliceState = {
     }
   },
   queryString: "",
-  dialog: CustomerBookingDialog.QRCODE,
+  dialog: null,
   isAgreedPrivacyPolicy: false,
   isLoading: false
 };
 
 export const getAvailableBooking = createAppAsyncThunk(`${name}/getAvailableBooking`, async (arg, thunkAPI) => {
   try {
-    const availableBookingRes = await fetch("/data/dummyAvailableBooking.json");
+    const periodsResp = await getAvailablePeriods();
+    const periodInfos = periodsResp.result;
+    const availableBookings: IAvailableBooking[] = periodInfos.map((info: DatePeriodInfo) => {
+      return {
+        date: new Date(info.date).valueOf(),
+        availablePeriods: info.periods.map((period: PeriodInfo) => ({
+          startedAt: new Date(period.periodStartedAt).valueOf(),
+          endedAt: appDayjs(period.periodStartedAt).add(2, "hour").toDate().valueOf(),
+          bookedAmount: period.amount - period.available,
+          peopleAmount: period.available
+        }))
+      };
+    });
 
-    const { availableBookings = [] }: { availableBookings: IAvailableBooking[] } = await availableBookingRes.json();
-
-    return { availableBookings };
+    return { availableBookings: availableBookings.sort((a, b) => a.date - b.date) };
   } catch (error) {
     // [TODO]: handle error
     console.log(error);
@@ -82,11 +94,15 @@ export const customerBookingSlice = createSlice({
     },
     setDate: (state, action: PayloadAction<ICustomerBookingSliceState["choosedDate"]>) => {
       state.choosedDate = action.payload;
+
       const availableBooking = state.availableBookings.find(
-        (availableBooking) => availableBooking.date === state.choosedDate
+        (availableBooking) => availableBooking.date === action.payload
       );
+
       state.availablePeriod =
-        availableBooking?.availablePeriods.filter((availablePeriod) => availablePeriod.peopleAmount > 0) ?? [];
+        (availableBooking?.availablePeriods &&
+          availableBooking?.availablePeriods.filter((availablePeriod) => availablePeriod.peopleAmount > 0)) ??
+        [];
       state.bookingParams.reservedAt = state.availablePeriod[0]?.startedAt ?? initialState.bookingParams.reservedAt;
       state.bookingParams.user.adults = initialState.bookingParams.user.adults;
     },

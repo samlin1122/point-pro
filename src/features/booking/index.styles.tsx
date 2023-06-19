@@ -74,7 +74,10 @@ export const PeopleAndTime = () => {
 
   const availableDate = availableBookings.map((availableBooking) => availableBooking.date);
   const choosedPeriodInfo = availablePeriod.find((availablePeriod) => availablePeriod.startedAt === reservedAt);
-  const adultOptionList = Array.from({ length: choosedPeriodInfo?.peopleAmount ?? 1 }, (_, i) => i + 1);
+  const adultOptionList =
+    choosedPeriodInfo?.peopleAmount && choosedPeriodInfo?.peopleAmount > 10
+      ? [1, 2, 3, 4, 7, 8, 9, 10]
+      : Array.from({ length: choosedPeriodInfo?.peopleAmount ?? 1 }, (_, i) => i + 1);
 
   // [TODO]: add or remove children amount
   // const children = useAppSelector(({ customerBooking }) => customerBooking.bookingParams.user.children);

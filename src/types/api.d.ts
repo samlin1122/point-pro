@@ -3,7 +3,7 @@ import { Member, IMeal, ICategory, ISpecialty, ISpecialtyItem, Seat, Reservation
 
 type Id = string;
 
-interface ApiResopnse<result> {
+interface ApiResponse<result> {
   message: string;
   result;
 }
@@ -79,9 +79,18 @@ type GetMenuResponse = ApiResponse<Menu[]>;
 interface updateImgPayload {}
 type updateImgResponse = ApiResponse<{ string }>;
 
-type SeatsResponse = ApiResponse<Seat[]>;
+type PeriodInfo = {
+  id: string;
+  periodStartedAt: Date;
+  amount: number;
+  available: number;
+};
 
-type ReservationResponse = ApiResponse<ReservationInfo>;
-type ReservationsResponse = ApiResponse<ReservationInfo[]>;
+type DatePeriodInfo = {
+  date: Date;
+  periods: PeriodInfo[];
+  totalAmount: number;
+  totalAvailable: number;
+};
 
-interface PostReservationPayload extends ReservationInfo {}
+type GetPeriodsResponse = ApiResponse<DatePeriod>;
