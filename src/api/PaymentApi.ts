@@ -4,6 +4,7 @@ import {
   EcPayResponseBody,
   Id,
   LinePayRequestBody,
+  LinePayConfirmResponse,
   LinePayResponse
 } from "~/types/api";
 import http from "./http";
@@ -13,7 +14,7 @@ export const paymentLinePayRequest = (payload: LinePayRequestBody) => {
 };
 
 export const paymentLinePayConfirm = (transactionId: string, orderId: string) => {
-  return http.get<string, LinePayResponse>(
+  return http.get<string, LinePayConfirmResponse>(
     `/payment/line-pay/confirm?transactionId=${transactionId}&orderId=${orderId}`
   );
 };

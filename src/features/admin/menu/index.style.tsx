@@ -28,7 +28,6 @@ import {
 import { InputNumber } from "~/features/orders/index.styles";
 import theme from "~/theme";
 import { CartItem, Meal, DialogType, Specialty, SpecialtyItem } from "~/features/orders/type";
-import PaymentDrawer from "~/components/payment";
 import { calculateCartPrice } from "~/utils/price.utils";
 
 export const MenuTabs = () => {
@@ -380,9 +379,8 @@ export const CartList = () => {
   const meals = useAppSelector(({ takeOrder }) => takeOrder.meals);
   const cart = useAppSelector(({ takeOrder }) => takeOrder.cart);
   const hasCartItems = cart.length > 0;
-  const [openClearCartConfirmModal, setoOenClearCartConfirmModal] = useState(false);
+  const [openClearCartConfirmModal, setOpenClearCartConfirmModal] = useState(false);
   const [openSubmitOrderConfirmModal, setOpenSubmitOrderConfirmModal] = useState(false);
-  const [openPayment, setOpenPayment] = useState(false);
 
   const handleSubmitOrders = () => {
     setOpenSubmitOrderConfirmModal(true);
@@ -415,7 +413,7 @@ export const CartList = () => {
                   size={"small"}
                   color="inherit"
                   disableRipple
-                  onClick={() => setoOenClearCartConfirmModal(true)}
+                  onClick={() => setOpenClearCartConfirmModal(true)}
                 >
                   <Typography
                     component="span"
@@ -487,8 +485,7 @@ export const CartList = () => {
           </Typography>
         )}
       </Column>
-      <PaymentDrawer open={openPayment} item={cart} totalPrice={totalPrice} setOpen={setOpenPayment} />
-      <TabletModal.ClearCartConfirm open={openClearCartConfirmModal} setOpen={setoOenClearCartConfirmModal} />
+      <TabletModal.ClearCartConfirm open={openClearCartConfirmModal} setOpen={setOpenClearCartConfirmModal} />
       <TabletModal.SubmitOrderConfirm open={openSubmitOrderConfirmModal} setOpen={setOpenSubmitOrderConfirmModal} />
     </>
   );

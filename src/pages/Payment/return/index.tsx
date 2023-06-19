@@ -7,7 +7,7 @@ import Payments from "~/features/payment";
 interface IPaymentProps {}
 
 const Payment: FC = (props) => {
-  return <Payments.PaymentReturn {...props} />;
+  return <Payments.LinePayPaymentReturn {...props} />;
 };
 
-export default withMobileLayout(Payments.PaymentReturn);
+export default withMobileLayout(Payments.LinePayPaymentReturn);

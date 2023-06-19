@@ -55,7 +55,7 @@ export const authSlice = createSlice({
   },
   extraReducers: (builder) => {
     builder.addCase(login.fulfilled, (state, action) => {
-      const { authToken } = action.payload;
+      const { authToken } = action.payload.result;
       state.authToken = authToken;
       state.isAuthenticated = true;
       state.isLoading = false;

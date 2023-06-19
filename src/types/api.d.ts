@@ -1,5 +1,5 @@
 import { Menu, Order, Specialty, UserInfo } from "~/features/orders/type";
-import { Member, IMeal, ICategory, ISpecialty, ISpecialtyItem, IPaymentLog } from ".";
+import { Member, IMeal, ICategory, ISpecialty, ISpecialtyItem, IPaymentLog, IOrder } from ".";
 
 type Id = string;
 
@@ -120,14 +120,56 @@ interface EcPayPayload {
   SimulatePaid: string;
 }
 
+type PayInfo = {
+  method: string;
+  amount: number;
+  creditCardNickname?: string;
+  creditCardBrand?: string;
+  maskedCreditCardNumber?: string;
+};
+
+type Product = {
+  id?: string;
+  name: string;
+  imageUrl?: string;
+  quantity: number;
+  price: number;
+  originalPrice?: number;
+};
+
+type Package = {
+  id: string;
+  name?: string;
+  amount: number;
+  userFeeAmount?: number;
+  products: Product[];
+};
+
+interface ConfirmResponseBody {
+  orderId: string;
+  transactionId: string;
+  authorizationExpireDate?: string;
+  regKey?: string;
+  payInfo: PayInfo[];
+  packages: Package[];
+  shipping?: Shipping;
+}
+
 interface CashPaymentPayload {
   order: Order[];
   paymentLog: IPaymentLog;
 }
 
+interface LinePayConfirmPayload {
+  orderLog: IOrder;
+  paymentLog: IPaymentLog;
+  result: ConfirmResponseBody;
+}
+
 type LinePayResponse = ApiResponse<LinePayPayload>;
 type EcPayResponse = ApiResponse<EcPayPayload>;
 type CashPaymentResponse = ApiResponse<CashPaymentPayload>;
+type LinePayConfirmResponse = ApiResponse<LinePayConfirmPayload>;
 
 type PaymentSliceState = {
   isLoading: boolean;
@@ -135,4 +177,7 @@ type PaymentSliceState = {
   linePayResponse: LinePayResponse;
   ecPayResponse: EcPayResponse;
   cashPaymentResponse: CashPaymentResponse;
+  linePayConfirmResponse: LinePayConfirmResponse;
 };
+
+

@@ -1,4 +1,4 @@
 // Components
-import { PaymentCancel, PaymentReturn } from "./index.styles";
+import { PaymentCancel, LinePayPaymentReturn } from "./index.styles";
 
-export default { PaymentReturn, PaymentCancel };
+export default { LinePayPaymentReturn, PaymentCancel };

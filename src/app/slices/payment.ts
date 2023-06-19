@@ -17,6 +17,10 @@ const initialState: PaymentSliceState = {
   cashPaymentResponse: {
     message: "",
     result: {}
+  },
+  linePayConfirmResponse: {
+    message: "",
+    result: {}
   }
 };
 
@@ -75,12 +79,13 @@ export const confirmLinePay = createAsyncThunk(
   async (Ids: LinePayConfirmProps, { rejectWithValue }) => {
     try {
       const { transactionId, orderId } = Ids;
-      console.log(transactionId, orderId);
       const response = await PaymentApi.paymentLinePayConfirm(transactionId, orderId);
-      console.log("Api response: ", response);
       const { message } = response;
-      const result = response.result.body;
-      return { message, result };
+      console.log("Api Response:", response);
+      const result = response.result.response.body.info;
+      const paymentLog = response.result.paymentLog;
+      const orderLog = response.result.orderLog;
+      return { message, result, paymentLog, orderLog };
     } catch (error) {
       if (error instanceof Error) {
         return rejectWithValue({ message: error.message });
@@ -131,7 +136,7 @@ export const paymentSlice = createSlice({
       state.ecPayResponse = payload;
     });
     builder.addCase(confirmLinePay.fulfilled, (state, { payload }) => {
-      state.linePayResponse = payload;
+      state.linePayConfirmResponse = payload;
     });
     builder.addCase(cancelLinePay.fulfilled, (state, { payload }) => {
       state.linePayResponse = payload;
