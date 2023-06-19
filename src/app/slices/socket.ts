@@ -4,9 +4,11 @@ import { createSlice } from "@reduxjs/toolkit";
 const name = "socket";
 type SocketSliceState = {
   socket: Socket | undefined;
+  notifications: any[];
 };
 const initialState: SocketSliceState = {
-  socket: undefined
+  socket: undefined,
+  notifications: JSON.parse(localStorage.getItem("notifications") ?? "[]")
 };
 export const socketSlice = createSlice({
   name,
@@ -15,10 +17,14 @@ export const socketSlice = createSlice({
     setSocket: (state, action) => {
       state.socket = action.payload;
     },
-    resetSocket: (state) => {
+    resetSocket: () => {
       return initialState;
+    },
+    addNotifications: (state, action) => {
+      state.notifications.unshift(action.payload);
+      localStorage.setItem("notifications", JSON.stringify(state.notifications));
     }
   }
 });
 
-export const { setSocket, resetSocket } = socketSlice.actions;
+export const { setSocket, resetSocket, addNotifications } = socketSlice.actions;

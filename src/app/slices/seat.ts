@@ -1,0 +1,32 @@
+// Libs
+import { createSlice } from "@reduxjs/toolkit";
+import { SeatApi } from "~/api";
+// Others
+import { createAppAsyncThunk } from "~/app/hook";
+import { SeatsResponse } from "~/types/api";
+
+const name = "seat";
+
+export const getSeats = createAppAsyncThunk<SeatsResponse>(`${name}/getSeats`, async (payload, { rejectWithValue }) => {
+  try {
+    return await SeatApi.getSeats();
+  } catch (error) {
+    if (error instanceof Error) {
+      return rejectWithValue({ message: error.message });
+    } else {
+      return rejectWithValue({ message: "unknown error" });
+    }
+  }
+});
+
+interface SeatState {}
+const initialState: SeatState = {};
+
+export const seatSlice = createSlice({
+  name,
+  initialState,
+  reducers: {},
+  extraReducers: {}
+});
+
+export const {} = seatSlice.actions;

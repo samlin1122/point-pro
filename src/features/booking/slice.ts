@@ -5,12 +5,16 @@ import { createSlice, PayloadAction } from "@reduxjs/toolkit";
 import appDayjs from "~/utils/dayjs.util";
 import { createAppAsyncThunk } from "~/app/hook";
 import { IAvailableBooking, IBookingInfo, ICustomerBookingSliceState } from "~/types";
-import { BookingType, CustomerBookingDialog, Gender } from "~/types/common";
+import { BookingType, Gender } from "~/types/common";
+import { createBooking, getAvailablePeriods } from "~/api/BookingApi";
+import { DatePeriodInfo, PeriodInfo } from "~/types/api";
+import { generateToken } from "~/api/AuthApi";
 
 const name = "customerBooking";
 const initialState: ICustomerBookingSliceState = {
   step: 0,
   availableBookings: [],
+  token: "",
   choosedDate: appDayjs().startOf("day").valueOf(),
   availablePeriod: [],
   bookingParams: {
@@ -28,18 +32,28 @@ const initialState: ICustomerBookingSliceState = {
     }
   },
   queryString: "",
-  dialog: CustomerBookingDialog.QRCODE,
+  dialog: null,
   isAgreedPrivacyPolicy: false,
   isLoading: false
 };
 
 export const getAvailableBooking = createAppAsyncThunk(`${name}/getAvailableBooking`, async (arg, thunkAPI) => {
   try {
-    const availableBookingRes = await fetch("/data/dummyAvailableBooking.json");
+    const periodsResp = await getAvailablePeriods();
+    const periodInfos = periodsResp.result;
+    const availableBookings: IAvailableBooking[] = periodInfos.map((info: DatePeriodInfo) => {
+      return {
+        date: new Date(info.date).valueOf(),
+        availablePeriods: info.periods.map((period: PeriodInfo) => ({
+          startedAt: new Date(period.periodStartedAt).valueOf(),
+          endedAt: appDayjs(period.periodStartedAt).add(2, "hour").toDate().valueOf(),
+          bookedAmount: period.amount - period.available,
+          peopleAmount: period.available
+        }))
+      };
+    });
 
-    const { availableBookings = [] }: { availableBookings: IAvailableBooking[] } = await availableBookingRes.json();
-
-    return { availableBookings };
+    return { availableBookings: availableBookings.sort((a, b) => a.date - b.date) };
   } catch (error) {
     // [TODO]: handle error
     console.log(error);
@@ -51,6 +65,17 @@ export const postBookingRecord = createAppAsyncThunk(`${name}/postBookingRecord`
   try {
     const bookingParams = thunkAPI.getState().customerBooking.bookingParams;
     console.log({ bookingParams });
+
+    const { result } = await createBooking({
+      type: "OnlineBooking",
+      amount: bookingParams.user.adults + bookingParams.user.children,
+      options: bookingParams.user,
+      periodStartedAt: new Date(bookingParams.reservedAt)
+    });
+
+    const token = await generateToken({ reservationLogId: result.id });
+
+    return { ...result, token };
   } catch (error) {
     // [TODO]: handle error
     console.log(error);
@@ -80,13 +105,20 @@ export const customerBookingSlice = createSlice({
     setStep: (state, action: PayloadAction<ICustomerBookingSliceState["step"]>) => {
       state.step = action.payload;
     },
+    setToken: (state, action: PayloadAction<ICustomerBookingSliceState["token"]>) => {
+      state.token = action.payload;
+    },
     setDate: (state, action: PayloadAction<ICustomerBookingSliceState["choosedDate"]>) => {
       state.choosedDate = action.payload;
+
       const availableBooking = state.availableBookings.find(
-        (availableBooking) => availableBooking.date === state.choosedDate
+        (availableBooking) => availableBooking.date === action.payload
       );
+
       state.availablePeriod =
-        availableBooking?.availablePeriods.filter((availablePeriod) => availablePeriod.peopleAmount > 0) ?? [];
+        (availableBooking?.availablePeriods &&
+          availableBooking?.availablePeriods.filter((availablePeriod) => availablePeriod.peopleAmount > 0)) ??
+        [];
       state.bookingParams.reservedAt = state.availablePeriod[0]?.startedAt ?? initialState.bookingParams.reservedAt;
       state.bookingParams.user.adults = initialState.bookingParams.user.adults;
     },
@@ -141,6 +173,16 @@ export const customerBookingSlice = createSlice({
           payload: state.availableBookings[0].date ?? initialState.choosedDate,
           type: ""
         });
+        state.isLoading = false;
+      })
+      .addCase(postBookingRecord.fulfilled, (state, action) => {
+        state.token = action.payload.token;
+        state.isLoading = false;
+      })
+      .addCase(postBookingRecord.pending, (state, action) => {
+        state.isLoading = true;
+      })
+      .addCase(postBookingRecord.rejected, (state, action) => {
         state.isLoading = false;
       })
       .addCase(getAvailableBooking.rejected, (state) => {

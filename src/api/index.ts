@@ -6,5 +6,7 @@ import * as MenuApi from "./MenuApi";
 import * as OrderApi from "./OrderApi";
 import * as ImgurApi from "./ImgurApi";
 import * as PaymentApi from "./PaymentApi";
+import * as SeatApi from "./SeatApi";
+import * as ReservationApi from "./ReservationApi";
 
-export { AuthApi, MealApi, CategoryApi, SpecialtyApi, MenuApi, OrderApi, ImgurApi, PaymentApi };
+export { AuthApi, MealApi, CategoryApi, SpecialtyApi, MenuApi, OrderApi, ImgurApi, PaymentApi, SeatApi, ReservationApi };

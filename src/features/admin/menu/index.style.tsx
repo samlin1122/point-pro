@@ -1,6 +1,6 @@
 // Lib
 import { useEffect, useState } from "react";
-import { Box, Chip, List, ListItem, ListItemText, Tab, Tabs, Typography, styled, tabsClasses } from "@mui/material";
+import { Box, Chip, List, ListItem, ListItemText, Tab, Tabs, Typography, tabsClasses } from "@mui/material";
 import DoneIcon from "@mui/icons-material/Done";
 import DeleteIcon from "@mui/icons-material/Delete";
 import ShoppingCartIcon from "@mui/icons-material/ShoppingCart";
@@ -159,7 +159,7 @@ export const MealDrawer = () => {
       <Box
         bgcolor="white"
         sx={{
-          borderTop: "1px solid common.black_40",
+          borderTop: `1px solid ${theme.palette.common.black_40}`,
           position: "relative",
           padding: ".5rem"
         }}

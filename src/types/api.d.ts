@@ -1,11 +1,15 @@
 import { Menu, Order, Specialty, UserInfo } from "~/features/orders/type";
-import { Member, IMeal, ICategory, ISpecialty, ISpecialtyItem, IPaymentLog, IOrder } from ".";
+import { Member, IMeal, ICategory, ISpecialty, ISpecialtyItem, IPaymentLog, IOrder, Seat, ReservationInfo } from ".";
 
 type Id = string;
 
 interface ApiResponse<result> {
   message: string;
   result;
+}
+
+interface GenerateTokenPayload {
+  reservationLogId: string;
 }
 
 interface LoginPayload {
@@ -17,6 +21,8 @@ type LoginResponse = ApiResponse<{
   authToken: string;
   member: Member;
 }>;
+
+type GenerateTokenResponse = ApiResponse<{ token: string }>;
 
 type GetUserInfoResponse = ApiResponse<UserInfo>; // [TODO]
 
@@ -181,3 +187,44 @@ type PaymentSliceState = {
 };
 
 
+type PeriodInfo = {
+  id: string;
+  periodStartedAt: Date;
+  amount: number;
+  available: number;
+};
+
+type DatePeriodInfo = {
+  date: Date;
+  periods: PeriodInfo[];
+  totalAmount: number;
+  totalAvailable: number;
+};
+
+type SeatInfo = {
+  id: string;
+  seatNo: string;
+  amount: number;
+};
+
+type ReservationInfo = {
+  id: string;
+  reservedAt: Date;
+  type: string;
+  options: { [key as string]: any };
+  periodStartedAt: Date;
+  periodEndedAt: Date;
+  seats: SeatInfo[];
+};
+
+interface PostReservationPayload {
+  type: string;
+  options: { [key as string]: any };
+  amount: number;
+  periodStartedAt: Date;
+}
+
+type GenericResponse = ApiResponse<>;
+
+type GetPeriodsResponse = ApiResponse<DatePeriod>;
+type PostReservationResponse = ApiResponse<ReservationInfo>;
