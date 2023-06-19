@@ -1,8 +1,8 @@
 import http from "./http";
-import { Id, CategoryResponse, PostCategoryPayload } from "~/types/api";
+import { Id, CategoriesResponse, CategoryResponse, PostCategoryPayload } from "~/types/api";
 
 export const getCategories = () => {
-  return http.get<string, CategoryResponse[]>("category");
+  return http.get<string, CategoriesResponse>("category");
 };
 
 export const getCategoryById = (categoryId: Id) => {

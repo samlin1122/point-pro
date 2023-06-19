@@ -11,14 +11,12 @@ export const login = createAppAsyncThunk<LoginResponse, LoginPayload>(
   `${name}/postLogin`,
   async (payload, { rejectWithValue }) => {
     try {
-      const { result } = await AuthApi.postLogin(payload);
+      const data = await AuthApi.postLogin(payload);
 
-      const { authToken, member } = result;
-
-      if (authToken) {
-        localStorage.setItem("token", authToken);
+      if (data.result.authToken) {
+        localStorage.setItem("token", data.result.authToken);
       }
-      return { authToken, member };
+      return data;
     } catch (error) {
       if (error instanceof Error) {
         return rejectWithValue({ message: error.message });
@@ -55,9 +53,13 @@ export const authSlice = createSlice({
   },
   extraReducers: (builder) => {
     builder.addCase(login.fulfilled, (state, action) => {
-      const { authToken } = action.payload.result;
-      state.authToken = authToken;
-      state.isAuthenticated = true;
+      const { result } = action.payload;
+      if (result.authToken) {
+        state.authToken = result.authToken;
+        state.isAuthenticated = true;
+      } else {
+        state.isAuthenticated = false;
+      }
       state.isLoading = false;
     }),
       builder.addCase(login.pending, (state) => {
