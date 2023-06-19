@@ -8,5 +8,18 @@ import * as ImgurApi from "./ImgurApi";
 import * as PaymentApi from "./PaymentApi";
 import * as SeatApi from "./SeatApi";
 import * as ReservationApi from "./ReservationApi";
+import * as PeriodApi from "./PeriodApi";
 
-export { AuthApi, MealApi, CategoryApi, SpecialtyApi, MenuApi, OrderApi, ImgurApi, PaymentApi, SeatApi, ReservationApi };
+export {
+  AuthApi,
+  MealApi,
+  CategoryApi,
+  SpecialtyApi,
+  MenuApi,
+  OrderApi,
+  ImgurApi,
+  PaymentApi,
+  SeatApi,
+  ReservationApi,
+  PeriodApi
+};

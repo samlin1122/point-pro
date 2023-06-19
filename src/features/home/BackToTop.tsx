@@ -72,7 +72,8 @@ const BackToTopButton: FC<BackToTopButtonProps> = ({ position }) => {
         flexDirection: deviceType === "tablet" ? "column" : "row",
         transform: `scale(${buttonScale})`,
         opacity: buttonOpacity,
-        transition: "transform 0.3s ease, opacity 0.3s ease"
+        transition: "transform 0.3s ease, opacity 0.3s ease",
+        zIndex: (theme) => theme.zIndex.tooltip
       }}
     >
       <ArrowUpwardIcon fontSize="large" />

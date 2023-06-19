@@ -6,18 +6,18 @@ import appDayjs from "~/utils/dayjs.util";
 import { createAppAsyncThunk } from "~/app/hook";
 import { IAvailableBooking, IBookingInfo, ICustomerBookingSliceState } from "~/types";
 import { BookingType, Gender } from "~/types/common";
-import { createBooking, getAvailablePeriods } from "~/api/BookingApi";
-import { DatePeriodInfo, PeriodInfo } from "~/types/api";
+import { ReservationApi, PeriodApi } from "~/api";
+import { DatePeriodInfo, PeriodInfo } from "~/types";
 import { generateToken } from "~/api/AuthApi";
 
-const name = "customerBooking";
+const name = "customerReservation";
 const initialState: ICustomerBookingSliceState = {
   step: 0,
   availableBookings: [],
   token: "",
   choosedDate: appDayjs().startOf("day").valueOf(),
   availablePeriod: [],
-  bookingParams: {
+  reservationParams: {
     id: "",
     reservedAt: 0,
     user: {
@@ -37,9 +37,9 @@ const initialState: ICustomerBookingSliceState = {
   isLoading: false
 };
 
-export const getAvailableBooking = createAppAsyncThunk(`${name}/getAvailableBooking`, async (arg, thunkAPI) => {
+export const getPeriods = createAppAsyncThunk(`${name}/getPeriods`, async (arg, thunkAPI) => {
   try {
-    const periodsResp = await getAvailablePeriods();
+    const periodsResp = await PeriodApi.getPeriods();
     const periodInfos = periodsResp.result;
     const availableBookings: IAvailableBooking[] = periodInfos.map((info: DatePeriodInfo) => {
       return {
@@ -61,16 +61,16 @@ export const getAvailableBooking = createAppAsyncThunk(`${name}/getAvailableBook
   }
 });
 
-export const postBookingRecord = createAppAsyncThunk(`${name}/postBookingRecord`, async (arg, thunkAPI) => {
+export const postReservation = createAppAsyncThunk(`${name}/postReservation`, async (arg, thunkAPI) => {
   try {
-    const bookingParams = thunkAPI.getState().customerBooking.bookingParams;
-    console.log({ bookingParams });
+    const reservationParams = thunkAPI.getState().customerReservation.reservationParams;
+    console.log({ reservationParams });
 
-    const { result } = await createBooking({
+    const { result } = await ReservationApi.postReservation({
       type: "OnlineBooking",
-      amount: bookingParams.user.adults + bookingParams.user.children,
-      options: bookingParams.user,
-      periodStartedAt: new Date(bookingParams.reservedAt)
+      amount: reservationParams.user.adults + reservationParams.user.children,
+      options: reservationParams.user,
+      periodStartedAt: new Date(reservationParams.reservedAt)
     });
 
     const token = await generateToken({ reservationLogId: result.id });
@@ -86,7 +86,7 @@ export const postBookingRecord = createAppAsyncThunk(`${name}/postBookingRecord`
 export const getBookingRecord = createAppAsyncThunk(`${name}/getBookingRecord`, async (arg, thunkAPI) => {
   try {
     // [TODO]: replace to correct API
-    // const queryString = thunkAPI.getState().customerBooking.queryString;
+    // const queryString = thunkAPI.getState().customerReservation.queryString;
     // const bookingRecordRes = await fetch(`api/reservation?input=${queryString}`);
     const bookingRecordRes = await fetch(`/data/dummyBookingRecord.json`);
     const bookingRecord = (await bookingRecordRes.json()) as IBookingInfo;
@@ -119,31 +119,32 @@ export const customerBookingSlice = createSlice({
         (availableBooking?.availablePeriods &&
           availableBooking?.availablePeriods.filter((availablePeriod) => availablePeriod.peopleAmount > 0)) ??
         [];
-      state.bookingParams.reservedAt = state.availablePeriod[0]?.startedAt ?? initialState.bookingParams.reservedAt;
-      state.bookingParams.user.adults = initialState.bookingParams.user.adults;
+      state.reservationParams.reservedAt =
+        state.availablePeriod[0]?.startedAt ?? initialState.reservationParams.reservedAt;
+      state.reservationParams.user.adults = initialState.reservationParams.user.adults;
     },
     setReservedAt: (state, action: PayloadAction<IBookingInfo["reservedAt"]>) => {
-      state.bookingParams.reservedAt = action.payload;
-      state.bookingParams.user.adults = initialState.bookingParams.user.adults;
+      state.reservationParams.reservedAt = action.payload;
+      state.reservationParams.user.adults = initialState.reservationParams.user.adults;
     },
     // [TODO]: simplify to one set function, function overload of setBookerInfo
     setName: (state, action: PayloadAction<IBookingInfo["name"]>) => {
-      state.bookingParams.user.name = action.payload;
+      state.reservationParams.user.name = action.payload;
     },
     setGender: (state, action: PayloadAction<IBookingInfo["gender"]>) => {
-      state.bookingParams.user.gender = action.payload;
+      state.reservationParams.user.gender = action.payload;
     },
     setPhone: (state, action: PayloadAction<IBookingInfo["phone"]>) => {
-      state.bookingParams.user.phone = action.payload;
+      state.reservationParams.user.phone = action.payload;
     },
     setEmail: (state, action: PayloadAction<IBookingInfo["email"]>) => {
-      state.bookingParams.user.email = action.payload;
+      state.reservationParams.user.email = action.payload;
     },
     setRemark: (state, action: PayloadAction<IBookingInfo["remark"]>) => {
-      state.bookingParams.user.remark = action.payload;
+      state.reservationParams.user.remark = action.payload;
     },
     setAdultsAmount: (state, action: PayloadAction<IBookingInfo["adults"]>) => {
-      state.bookingParams.user.adults = action.payload;
+      state.reservationParams.user.adults = action.payload;
     },
     setQueryString: (state, action) => {
       state.queryString = action.payload;
@@ -155,19 +156,19 @@ export const customerBookingSlice = createSlice({
       state.isAgreedPrivacyPolicy = action.payload;
     },
     resetUserInfo: (state) => {
-      state.bookingParams.user = initialState.bookingParams.user;
+      state.reservationParams.user = initialState.reservationParams.user;
     }
     // [TODO]
     // setChildrenAmount: (state, action: PayloadAction<IBookingInfo["children"]>) => {
-    //   state.bookingParams.user.children = action.payload;
+    //   state.reservationParams.user.children = action.payload;
     // }
   },
   extraReducers: (builder) => {
     builder
-      .addCase(getAvailableBooking.pending, (state, action) => {
+      .addCase(getPeriods.pending, (state, action) => {
         state.isLoading = true;
       })
-      .addCase(getAvailableBooking.fulfilled, (state, action) => {
+      .addCase(getPeriods.fulfilled, (state, action) => {
         state.availableBookings = action.payload.availableBookings;
         customerBookingSlice.caseReducers.setDate(state, {
           payload: state.availableBookings[0].date ?? initialState.choosedDate,
@@ -175,17 +176,17 @@ export const customerBookingSlice = createSlice({
         });
         state.isLoading = false;
       })
-      .addCase(postBookingRecord.fulfilled, (state, action) => {
+      .addCase(postReservation.fulfilled, (state, action) => {
         state.token = action.payload.token;
         state.isLoading = false;
       })
-      .addCase(postBookingRecord.pending, (state, action) => {
+      .addCase(postReservation.pending, (state, action) => {
         state.isLoading = true;
       })
-      .addCase(postBookingRecord.rejected, (state, action) => {
+      .addCase(postReservation.rejected, (state, action) => {
         state.isLoading = false;
       })
-      .addCase(getAvailableBooking.rejected, (state) => {
+      .addCase(getPeriods.rejected, (state) => {
         state.isLoading = false;
       })
       .addCase(getBookingRecord.pending, (state) => {
@@ -193,9 +194,9 @@ export const customerBookingSlice = createSlice({
       })
       .addCase(getBookingRecord.fulfilled, (state, action) => {
         const { id, reservedAt, ...rest } = action.payload.bookingRecord;
-        state.bookingParams.id = id;
-        state.bookingParams.reservedAt = reservedAt;
-        state.bookingParams.user = rest;
+        state.reservationParams.id = id;
+        state.reservationParams.reservedAt = reservedAt;
+        state.reservationParams.user = rest;
         state.isLoading = false;
       })
       .addCase(getBookingRecord.rejected, (state, action) => {

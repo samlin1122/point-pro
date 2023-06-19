@@ -6,7 +6,7 @@ import { DrawerBaseButtonType } from "~/components/drawer/drawer-base";
 import { DrawerBase } from "~/components/drawer";
 import TabsBase from "~/components/tabs";
 import theme from "~/theme";
-import { SeatReservationInfo, ReservationInfo, Seat } from "~/types";
+import { ReservationInfo, SeatInfo } from "~/types";
 
 const enum SeatTimeStatus {
   CURRENT = "CURRENT",
@@ -16,7 +16,7 @@ const enum SeatTimeStatus {
 type BookingModalProps = {
   open: boolean;
   onClose: () => void;
-  seatReservation: Seat;
+  seatReservation: SeatInfo;
 };
 
 type SeatProps = {

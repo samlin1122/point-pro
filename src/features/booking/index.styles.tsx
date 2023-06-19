@@ -53,7 +53,7 @@ import {
   setRemark,
   setGender,
   setAgreedPolicy,
-  postBookingRecord,
+  postReservation,
   resetUserInfo
 } from "./slice";
 import { QRCodeSVG } from "qrcode.react";
@@ -67,11 +67,11 @@ const genderObj = {
 export const PeopleAndTime = () => {
   const dispatch = useAppDispatch();
 
-  const availableBookings = useAppSelector(({ customerBooking }) => customerBooking.availableBookings);
-  const availablePeriod = useAppSelector(({ customerBooking }) => customerBooking.availablePeriod);
-  const choosedDate = useAppSelector(({ customerBooking }) => customerBooking.choosedDate);
-  const reservedAt = useAppSelector(({ customerBooking }) => customerBooking.bookingParams.reservedAt);
-  const adults = useAppSelector(({ customerBooking }) => customerBooking.bookingParams.user.adults);
+  const availableBookings = useAppSelector(({ customerReservation }) => customerReservation.availableBookings);
+  const availablePeriod = useAppSelector(({ customerReservation }) => customerReservation.availablePeriod);
+  const choosedDate = useAppSelector(({ customerReservation }) => customerReservation.choosedDate);
+  const reservedAt = useAppSelector(({ customerReservation }) => customerReservation.reservationParams.reservedAt);
+  const adults = useAppSelector(({ customerReservation }) => customerReservation.reservationParams.user.adults);
 
   const availableDate = availableBookings.map((availableBooking) => availableBooking.date);
   const choosedPeriodInfo = availablePeriod.find((availablePeriod) => availablePeriod.startedAt === reservedAt);
@@ -81,7 +81,7 @@ export const PeopleAndTime = () => {
       : Array.from({ length: choosedPeriodInfo?.peopleAmount ?? 1 }, (_, i) => i + 1);
 
   // [TODO]: add or remove children amount
-  // const children = useAppSelector(({ customerBooking }) => customerBooking.bookingParams.user.children);
+  // const children = useAppSelector(({ customerReservation }) => customerReservation.reservationParams.user.children);
   // const childrenOptionList = useMemo(
   //   () => Array.from({ length: children }, (_, i) => ({ value: i, label: `${i} 位小孩` })),
   //   [children]
@@ -210,9 +210,9 @@ export const BookerInfo = () => {
   const dispatch = useAppDispatch();
 
   const { name, gender, phone, email, remark } = useAppSelector(
-    ({ customerBooking }) => customerBooking.bookingParams.user
+    ({ customerReservation }) => customerReservation.reservationParams.user
   );
-  const isAgreedPrivacyPolicy = useAppSelector(({ customerBooking }) => customerBooking.isAgreedPrivacyPolicy);
+  const isAgreedPrivacyPolicy = useAppSelector(({ customerReservation }) => customerReservation.isAgreedPrivacyPolicy);
 
   const handleEnterName = (e: React.ChangeEvent<HTMLInputElement>) => {
     dispatch(setName(e.target.value));
@@ -347,9 +347,9 @@ interface IConfirmBookingInfoProps {
 }
 export const ConfirmBookingInfo = (props: IConfirmBookingInfoProps) => {
   const { isReminder = false } = props;
-  const reservedAt = useAppSelector(({ customerBooking }) => customerBooking.bookingParams.reservedAt);
+  const reservedAt = useAppSelector(({ customerReservation }) => customerReservation.reservationParams.reservedAt);
   const { name, gender, phone, email, remark, adults } = useAppSelector(
-    ({ customerBooking }) => customerBooking.bookingParams.user
+    ({ customerReservation }) => customerReservation.reservationParams.user
   );
 
   return (
@@ -392,10 +392,12 @@ export const BookingStep = (props: IBookingStepProps) => {
 
   const dispatch = useAppDispatch();
 
-  const step = useAppSelector(({ customerBooking }) => customerBooking.step);
-  const reservedAt = useAppSelector(({ customerBooking }) => customerBooking.bookingParams.reservedAt);
-  const { name, phone, email, adults } = useAppSelector(({ customerBooking }) => customerBooking.bookingParams.user);
-  const isAgreedPrivacyPolicy = useAppSelector(({ customerBooking }) => customerBooking.isAgreedPrivacyPolicy);
+  const step = useAppSelector(({ customerReservation }) => customerReservation.step);
+  const reservedAt = useAppSelector(({ customerReservation }) => customerReservation.reservationParams.reservedAt);
+  const { name, phone, email, adults } = useAppSelector(
+    ({ customerReservation }) => customerReservation.reservationParams.user
+  );
+  const isAgreedPrivacyPolicy = useAppSelector(({ customerReservation }) => customerReservation.isAgreedPrivacyPolicy);
 
   const isNotFirstStep = step !== 0;
   const isNotLastStep = step !== stepLength - 1;
@@ -422,7 +424,7 @@ export const BookingStep = (props: IBookingStepProps) => {
   };
 
   const handleConfirm = async () => {
-    await dispatch(postBookingRecord());
+    await dispatch(postReservation());
     dispatch(setDialog(CustomerBookingDialog.REMINDER));
   };
 
@@ -472,8 +474,8 @@ export const BookingStep = (props: IBookingStepProps) => {
 export const BookingRecordQueryModal = () => {
   const dispatch = useAppDispatch();
 
-  const queryString = useAppSelector(({ customerBooking }) => customerBooking.queryString);
-  const dialog = useAppSelector(({ customerBooking }) => customerBooking.dialog);
+  const queryString = useAppSelector(({ customerReservation }) => customerReservation.queryString);
+  const dialog = useAppSelector(({ customerReservation }) => customerReservation.dialog);
 
   const handleClose = () => {
     dispatch(setDialog(""));
@@ -518,7 +520,7 @@ export const BookingRecordQueryModal = () => {
 export const PrivacyPolicyModal = () => {
   const dispatch = useAppDispatch();
 
-  const dialog = useAppSelector(({ customerBooking }) => customerBooking.dialog);
+  const dialog = useAppSelector(({ customerReservation }) => customerReservation.dialog);
 
   const handleClose = () => {
     dispatch(setDialog(""));
@@ -615,9 +617,9 @@ export const ActionIcon = (props: IAtionIconProps) => {
 export const BookingReminderModal = () => {
   const dispatch = useAppDispatch();
 
-  const dialog = useAppSelector(({ customerBooking }) => customerBooking.dialog);
+  const dialog = useAppSelector(({ customerReservation }) => customerReservation.dialog);
   const { name, gender, phone, email, remark, adults } = useAppSelector(
-    ({ customerBooking }) => customerBooking.bookingParams.user
+    ({ customerReservation }) => customerReservation.reservationParams.user
   );
 
   const handleClose = () => {
@@ -706,8 +708,8 @@ export const BookingReminderModal = () => {
 export const BookingQRCodeModal = () => {
   const dispatch = useAppDispatch();
 
-  const dialog = useAppSelector(({ customerBooking }) => customerBooking.dialog);
-  const token = useAppSelector(({ customerBooking }) => customerBooking.token);
+  const dialog = useAppSelector(({ customerReservation }) => customerReservation.dialog);
+  const token = useAppSelector(({ customerReservation }) => customerReservation.token);
 
   const handleClose = () => {
     dispatch(setDialog(CustomerBookingDialog.REMINDER));

@@ -122,7 +122,7 @@ export interface ICustomerBookingSliceState {
   availableBookings: IAvailableBooking[];
   choosedDate: Timestamp;
   availablePeriod: IAvailableBookingPeriod[];
-  bookingParams: ICreateBookingParams;
+  reservationParams: ICreateBookingParams;
   queryString: string;
   dialog: CustomerBookingDialog;
   isAgreedPrivacyPolicy: boolean;
@@ -139,19 +139,6 @@ export type SeatReservationInfo = {
   seatNo: string;
   status: SeatStatus;
   details: ReservationInfo[];
-};
-
-export type ReservationInfo = {
-  reservationTime: Date;
-  id: string;
-  seats: string[];
-  options: { [key: string]: any };
-};
-
-type Seat = {
-  seatNo: string;
-  currentStatus: SeatStatus;
-  reservations: ReservationInfo[];
 };
 
 export type Member = {
@@ -178,3 +165,51 @@ export type SpecialtiesOnMeals = {
   specialtyId: string;
   mealId: string;
 };
+
+type PeriodInfo = {
+  id: string;
+  periodStartedAt: Date;
+  amount: number;
+  available: number;
+};
+
+type DatePeriodInfo = {
+  date: Date;
+  periods: PeriodInfo[];
+  totalAmount: number;
+  totalAvailable: number;
+};
+
+type ReservationRecord = {
+  periodStartedAt: Date;
+  periodEndedAt: Date;
+  options?: { [key: string]: any };
+};
+
+export type ReservationInfo = {
+  reservationTime: Date;
+  id: string;
+  seats: string[];
+  options: { [key: string]: any };
+};
+
+type SeatInfo = {
+  id: string;
+  seatNo: string;
+  status: "RESERVED" | "AVAILABLE" | "OCCUPIED";
+  date: Date;
+  current: ReservationInfo;
+};
+
+// type ReservationInfo = {
+//   startedAt: Date;
+//   endedAt: Date;
+//   customer?: {
+//     name?: string;
+//     title?: string;
+//     phone: string;
+//     email?: string;
+//     adults: number;
+//     children: number;
+//   };
+// };

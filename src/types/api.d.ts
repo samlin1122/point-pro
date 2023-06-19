@@ -1,5 +1,16 @@
 import { Menu, Order, Specialty, UserInfo } from "~/features/orders/type";
-import { Member, IMeal, ICategory, ISpecialty, ISpecialtyItem, IPaymentLog, IOrder, Seat, ReservationInfo } from ".";
+import {
+  Member,
+  IMeal,
+  ICategory,
+  ISpecialty,
+  ISpecialtyItem,
+  IPaymentLog,
+  IOrder,
+  SeatInfo,
+  ReservationInfo,
+  DatePeriodInfo
+} from ".";
 
 type Id = string;
 
@@ -186,37 +197,6 @@ type PaymentSliceState = {
   linePayConfirmResponse: LinePayConfirmResponse;
 };
 
-
-type PeriodInfo = {
-  id: string;
-  periodStartedAt: Date;
-  amount: number;
-  available: number;
-};
-
-type DatePeriodInfo = {
-  date: Date;
-  periods: PeriodInfo[];
-  totalAmount: number;
-  totalAvailable: number;
-};
-
-type SeatInfo = {
-  id: string;
-  seatNo: string;
-  amount: number;
-};
-
-type ReservationInfo = {
-  id: string;
-  reservedAt: Date;
-  type: string;
-  options: { [key as string]: any };
-  periodStartedAt: Date;
-  periodEndedAt: Date;
-  seats: SeatInfo[];
-};
-
 interface PostReservationPayload {
   type: string;
   options: { [key as string]: any };
@@ -224,7 +204,9 @@ interface PostReservationPayload {
   periodStartedAt: Date;
 }
 
-type GenericResponse = ApiResponse<>;
+type PeriodsResponse = ApiResponse<DatePeriodInfo>;
 
-type GetPeriodsResponse = ApiResponse<DatePeriod>;
-type PostReservationResponse = ApiResponse<ReservationInfo>;
+type ReservationResponse = ApiResponse<ReservationInfo>;
+type ReservationsResponse = ApiResponse<ReservationInfo[]>;
+
+type SeatsResponse = ApiResponse<SeatInfo[]>;
