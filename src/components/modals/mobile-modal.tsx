@@ -9,11 +9,15 @@ import { useAppDispatch, useAppSelector } from "~/app/hook";
 import { closeModal, deleteCartItem, openModal } from "~/features/orders/slice";
 import linePay from "~/assets/images/line-pay.png";
 import { MobileModal } from "~/types/common";
+import { requestLinePay } from "~/app/slices/payment";
+import { useEffect, useState } from "react";
 
 interface IMobileModalLayout {
   children: React.ReactNode;
   open: boolean;
 }
+
+const HOST = import.meta.env.VITE_APP_HOST;
 
 const MobileModalLayout = (props: IMobileModalLayout) => {
   const { children, open } = props;
@@ -86,6 +90,7 @@ const Payment = () => {
 
   const currentModal = useAppSelector(({ takeOrder }) => takeOrder.currentModal);
   const orders = useAppSelector(({ order }) => order.orders);
+  const linePayResponse = useAppSelector(({ payment }) => payment.linePayResponse);
 
   const handlePaymentByCash = () => {
     dispatch(
@@ -95,13 +100,32 @@ const Payment = () => {
     );
   };
 
-  const handlePaymentByCard = () => {
+  const handlePaymentByCard = async () => {
     // [TODO]: jump to NewebPay
+    console.log(orders);
   };
 
-  const handlePaymentByLinePay = () => {
+  const handlePaymentByLinePay = async () => {
     // [TODO]: jump to LINEPay
+    console.log(orders);
+    const orderIds = orders.filter((order) => order.status !== "UNPAID").map((order) => order.id);
+    await dispatch(
+      requestLinePay({
+        orderId: orderIds,
+        confirmUrl: `${HOST}/payment/confirm`,
+        cancelUrl: `${HOST}/payment/cancel`
+      })
+    );
   };
+
+  useEffect(() => {
+    if (linePayResponse) {
+      if (linePayResponse?.result.returnCode === "0000") {
+        console.log(linePayResponse.result.info);
+        window.location.href = linePayResponse.result.info.paymentUrl.web;
+      }
+    }
+  }, [linePayResponse]);
 
   return (
     <MobileModalLayout open={currentModal === MobileModal.PAYMENT}>

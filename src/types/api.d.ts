@@ -97,7 +97,7 @@ interface updateImgPayload {}
 type updateImgResponse = ApiResponse<{ string }>;
 
 interface LinePayRequestBody {
-  orderId: Id;
+  orderId: Id | Id[];
   confirmUrl: string;
   cancelUrl: string;
 }
@@ -108,7 +108,7 @@ interface LinePayConfirmProps {
 }
 
 interface EcPayResponseBody {
-  orderId: Id;
+  orderId: Id | Id[];
   confirmUrl: string;
 }
 

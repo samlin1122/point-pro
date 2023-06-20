@@ -263,6 +263,7 @@ const Orders = (props: IOrders) => {
 
   const [orderStatus, setOrderStatus] = useState(orderStatusTab);
   const [toggleList, setToggleList] = useState<Order["id"][]>([]);
+  const [canPay, setCanPay] = useState<boolean>(false);
 
   const showOrders = orders.filter(({ status }) => MOBILE_ORDER_STATUS_TAB[orderStatus].type.includes(status));
 
@@ -277,6 +278,12 @@ const Orders = (props: IOrders) => {
       setToggleList((prevToggleList) => [...prevToggleList, newOrder.id]);
     }
   }, [orders]);
+
+  useEffect(() => {
+    orders.filter(({ status }) => status === "SUCCESS").length === showOrders.length
+      ? setCanPay(true)
+      : setCanPay(false);
+  }, [showOrders]);
 
   const handleClose = () => {
     dispatch(closeDialog());
@@ -318,7 +325,11 @@ const Orders = (props: IOrders) => {
               </Typography>
             </Box>
           )}
-          {orderStatus === 0 && showOrders.length > 0 && <Button onClick={handleCheckout}>前往結帳</Button>}
+          {orderStatus === 0 && showOrders.length > 0 && (
+            <Button disabled={!canPay} variant="contained" color="primary" onClick={handleCheckout}>
+              前往結帳
+            </Button>
+          )}
         </>
       }
     >

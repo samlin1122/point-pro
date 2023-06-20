@@ -26,7 +26,7 @@ const initialState: PaymentSliceState = {
 
 export const requestCashPayment = createAsyncThunk(
   `${name}/cashPaymentRequest`,
-  async (orderId: Id, { rejectWithValue }) => {
+  async (orderId: Id | Id[], { rejectWithValue }) => {
     try {
       const response = await PaymentApi.cashPaymentRequest(orderId);
       return response;

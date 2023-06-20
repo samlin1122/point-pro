@@ -35,7 +35,7 @@ export const paymentEcPayCancel = () => {
   return http.post<string, EcPayResponse>("/payment/ec-pay/cancel");
 };
 
-export const cashPaymentRequest = (orderId: Id) => {
+export const cashPaymentRequest = (orderId: Id | Id[]) => {
   return http.post<string, CashPaymentResponse>(`/payment/cash/request`, {
     orderId
   });
