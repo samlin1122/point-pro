@@ -1,5 +1,5 @@
 // Lib
-import { SyntheticEvent, useEffect, useState } from "react";
+import { ChangeEvent, useEffect, useState } from "react";
 import {
   Accordion,
   AccordionDetails,
@@ -44,7 +44,7 @@ const PaymentDrawer = (props: PaymentDrawerProps) => {
   const [canPay, setCanPay] = useState<boolean>(false);
 
   const [selectPayment, setSelectPayment] = useState<string>("");
-  const [cash, setCash] = useState<number>(0);
+  const [cash, setCash] = useState(0);
 
   const totalPrice = order?.orderMeals.reduce((acc, item) => acc + item.price, 0) as number;
 
@@ -136,9 +136,9 @@ const PaymentDrawer = (props: PaymentDrawerProps) => {
   };
 
   const CashPaymentForm = () => {
-    const handleCountCash = (e: SyntheticEvent) => {
-      const value = (e.target as HTMLInputElement).value;
-      setCash(Number(value));
+    const handleCountCash = (e: ChangeEvent<HTMLInputElement>) => {
+      const value = Number(e.target.value.replace(/^0+(?!$)/, ""));
+      setCash(value);
       if (Number(value) >= totalPrice) {
         setCanPay(true);
       } else {
@@ -176,7 +176,7 @@ const PaymentDrawer = (props: PaymentDrawerProps) => {
     {
       label: "現金結帳",
       icon: <MoneyIcon />,
-      content: <CashPaymentForm />,
+      content: CashPaymentForm,
       target: "cash"
     },
     {
@@ -279,7 +279,9 @@ const PaymentDrawer = (props: PaymentDrawerProps) => {
                       </Typography>
                     </Row>
                   </AccordionSummary>
-                  <AccordionDetails sx={{ padding: "2.25rem 1.5rem" }}>{payment.content}</AccordionDetails>
+                  {payment.content ? (
+                    <AccordionDetails sx={{ padding: "2.25rem 1.5rem" }}>{payment.content()}</AccordionDetails>
+                  ) : null}
                 </Accordion>
               )
             )

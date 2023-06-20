@@ -21,7 +21,7 @@ const SeatTabs = (props: ISeatViewProps) => {
 
   return (
     <Tabs
-      sx={{ position: "sticky", top: "0", zIndex: "10", backgroundColor: "background.paper" }}
+      sx={{ position: "sticky", top: "0", zIndex: "10", backgroundColor: "background.paper", height: "50px" }}
       onChange={(_, value) => setView(value)}
       value={view}
     >

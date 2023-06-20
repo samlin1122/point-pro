@@ -198,7 +198,7 @@ export const CategoryNavbar = () => {
             border: "1px solid",
             borderColor: "common.black_40",
             position: "absolute",
-            overflowY: "scroll",
+            overflowY: "auto",
             zIndex: 2,
             bgcolor: "common.white",
             width: "100%"

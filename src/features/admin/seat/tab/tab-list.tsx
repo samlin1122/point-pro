@@ -20,6 +20,7 @@ import {
   GridRenderCellParams
 } from "@mui/x-data-grid";
 import appDayjs, { formatTimeOnly } from "~/utils/dayjs.util";
+import { headerHeight } from "~/components/header";
 
 const rows: GridRowsProp = [
   {
@@ -271,8 +272,9 @@ const TabList = (props: ISeatTableProps) => {
   return (
     <Box
       sx={{
-        height: "calc(100vh - 18rem)",
-        width: "100%"
+        height: `calc(100vh - ${headerHeight} - 50px - 72px)`,
+        width: "100%",
+        overflow: "auto"
       }}
     >
       <DataGrid

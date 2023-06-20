@@ -28,7 +28,7 @@ const SeatSearchBar = (props: ISeatSearchBarProps) => {
         display: "flex",
         width: "100%",
         gap: "1rem",
-        height: "4.5rem",
+        height: "72px",
         padding: "1rem",
         borderBottom: (theme) => `1px solid ${theme.palette.divider}`
       }}

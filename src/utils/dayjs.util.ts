@@ -31,7 +31,7 @@ export default appDayjs;
 export const dateForm = {
   fullDateWithTime: "YYYY年MM月DD日 HH:mm",
   fullDate: "YYYY年MM月DD日",
-  dateWithTimeAMPM: "MM月DD日 Ah:mm",
+  dateWithTime: "MM月DD日 HH:mm",
   dateOnly: "MM月DD日",
   yearOnly: "YYYY年",
   timeOnly: "HH:mm"

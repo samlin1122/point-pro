@@ -67,6 +67,7 @@ const Header: FC<RouterProps> = ({ location, navigate }) => {
           borderBottom: 0.5,
           borderColor: "divider",
           boxShadow: "none",
+          height: headerHeight,
           "& .MuiToolbar-root": {
             padding: 0
           }
@@ -78,9 +79,9 @@ const Header: FC<RouterProps> = ({ location, navigate }) => {
             onClick={() => setIsLeftMenuOpen((val) => !val)}
             sx={{
               bgcolor: (theme) => theme.palette.primary.main,
-              width: isLeftMenuOpen ? drawerWidth : "100px",
-              py: 2,
-              pl: 2,
+              width: isLeftMenuOpen ? drawerWidth : "112px",
+              p: 2,
+              // pl: 2,
               position: "relative",
               display: "flex",
               alignItems: "center",
@@ -120,6 +121,7 @@ const Header: FC<RouterProps> = ({ location, navigate }) => {
                 ml: 1,
                 width: "24px",
                 height: "24px",
+                color: (theme) => theme.palette.common.black,
                 transition: "0.5s cubic-bezier(0, 0, 0.2, 1) ",
                 transform: `rotateY(${isLeftMenuOpen ? 180 : 0}deg)`
               }}
@@ -130,7 +132,7 @@ const Header: FC<RouterProps> = ({ location, navigate }) => {
           <Typography variant="h2" sx={{ flexGrow: 1, pl: 2 }}>
             {pageTitle()}
           </Typography>
-          <Typography sx={{ pr: 2 }}>{appDayjs().format(dateForm.dateWithTimeAMPM)}</Typography>
+          <Typography sx={{ pr: 2 }}>{appDayjs().format(dateForm.dateWithTime)}</Typography>
 
           {/* action icon */}
           <Box

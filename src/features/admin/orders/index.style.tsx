@@ -120,7 +120,6 @@ export const PendingOrderItem = (props: PendingOrderItemProps) => {
     setOpenPayment(true);
   };
 
-
   return (
     <Accordion
       expanded={expanded}
@@ -282,7 +281,13 @@ export const OrderTabs = () => {
 
   return (
     <TabsBase
-      sx={{ position: "sticky", top: "0", zIndex: "10", backgroundColor: theme.palette.background.paper }}
+      sx={{
+        position: "sticky",
+        top: "0",
+        zIndex: "10",
+        backgroundColor: theme.palette.background.paper,
+        height: "54px"
+      }}
       tabs={ORDER_STATUS}
       onChange={(_, value) => handleSelected(value as OrderStatus)}
       value={status}
@@ -309,13 +314,21 @@ export const OrderList = (props: OrderListProps) => {
   return (
     <>
       {orders.length === 0 ? (
-        <Column justifyContent="center" bgcolor="background.paper" height={`calc(80ch - ${headerHeight})`}>
+        <Column justifyContent="center" bgcolor="background.paper" height={`calc(100vh - ${headerHeight} - 54px )`}>
           <Typography variant="h4" textAlign="center" color="text.disabled">
             無此分類訂單
           </Typography>
         </Column>
       ) : (
-        <Box sx={{ display: "flex", flexDirection: "column", gap: "0.75rem", margin: "0.75rem" }}>
+        <Box
+          sx={{
+            display: "flex",
+            flexDirection: "column",
+            gap: "0.75rem",
+            margin: "0.75rem",
+            height: `calc(100vh - ${headerHeight} - 54px )`
+          }}
+        >
           {orders.map((order) => (
             <PendingOrderItem
               key={order.id}

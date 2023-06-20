@@ -39,6 +39,7 @@ export const DrawerBase: FC<DrawerBaseProps> = ({
       sx={{
         flexShrink: 0,
         "& .MuiDrawer-paper": { width, pt: headerHeight, boxSizing: "border-box" },
+        "& .MuiIconButton-sizeLarge": { width: "46px", height: "46px" },
         ...sx
       }}
       {...props}

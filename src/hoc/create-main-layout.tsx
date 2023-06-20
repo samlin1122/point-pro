@@ -22,7 +22,7 @@ function withMainLayout<T extends Record<string, unknown>>(Component: FC<T & Rou
   const WrappedHeader = withRouter(Header);
 
   return (props: T) => (
-    <Box sx={{ position: "relative", minWidth: "100vw", minHeight: "100vh" }}>
+    <Box sx={{ position: "relative", width: "100%", maxWidth: "100vw", height: "100%", maxHeight: "100vh" }}>
       <WrappedHeader />
       <Box sx={{ height: `calc( 100vh - ${headerHeight} )`, overflow: "auto" }}>
         <WrappedComponent {...props} />

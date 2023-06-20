@@ -4,6 +4,7 @@ import { useLocation, useNavigate } from "react-router-dom";
 import { Box, List, ListItem, ListItemButton, ListItemIcon, ListItemText } from "@mui/material";
 import { KeyboardArrowDown } from "@mui/icons-material";
 import { DrawerBase } from "./drawer-base";
+import LabelIcon from "@mui/icons-material/Label";
 // Libs
 import { SideBarItemType, sideBarItemList } from "~/utils/constants";
 import theme from "~/theme";
@@ -34,7 +35,7 @@ const LeftMenuDrawer = (props: LeftMenuDrawerProps) => {
 
   return (
     <DrawerBase anchor="left" open={open} width={drawerWidth} onClose={() => setOpen(false)} hideCloseButton sx={{}}>
-      <Box sx={{ overflow: "scroll", height: "100%" }}>
+      <Box sx={{ overflow: "auto", height: "100%" }}>
         <List sx={{ padding: 0 }}>
           {sideBarItemList.map((item) => (
             <Fragment key={item.id}>
@@ -63,7 +64,10 @@ const LeftMenuDrawer = (props: LeftMenuDrawerProps) => {
                           bgcolor: pathname === subMenuItem.path ? theme.palette.primary.light : "inherit"
                         }}
                       >
-                        <ListItemButton sx={{ pl: 11 }}>
+                        <ListItemButton sx={{ pl: 9 }}>
+                          <ListItemIcon>
+                            <LabelIcon />
+                          </ListItemIcon>
                           <ListItemText primary={subMenuItem.name} />
                         </ListItemButton>
                       </ListItem>

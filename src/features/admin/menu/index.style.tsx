@@ -52,6 +52,7 @@ export const MenuTabs = () => {
         top: "0",
         zIndex: "2",
         backgroundColor: theme.palette.background.paper,
+        height: "48px",
         [`& .${tabsClasses.scrollButtons}.Mui-disabled`]: {
           opacity: 0.2
         }
@@ -265,19 +266,14 @@ export const MealList = () => {
       <Box
         sx={{
           p: 2,
-          overflowY: "scroll",
-          height: `calc(100vh - ${headerHeight} - 4rem)`
+          overflowY: "auto",
+          maxHeight: `calc(100vh - ${headerHeight} - 48px)`
         }}
       >
         {menu.map(
           (category) =>
             category.id === currentCategory && (
-              <TabPanel
-                key={category.id}
-                value={category.position}
-                index={category.position}
-                sx={{ paddingBottom: "26rem" }}
-              >
+              <TabPanel key={category.id} value={category.position} index={category.position}>
                 <GridBase columns="5" gap="1rem">
                   {category.meals.length > 0 &&
                     category.meals.map((meal) => (
@@ -430,7 +426,7 @@ export const CartList = () => {
             {/* 購物車項目 */}
             <List
               sx={{
-                overflowY: "scroll",
+                overflowY: "auto",
                 flexGrow: 1,
                 height: `calc(100vh - ${headerHeight} - 16rem)`,
                 padding: ".5rem"
