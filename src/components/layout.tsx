@@ -5,6 +5,7 @@ import { InputText, InputTextarea, InputDate } from "./input";
 import File from "./file";
 import { CheckboxBase } from "./checkbox";
 import { SelectBase } from "./select";
+import { headerHeight } from "./header";
 
 interface Props {
   length?: Number;
@@ -25,7 +26,7 @@ export const Column = styled(Box)(() => ({
 
 export const Base = styled(Box)(() => ({
   padding: "24px",
-  minHeight: "calc(100vh - 88px)"
+  minHeight: `calc(100vh - ${headerHeight})`
 }));
 
 interface FieldContainerPropsType {

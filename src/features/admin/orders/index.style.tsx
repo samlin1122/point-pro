@@ -31,6 +31,7 @@ import { calculateOrderPrice } from "~/utils/price.utils";
 import theme from "~/theme";
 import { TabletModal } from "~/components/modals";
 import { OrderStatus, OrderType } from "~/types/common";
+import { headerHeight } from "~/components/header";
 
 const VerticalDivider = styled("div")(({ theme }) => ({
   height: "32px",
@@ -63,13 +64,13 @@ function LinearProgressWithLabel(props: LinearProgressProps & { value: number })
   );
 }
 
-interface IOrderItemProps {
+type PendingOrderItemProps = {
   order: Order;
   setDeleteOrderId: React.Dispatch<React.SetStateAction<string>>;
   setOpenPayment: React.Dispatch<React.SetStateAction<boolean>>;
   onPayment: (order: Order) => void;
-}
-export const OrderItem = (props: IOrderItemProps) => {
+};
+export const PendingOrderItem = (props: PendingOrderItemProps) => {
   const dispatch = useAppDispatch();
 
   const { order, setDeleteOrderId, setOpenPayment, onPayment } = props;
@@ -265,6 +266,11 @@ export const OrderItem = (props: IOrderItemProps) => {
   );
 };
 
+type UnpaidOrderItemProps = {};
+export const UnpaidOrderItem = (props: UnpaidOrderItemProps) => {
+  return <></>;
+};
+
 export const OrderTabs = () => {
   const dispatch = useAppDispatch();
   const status = useAppSelector(({ order }) => order.status);
@@ -302,7 +308,7 @@ export const OrderList = (props: OrderListProps) => {
   return (
     <>
       {orders.length === 0 ? (
-        <Column justifyContent="center" bgcolor="background.paper" height="calc(80ch - 88px)">
+        <Column justifyContent="center" bgcolor="background.paper" height={`calc(80ch - ${headerHeight})`}>
           <Typography variant="h4" textAlign="center" color="text.disabled">
             無此分類訂單
           </Typography>
@@ -310,7 +316,7 @@ export const OrderList = (props: OrderListProps) => {
       ) : (
         <Box sx={{ display: "flex", flexDirection: "column", gap: "0.75rem", margin: "0.75rem" }}>
           {orders.map((order) => (
-            <OrderItem
+            <PendingOrderItem
               key={order.id}
               order={order}
               setDeleteOrderId={setDeleteOrderId}

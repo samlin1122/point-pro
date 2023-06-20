@@ -1,7 +1,7 @@
 import { FC } from "react";
 import { useLocation, useNavigate, useParams } from "react-router-dom";
 
-import Header from "~/components/header";
+import Header, { headerHeight } from "~/components/header";
 import { Box } from "@mui/material";
 
 import { RouterProps } from "~/types";
@@ -24,7 +24,7 @@ function withMainLayout<T extends Record<string, unknown>>(Component: FC<T & Rou
   return (props: T) => (
     <Box sx={{ position: "relative", minWidth: "100vw", minHeight: "100vh" }}>
       <WrappedHeader />
-      <Box sx={{ height: "calc( 100vh - 88px )", overflow: "auto" }}>
+      <Box sx={{ height: `calc( 100vh - ${headerHeight} )`, overflow: "auto" }}>
         <WrappedComponent {...props} />
       </Box>
     </Box>

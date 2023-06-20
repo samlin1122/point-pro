@@ -62,25 +62,27 @@ export const DrawerBase: FC<DrawerBaseProps> = ({
       <Stack sx={{ height: "inherit" }} overflow="auto">
         {children}
       </Stack>
-      <Stack
-        direction="row"
-        sx={{ py: 2, px: 3, borderTop: (theme) => `1px solid ${theme.palette.divider}` }}
-        spacing={2}
-      >
-        {buttonList?.map((btn, key) => (
-          <Button
-            key={`drawer-button-${btn.label}`}
-            fullWidth
-            variant="contained"
-            onClick={() => btn.onClick(btn.label)}
-            disabled={!btn.isEnabled}
-            sx={{ height: 80 }}
-            color={key % 2 ? "secondary" : "primary"}
-          >
-            {btn.label}
-          </Button>
-        ))}
-      </Stack>
+      {buttonList.length > 0 && (
+        <Stack
+          direction="row"
+          sx={{ py: 2, px: 3, borderTop: (theme) => `1px solid ${theme.palette.divider}` }}
+          spacing={2}
+        >
+          {buttonList.map((btn, key) => (
+            <Button
+              key={`drawer-button-${btn.label}`}
+              fullWidth
+              variant="contained"
+              onClick={() => btn.onClick(btn.label)}
+              disabled={!btn.isEnabled}
+              sx={{ height: 80 }}
+              color={key % 2 ? "secondary" : "primary"}
+            >
+              {btn.label}
+            </Button>
+          ))}
+        </Stack>
+      )}
     </Drawer>
   );
 };

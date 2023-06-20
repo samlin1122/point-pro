@@ -33,8 +33,8 @@ const LeftMenuDrawer = (props: LeftMenuDrawerProps) => {
   };
 
   return (
-    <DrawerBase anchor="left" open={open} width={drawerWidth} onClose={() => setOpen(false)} hideCloseButton>
-      <Box sx={{ overflow: "scroll" }}>
+    <DrawerBase anchor="left" open={open} width={drawerWidth} onClose={() => setOpen(false)} hideCloseButton sx={{}}>
+      <Box sx={{ overflow: "scroll", height: "100%" }}>
         <List sx={{ padding: 0 }}>
           {sideBarItemList.map((item) => (
             <Fragment key={item.id}>

@@ -29,6 +29,7 @@ import { InputNumber } from "~/features/orders/index.styles";
 import theme from "~/theme";
 import { CartItem, Meal, DialogType, Specialty, SpecialtyItem } from "~/features/orders/type";
 import { calculateCartPrice } from "~/utils/price.utils";
+import { headerHeight } from "~/components/header";
 
 export const MenuTabs = () => {
   const dispatch = useAppDispatch();
@@ -265,7 +266,7 @@ export const MealList = () => {
         sx={{
           p: 2,
           overflowY: "scroll",
-          height: "calc(100vh - 88px - 4rem)"
+          height: `calc(100vh - ${headerHeight} - 4rem)`
         }}
       >
         {menu.map(
@@ -431,7 +432,7 @@ export const CartList = () => {
               sx={{
                 overflowY: "scroll",
                 flexGrow: 1,
-                height: `calc(100vh - 88px - 16rem)`,
+                height: `calc(100vh - ${headerHeight} - 16rem)`,
                 padding: ".5rem"
               }}
             >

@@ -5,6 +5,7 @@ import { useAppDispatch } from "~/app/hook";
 import { getMenu } from "~/features/orders/slice";
 import { Grid } from "@mui/material";
 import theme from "~/theme";
+import { headerHeight } from "~/components/header";
 
 export const MenuContainer = () => {
   const dispatch = useAppDispatch();
@@ -14,7 +15,7 @@ export const MenuContainer = () => {
   }, []);
 
   return (
-    <Grid container sx={{ height: "calc(100vh - 88px)" }}>
+    <Grid container sx={{ height: `calc(100vh - ${headerHeight})` }}>
       <Grid item xs={8} sx={{ overflow: "hidden" }}>
         <MenuTabs />
         <MealList />

@@ -15,12 +15,14 @@ import theme from "~/theme";
 import LeftMenuDrawer from "../drawer/LeftMenuDrawer";
 import NotificationDrawer from "../drawer/NotificationDrawer";
 import { flatSideBarItemList } from "~/utils/constants";
+import { useParams } from "react-router-dom";
 
 const drawerWidth = "300px";
-export const headerHeight = "73px";
+export const headerHeight = "72px";
 
 const Header: FC<RouterProps> = ({ location, navigate }) => {
   const dispatch = useAppDispatch();
+  const { meal_id } = useParams();
 
   const [isLeftMenuOpen, setIsLeftMenuOpen] = useState(false);
   const [isNotificationOpen, setIsNotificationOpen] = useState(false);
@@ -43,6 +45,15 @@ const Header: FC<RouterProps> = ({ location, navigate }) => {
   const handleLogout = () => {
     localStorage.removeItem("token");
     navigate({ pathname: "/admin" });
+  };
+
+  const pageTitle = () => {
+    const routerInfo = flatSideBarItemList.find((item) => item.path === location.pathname) ?? null;
+    if (routerInfo?.name) {
+      return routerInfo.name;
+    } else {
+      return meal_id === "create" ? "新增菜單" : "編輯菜單";
+    }
   };
 
   return (
@@ -79,7 +90,6 @@ const Header: FC<RouterProps> = ({ location, navigate }) => {
               overflow: "hidden",
               whiteSpace: "nowrap",
               transition: "225ms cubic-bezier(0, 0, 0.2, 1)",
-              borderBottom: (theme) => `1px solid ${theme.palette.divider}`,
               "&:hover": {
                 bgcolor: (theme) => theme.palette.primary.main
               }
@@ -118,7 +128,7 @@ const Header: FC<RouterProps> = ({ location, navigate }) => {
 
           {/* page title */}
           <Typography variant="h2" sx={{ flexGrow: 1, pl: 2 }}>
-            {flatSideBarItemList.find((item) => item.path === location.pathname)?.name ?? ""}
+            {pageTitle()}
           </Typography>
           <Typography sx={{ pr: 2 }}>{appDayjs().format(dateForm.dateWithTimeAMPM)}</Typography>
 

@@ -17,6 +17,7 @@ import { useAppDispatch, useAppSelector } from "~/app/hook";
 import { getMealById, postMeal, patchMealById, deleteMeal } from "~/app/slices/meal";
 import { uploadImg } from "~/app/slices/imgur";
 import { Categories, Specialties } from "~/app/selector";
+import { headerHeight } from "~/components/header";
 
 export const MealListDetailContainer: FC<RouterProps> = ({ params, navigate }) => {
   const isCreate = params.meal_id === "create";
@@ -148,7 +149,7 @@ export const MealListDetailContainer: FC<RouterProps> = ({ params, navigate }) =
   };
   return (
     <Base>
-      <Stack sx={{ flexWrap: "wrap", maxHeight: "calc(100vh - 88px - 47px)", gap: 5 }}>
+      <Stack sx={{ flexWrap: "wrap", maxHeight: `calc(100vh - ${headerHeight} - 47px)`, gap: 5 }}>
         {fieldList.map((config) => (
           <FieldContainer
             key={`meal-${config.id}`}

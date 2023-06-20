@@ -3,6 +3,7 @@ import { FC, Fragment } from "react";
 import { Stack, Typography, Box } from "@mui/material";
 import { ReactComponent as CircleTable } from "~/assets/images/table-circle.svg";
 import { ReactComponent as NormalTable } from "~/assets/images/table-normal.svg";
+import { headerHeight } from "~/components/header";
 
 interface TabTablePros {}
 
@@ -78,7 +79,7 @@ const arr = [...Array(26).keys()].map((i) => String.fromCharCode(i + 65));
 
 export const TabTable: FC<TabTablePros> = () => {
   return (
-    <Stack direction="row" sx={{ p: 0, height: "calc(100vh - 88px - 49px - 72px)", width: "100%" }}>
+    <Stack direction="row" sx={{ p: 0, height: `calc(100vh - ${headerHeight} - 49px - 72px)`, width: "100%" }}>
       <Stack
         width={200}
         alignItems="center"
