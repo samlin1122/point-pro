@@ -17,7 +17,7 @@ interface IMobileModalLayout {
   open: boolean;
 }
 
-const HOST = import.meta.env.VITE_APP_HOST;
+const HOST = import.meta.env.VITE_APP_HOST_DEV;
 
 const MobileModalLayout = (props: IMobileModalLayout) => {
   const { children, open } = props;

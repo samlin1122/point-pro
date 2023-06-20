@@ -87,7 +87,7 @@ const PaymentDrawer = (props: PaymentDrawerProps) => {
 
   const handlePaymentRequest = async (id: string) => {
     console.log(id);
-    const HOST = import.meta.env.VITE_APP_HOST;
+    const HOST = import.meta.env.VITE_APP_HOST_DEV;
     if (selectPayment === "line-pay") {
       await dispatch(
         requestLinePay({
