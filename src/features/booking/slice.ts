@@ -73,9 +73,7 @@ export const postReservation = createAppAsyncThunk(`${name}/postReservation`, as
       periodStartedAt: new Date(reservationParams.reservedAt)
     });
 
-    const token = await generateToken({ reservationLogId: result.id });
-
-    return { ...result, token };
+    return result;
   } catch (error) {
     // [TODO]: handle error
     console.log(error);
@@ -178,6 +176,8 @@ export const customerBookingSlice = createSlice({
       })
       .addCase(postReservation.fulfilled, (state, action) => {
         state.token = action.payload.token;
+        state.reservationParams.id = action.payload.id;
+        state.reservationParams.reservedAt = action.payload.reservedAt;
         state.isLoading = false;
       })
       .addCase(postReservation.pending, (state, action) => {

@@ -710,11 +710,13 @@ export const BookingQRCodeModal = () => {
 
   const dialog = useAppSelector(({ customerReservation }) => customerReservation.dialog);
   const token = useAppSelector(({ customerReservation }) => customerReservation.token);
+  const reservationLogId = useAppSelector(({ customerReservation }) => customerReservation.reservationParams.id);
 
   const handleClose = () => {
     dispatch(setDialog(CustomerBookingDialog.REMINDER));
   };
 
+  console.log((import.meta.env.DEV ? "http://" : "https://") + window.location.host + "/orders?token=" + token ?? "");
   return (
     <MobileDialogLayout
       title={
@@ -736,10 +738,14 @@ export const BookingQRCodeModal = () => {
         }}
       >
         <QRCodeSVG
-          value={(import.meta.env.DEV ? "http://" : "https://") + window.location.host + "/order?token=" + token ?? ""}
+          value={(import.meta.env.DEV ? "http://" : "https://") + window.location.host + "/orders?token=" + token ?? ""}
         ></QRCodeSVG>
       </Box>
-      <ConfirmBookingTextField label="訂位編號" value={"5f02-4e28-eo29"} icon={<QrCodeIcon />} />
+      <ConfirmBookingTextField
+        label="訂位編號"
+        value={reservationLogId ? reservationLogId.slice(0, 12) : "5f02-4e28-eo29"}
+        icon={<QrCodeIcon />}
+      />
     </MobileDialogLayout>
   );
 };

@@ -203,9 +203,28 @@ interface PostReservationPayload {
   periodStartedAt: Date;
 }
 
+type PartialSeat = {
+  id: string;
+  seatNo: string;
+  amount: number;
+};
+
+type CreateReservation = {
+  id: string;
+  reservedAt: Date;
+  options: { [key: string]: any };
+  periodStartedAt: Date;
+  periodEndedAt: Date;
+  token: string;
+  seats: PartialSeat[];
+};
+
+type PostReservationResponse = ApiResponse<CreateReservation>;
+
 type PeriodsResponse = ApiResponse<DatePeriodInfo>;
 
 type ReservationResponse = ApiResponse<ReservationInfo>;
+
 type ReservationsResponse = ApiResponse<ReservationInfo[]>;
 
 type SeatsResponse = ApiResponse<SeatInfo[]>;
