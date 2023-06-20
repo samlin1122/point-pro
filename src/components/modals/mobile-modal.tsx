@@ -17,7 +17,7 @@ interface IMobileModalLayout {
   open: boolean;
 }
 
-const HOST = import.meta.env.VITE_APP_HOST_DEV;
+const { host } = location;
 
 const MobileModalLayout = (props: IMobileModalLayout) => {
   const { children, open } = props;
@@ -111,8 +111,8 @@ const Payment = () => {
     await dispatch(
       requestLinePay({
         orderId: orderIds,
-        confirmUrl: `${HOST}/payment/confirm`,
-        cancelUrl: `${HOST}/payment/cancel`
+        confirmUrl: `${host}/payment/confirm`,
+        cancelUrl: `${host}/payment/cancel`
       })
     );
   };
