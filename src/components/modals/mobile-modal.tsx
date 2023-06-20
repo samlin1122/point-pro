@@ -107,7 +107,6 @@ const Payment = () => {
 
   const handlePaymentByLinePay = async () => {
     // [TODO]: jump to LINEPay
-    console.log(orders);
     const orderIds = orders.filter((order) => order.status !== "UNPAID").map((order) => order.id);
     await dispatch(
       requestLinePay({

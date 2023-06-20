@@ -280,7 +280,7 @@ const Orders = (props: IOrders) => {
   }, [orders]);
 
   useEffect(() => {
-    orders.filter(({ status }) => status === "SUCCESS").length === showOrders.length
+    orders.filter(({ status }) => status === "UNPAID").length === showOrders.length
       ? setCanPay(true)
       : setCanPay(false);
   }, [showOrders]);
