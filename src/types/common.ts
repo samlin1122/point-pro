@@ -23,9 +23,9 @@ export enum OrderStatusTitle {
 }
 
 export enum PaymentGateway {
-  LINE_PAY = "LinePay",
-  CASH = "Cash",
-  EC_PAY = "EcPay"
+  LINE_PAY = "LINE_PAY",
+  CASH = "CASH",
+  EC_PAY = "EC_PAY"
 }
 
 export enum BookingType {

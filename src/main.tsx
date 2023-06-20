@@ -13,12 +13,12 @@ import theme from "./theme";
 import "./index.css";
 
 ReactDOM.createRoot(document.getElementById("root") as HTMLElement).render(
-  <React.StrictMode>
-    <ThemeProvider theme={theme}>
-      <Provider store={store}>
-        <CssBaseline />
-        <RouterProvider router={router} />
-      </Provider>
-    </ThemeProvider>
-  </React.StrictMode>
+  // <React.StrictMode>
+  <ThemeProvider theme={theme}>
+    <Provider store={store}>
+      <CssBaseline />
+      <RouterProvider router={router} />
+    </Provider>
+  </ThemeProvider>
+  // </React.StrictMode>
 );

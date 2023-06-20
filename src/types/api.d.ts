@@ -178,7 +178,6 @@ interface CashPaymentPayload {
 }
 
 interface LinePayConfirmPayload {
-  orderLog: IOrder;
   paymentLog: IPaymentLog;
   result: ConfirmResponseBody;
 }

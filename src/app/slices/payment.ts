@@ -80,12 +80,17 @@ export const confirmLinePay = createAsyncThunk(
     try {
       const { transactionId, orderId } = Ids;
       const response = await PaymentApi.paymentLinePayConfirm(transactionId, orderId);
-      const { message } = response;
       console.log("Api Response:", response);
-      const result = response.result.response.body.info;
-      const paymentLog = response.result.paymentLog;
-      const orderLog = response.result.orderLog;
-      return { message, result, paymentLog, orderLog };
+      const { message, result } = response;
+      const { paymentLog } = result;
+      const info = result.response.body.info;
+      return {
+        message,
+        result: {
+          paymentLog,
+          result: info
+        }
+      };
     } catch (error) {
       if (error instanceof Error) {
         return rejectWithValue({ message: error.message });

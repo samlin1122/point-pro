@@ -65,6 +65,7 @@ export interface IOrder {
 }
 
 export interface IPaymentLog {
+  order: any;
   orderId: IOrder["id"];
   paymentNo: string;
   price: number;
@@ -83,6 +84,19 @@ export interface OrderMeal {
   isServed: boolean;
   specialties: ISpecialty[];
   categories: ICategory[];
+  mealDetails?: string;
+  meal?: IMeal;
+}
+
+export interface MealDetail {
+  id: string;
+  type: string;
+  title: string;
+  items: {
+    id: string;
+    title: string;
+    price: number;
+  }[];
 }
 
 export interface IBookingInfo {
