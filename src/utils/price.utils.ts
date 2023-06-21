@@ -1,4 +1,4 @@
-import { CartItem, Order, Specialty } from "~/features/orders/type";
+import { CartItem, Order, ParentOrder, Specialty } from "~/features/orders/type";
 
 export const calculateSpecialtiesPrice = (specialties: Specialty[]) => {
   const specialtiesPrice = specialties.reduce((acc, specialty) => {
@@ -27,4 +27,13 @@ export const calculateOrderPrice = (order: Order) => {
   const orderPrice = orderMeals.reduce((acc, orderMeal) => (acc += orderMeal.price), 0);
 
   return orderPrice;
+};
+
+export const calculateParentOrderPrice = (parentOrder: ParentOrder) => {
+  const { orders } = parentOrder;
+  const parentOrderPrice = orders.reduce((acc, order) => {
+    return acc + calculateOrderPrice(order);
+  }, 0);
+
+  return parentOrderPrice;
 };

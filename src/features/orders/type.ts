@@ -86,10 +86,19 @@ export type Order = {
   status: OrderStatus;
   type: OrderType;
   orderMeals: OrderMeal[];
-  paymentLogs: any[];
+  paymentLogs: any[]; //[TODO]: type definition
   createdAt?: number;
   updatedAt?: number;
   seats?: string[];
+};
+
+export type ParentOrder = {
+  id: string;
+  status: OrderStatus;
+  type: OrderType;
+  seats: string[];
+  paymentLogs: any[];
+  orders: Order[];
 };
 
 export type CartItem = Meal & { amount: number };

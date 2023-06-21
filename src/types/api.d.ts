@@ -1,4 +1,4 @@
-import { Menu, Order, Specialty, UserInfo } from "~/features/orders/type";
+import { Menu, Order, ParentOrder, Specialty, UserInfo } from "~/features/orders/type";
 import {
   Member,
   IMeal,
@@ -190,6 +190,8 @@ type LinePayConfirmResponse = ApiResponse<LinePayConfirmPayload>;
 type PaymentSliceState = {
   isLoading: boolean;
   error: string | null;
+  paymentItem: ParentOrder | null;
+  isOpenPaymentDrawer: boolean;
   linePayResponse: LinePayResponse;
   ecPayResponse: EcPayResponse;
   cashPaymentResponse: CashPaymentResponse;

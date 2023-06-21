@@ -22,44 +22,42 @@ import { ReactComponent as LinePayIcon } from "~/assets/line-pay-solid.svg";
 import theme from "~/theme";
 import { Order } from "~/features/orders/type";
 import { useAppDispatch, useAppSelector } from "~/app/hook";
-import { requestLinePay, requestEcPay, requestCashPayment } from "~/app/slices/payment";
+import { requestLinePay, requestEcPay, requestCashPayment, closePaymentDrawer } from "~/app/slices/payment";
 import { OrderType } from "~/types/common";
 import { getOrders } from "~/app/slices/order";
+import { calculateParentOrderPrice } from "~/utils/price.utils";
 
 type PaymentDrawerProps = {
-  open: boolean;
-  order: Order | undefined;
-  setOpen: React.Dispatch<React.SetStateAction<boolean>>;
   isAdmin: boolean;
 };
 const PaymentDrawer = (props: PaymentDrawerProps) => {
-  const { open, order, setOpen, isAdmin } = props;
-
-  const { id, type } = order || {};
+  const { isAdmin } = props;
 
   const dispatch = useAppDispatch();
 
+  const status = useAppSelector(({ order }) => order.status);
   const linePayResponse = useAppSelector(({ payment }) => payment.linePayResponse);
+  const paymentItem = useAppSelector(({ payment }) => payment.paymentItem);
+  const { id, type } = paymentItem ?? {};
+  const isOpenPaymentDrawer = useAppSelector(({ payment }) => payment.isOpenPaymentDrawer);
 
   const [canPay, setCanPay] = useState<boolean>(false);
 
   const [selectPayment, setSelectPayment] = useState<string>("");
   const [cash, setCash] = useState(0);
 
-  const totalPrice = order?.orderMeals.reduce((acc, item) => acc + item.price, 0) as number;
-
-  const status = useAppSelector(({ order }) => order.status);
+  const totalPrice = paymentItem ? calculateParentOrderPrice(paymentItem) : 0;
 
   const handleCompleteOrder = async () => {
     if (id) {
       await handlePaymentRequest(id);
     }
     dispatch(getOrders({ status }));
-    setOpen(false);
+    dispatch(closePaymentDrawer());
   };
 
   const handleCloseDrawer = () => {
-    setOpen(false);
+    dispatch(closePaymentDrawer());
   };
 
   const handleRestPayment = () => {
@@ -195,7 +193,7 @@ const PaymentDrawer = (props: PaymentDrawerProps) => {
 
   return (
     <>
-      <DrawerBase title="結帳" open={open} onClose={handleCloseDrawer} buttonList={paymentBtn()}>
+      <DrawerBase title="結帳" open={isOpenPaymentDrawer} onClose={handleCloseDrawer} buttonList={paymentBtn()}>
         <Column p={3}>
           <Row justifyContent="space-between">
             <Typography variant="body1" fontWeight={700}>
