@@ -25,7 +25,7 @@ export const OrdersContainer = () => {
     <>
       <OrderTabs />
       <OrderList setOpenPayment={setOpenPayment} onPayment={(order) => handlePayment(order)} />
-      <PaymentDrawer open={openPayment} order={currentOrder} setOpen={setOpenPayment} isAdmin={true} />
+      <PaymentDrawer open={openPayment} order={currentOrder} setOpen={setOpenPayment} />
     </>
   );
 };

@@ -30,10 +30,12 @@ type PaymentDrawerProps = {
   open: boolean;
   order: Order | undefined;
   setOpen: React.Dispatch<React.SetStateAction<boolean>>;
-  isAdmin: boolean;
 };
+
+const { host } = location;
+
 const PaymentDrawer = (props: PaymentDrawerProps) => {
-  const { open, order, setOpen, isAdmin } = props;
+  const { open, order, setOpen } = props;
 
   const { id, type } = order || {};
 
@@ -87,13 +89,12 @@ const PaymentDrawer = (props: PaymentDrawerProps) => {
 
   const handlePaymentRequest = async (id: string) => {
     console.log(id);
-    const HOST = import.meta.env.VITE_APP_HOST_DEV;
     if (selectPayment === "line-pay") {
       await dispatch(
         requestLinePay({
           orderId: id,
-          confirmUrl: `${HOST}/payment/confirm`,
-          cancelUrl: `${HOST}/payment/cancel`
+          confirmUrl: import.meta.env.DEV ? `http://${host}/payment/confirm` : `https://${host}/payment/confirm`,
+          cancelUrl: import.meta.env.DEV ? `http://${host}/payment/cancel` : `https://${host}/payment/cancel`
         })
       );
     }
@@ -101,7 +102,7 @@ const PaymentDrawer = (props: PaymentDrawerProps) => {
       await dispatch(
         requestEcPay({
           orderId: id,
-          confirmUrl: `${HOST}/payment/confirm`
+          confirmUrl: import.meta.env.DEV ? `http://${host}/payment/confirm` : `https://${host}/payment/confirm`
         })
       );
     }
@@ -209,7 +210,7 @@ const PaymentDrawer = (props: PaymentDrawerProps) => {
         <Divider />
         <Column p={3}>
           {paymentFunction.map((payment, idx) =>
-            !isAdmin && payment.type === "button" ? (
+            payment.type === "button" ? (
               <Button
                 key={payment.label}
                 variant="contained"
