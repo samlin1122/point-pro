@@ -1,5 +1,5 @@
 import { createSlice } from "@reduxjs/toolkit";
-import { DialogType, Order } from "~/features/orders/type";
+import { DialogType, Order, ParentOrder } from "~/features/orders/type";
 import { createAppAsyncThunk } from "../hook";
 import { OrderApi } from "~/api";
 import { clearCart, openDialog } from "~/features/orders/slice";
@@ -12,13 +12,15 @@ type OrderSliceState = {
   status: OrderStatus;
   orders: Order[];
   isLoading: boolean;
+  currentOrder: ParentOrder | null;
 };
 
 const name = "order";
 const initialState: OrderSliceState = {
   status: OrderStatus.PENDING,
   orders: [],
-  isLoading: false
+  isLoading: false,
+  currentOrder: null
 };
 
 export const getOrders = createAppAsyncThunk(

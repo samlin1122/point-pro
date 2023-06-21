@@ -513,7 +513,7 @@ export const CartMeal = (props: CartMealProps) => {
       <ListItemButton onClick={handleCustomized(cartItem, idx)} sx={{ padding: ".5rem" }} disableRipple>
         <Box sx={{ width: "100%" }}>
           <Grid container gap={1} sx={{ justifyContent: "space-between", marginBottom: "1rem" }}>
-            <Grid item sx={{ position: "relative" }} xs={2}>
+            <Grid item sx={{ position: "relative" }} xs={3}>
               <Box
                 component="img"
                 src={coverUrl}

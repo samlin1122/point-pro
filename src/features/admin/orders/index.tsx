@@ -1,13 +1,12 @@
 import { useEffect, useState } from "react";
-import { OrderList, OrderTabs } from "./index.style";
 import PaymentDrawer from "~/components/payment";
 import { Order } from "~/features/orders/type";
 import { useAppDispatch, useAppSelector } from "~/app/hook";
 import { getOrders } from "~/app/slices/order";
+import OrderTabs from "./OrderTab";
+import OrderList from "./OrderList";
 
 export const OrdersContainer = () => {
-  const [openPayment, setOpenPayment] = useState(false);
-  const [currentOrder, setCurrentOrder] = useState<Order>();
   const dispatch = useAppDispatch();
 
   const status = useAppSelector(({ order }) => order.status);
@@ -16,16 +15,16 @@ export const OrdersContainer = () => {
     dispatch(getOrders({ status }));
   }, [status]);
 
-  const handlePayment = (order: Order) => {
-    setCurrentOrder(order);
-    setOpenPayment(true);
-  };
-
   return (
     <>
       <OrderTabs />
+<<<<<<< HEAD
       <OrderList setOpenPayment={setOpenPayment} onPayment={(order) => handlePayment(order)} />
       <PaymentDrawer open={openPayment} order={currentOrder} setOpen={setOpenPayment} />
+=======
+      <OrderList />
+      <PaymentDrawer isAdmin={true} />
+>>>>>>> origin/develop
     </>
   );
 };

@@ -1,4 +1,4 @@
-import { createSlice, createAsyncThunk } from "@reduxjs/toolkit";
+import { createSlice, createAsyncThunk, PayloadAction } from "@reduxjs/toolkit";
 import { PaymentApi } from "~/api";
 import { EcPayResponseBody, Id, LinePayConfirmProps, LinePayRequestBody, PaymentSliceState } from "~/types/api";
 
@@ -6,6 +6,8 @@ const name = "payment";
 const initialState: PaymentSliceState = {
   isLoading: false,
   error: null,
+  paymentItem: null,
+  isOpenPaymentDrawer: false,
   linePayResponse: {
     message: "",
     result: {}
@@ -132,7 +134,16 @@ export const cancelEcPay = createAsyncThunk(`${name}/cancelEcPay`, async (_, { r
 export const paymentSlice = createSlice({
   name,
   initialState,
-  reducers: {},
+  reducers: {
+    openPaymentDrawer: (state, action: PayloadAction<PaymentSliceState["paymentItem"]>) => {
+      state.paymentItem = action.payload;
+      state.isOpenPaymentDrawer = true;
+    },
+    closePaymentDrawer: (state) => {
+      state.paymentItem = initialState.paymentItem;
+      state.isOpenPaymentDrawer = initialState.isOpenPaymentDrawer;
+    }
+  },
   extraReducers: (builder) => {
     builder.addCase(requestLinePay.fulfilled, (state, { payload }) => {
       state.linePayResponse = payload;
@@ -155,4 +166,4 @@ export const paymentSlice = createSlice({
   }
 });
 
-export default paymentSlice.reducer;
+export const { openPaymentDrawer, closePaymentDrawer } = paymentSlice.actions;
