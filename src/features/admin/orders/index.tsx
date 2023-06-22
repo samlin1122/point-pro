@@ -1,6 +1,5 @@
 import { useEffect, useState } from "react";
 import PaymentDrawer from "~/components/payment";
-import { Order } from "~/features/orders/type";
 import { useAppDispatch, useAppSelector } from "~/app/hook";
 import { getOrders } from "~/app/slices/order";
 import OrderTabs from "./OrderTab";
@@ -18,13 +17,8 @@ export const OrdersContainer = () => {
   return (
     <>
       <OrderTabs />
-<<<<<<< HEAD
-      <OrderList setOpenPayment={setOpenPayment} onPayment={(order) => handlePayment(order)} />
-      <PaymentDrawer open={openPayment} order={currentOrder} setOpen={setOpenPayment} />
-=======
       <OrderList />
-      <PaymentDrawer isAdmin={true} />
->>>>>>> origin/develop
+      <PaymentDrawer />
     </>
   );
 };

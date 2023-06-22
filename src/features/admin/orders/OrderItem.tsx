@@ -1,5 +1,5 @@
 // Libs
-import { useState } from "react";
+import { useCallback, useMemo, useState } from "react";
 import {
   Accordion,
   AccordionSummary,
@@ -29,6 +29,16 @@ import { calculateParentOrderPrice } from "~/utils/price.utils";
 import theme from "~/theme";
 import { OrderStatus, OrderType } from "~/types/common";
 import { openPaymentDrawer } from "~/app/slices/payment";
+
+function useAccordion() {
+  const [expanded, setExpanded] = useState(false);
+
+  const handleExpand = useCallback(() => {
+    setExpanded((prevExpand) => !prevExpand);
+  }, []);
+
+  return { expanded, handleExpand };
+}
 
 const VerticalDivider = styled("div")(({ theme }) => ({
   height: "32px",
@@ -63,6 +73,82 @@ const LinearProgressWithLabel = (props: LinearProgressProps & { value: number })
   );
 };
 
+interface orderMealItemProps {
+  idx: number;
+  orderMeal: OrderMeal;
+  status: OrderStatus;
+  tempServedAmount?: string;
+  handleChangeServedAmount?: (idx: number, value: number | string) => void;
+}
+
+function OrderMealItem(order: orderMealItemProps) {
+  const { tempServedAmount, handleChangeServedAmount, idx, orderMeal, status } = order;
+  const { id, title, price, amount, servedAmount } = orderMeal;
+
+  const isPendingOrCancelOrder = status === OrderStatus.PENDING || status === OrderStatus.CANCEL;
+  const isShowServedAmount = isPendingOrCancelOrder && status !== OrderStatus.CANCEL;
+
+  return (
+    <Row
+      sx={{
+        padding: ".5rem",
+        justifyContent: "space-between"
+      }}
+    >
+      <Row sx={{ width: "100%", gap: "1rem" }}>
+        <Typography variant="body1" sx={{ minWidth: "9rem" }}>
+          {title}
+        </Typography>
+        <Typography variant="h6" fontWeight={700} sx={{ minWidth: "5rem" }}>
+          {price}
+        </Typography>
+        <Typography variant="body1" sx={{ minWidth: "5rem" }}>
+          x {amount}
+        </Typography>
+        <Typography variant="body1" sx={{ minWidth: "5rem" }}>
+          {price * amount}
+        </Typography>
+        <List sx={{ margin: 0, padding: 0 }}>
+          {orderMeal.specialties.map((specialty) => (
+            <ListItem key={specialty.id} sx={{ margin: 0, padding: 0, color: theme.palette.text.secondary }}>
+              [{specialty.title}]: {specialty.items.map((item) => item.title).join("、")}
+            </ListItem>
+          ))}
+        </List>
+      </Row>
+      {isPendingOrCancelOrder && (
+        <Typography variant="h6" fontWeight={700} sx={{ flexGrow: "1", textAlign: "right" }}>
+          {orderMeal.price}元
+        </Typography>
+      )}
+      {isShowServedAmount && handleChangeServedAmount && tempServedAmount && (
+        <Box
+          sx={{
+            marginLeft: "auto",
+            display: "flex",
+            alignItems: "center",
+            flexDirection: "column",
+            minWidth: "7rem"
+          }}
+        >
+          <Typography>已出餐數量</Typography>
+          <Select
+            value={tempServedAmount.split("")[idx]}
+            onChange={(e) => handleChangeServedAmount(idx, e.target.value)}
+            sx={{ width: "80%", height: "2rem" }}
+          >
+            {Array.from({ length: orderMeal.amount + 1 }, (_, idx) => idx).map((amount) => (
+              <MenuItem key={amount} value={amount}>
+                {amount}
+              </MenuItem>
+            ))}
+          </Select>
+        </Box>
+      )}
+    </Row>
+  );
+}
+
 type OrderItemsDetailProps = {
   status: OrderStatus;
   orderMeals: OrderMeal[];
@@ -79,53 +165,13 @@ const OrderItemsDetail = (props: OrderItemsDetailProps) => {
           key={orderMeal.id}
           sx={{ borderBottom: `1px solid ${theme.palette.common.black_20}`, padding: ".5rem" }}
         >
-          <Row sx={{ width: "100%", gap: "1rem" }}>
-            <Typography variant="body1" sx={{ minWidth: "9rem" }}>
-              {orderMeal.categories[0].title}
-            </Typography>
-            <Typography variant="h6" fontWeight={700} sx={{ minWidth: "12rem" }}>
-              {orderMeal.title}
-            </Typography>
-            <Typography variant="h6" fontWeight={700} sx={{ minWidth: "5rem" }}>
-              x{orderMeal.amount}
-            </Typography>
-            <List sx={{ margin: 0, padding: 0 }}>
-              {orderMeal.specialties.map((specialty) => (
-                <ListItem key={specialty.id} sx={{ margin: 0, padding: 0, color: theme.palette.text.secondary }}>
-                  [{specialty.title}]: {specialty.items.map((item) => item.title).join("、")}
-                </ListItem>
-              ))}
-            </List>
-            {(status === OrderStatus.UNPAID || status === OrderStatus.SUCCESS) && (
-              <Typography variant="h6" fontWeight={700} sx={{ flexGrow: "1", textAlign: "right" }}>
-                {orderMeal.price}元
-              </Typography>
-            )}
-            {status === OrderStatus.PENDING && tempServedAmount && handleChangeServedAmount && (
-              <Box
-                sx={{
-                  marginLeft: "auto",
-                  display: "flex",
-                  alignItems: "center",
-                  flexDirection: "column",
-                  minWidth: "7rem"
-                }}
-              >
-                <Typography>已出餐數量</Typography>
-                <Select
-                  value={tempServedAmount.split("")[idx]}
-                  onChange={(e) => handleChangeServedAmount(idx, e.target.value)}
-                  sx={{ width: "80%", height: "2rem" }}
-                >
-                  {Array.from({ length: orderMeal.amount + 1 }, (_, idx) => idx).map((amount) => (
-                    <MenuItem key={amount} value={amount}>
-                      {amount}
-                    </MenuItem>
-                  ))}
-                </Select>
-              </Box>
-            )}
-          </Row>
+          <OrderMealItem
+            idx={idx}
+            orderMeal={orderMeal}
+            status={status}
+            tempServedAmount={tempServedAmount}
+            handleChangeServedAmount={handleChangeServedAmount}
+          />
         </ListItem>
       ))}
     </List>
@@ -138,35 +184,39 @@ type PendingAndCancelOrderItemProps = {
 };
 export const PendingAndCancelOrderItem = (props: PendingAndCancelOrderItemProps) => {
   const dispatch = useAppDispatch();
-
+  const { expanded, handleExpand } = useAccordion();
   const { order, setDeleteOrderId } = props;
 
   const { id, status, type, orderMeals, createdAt, seats = [], paymentLogs = [] } = order;
 
-  const totalMeals = orderMeals.reduce((acc, meal) => (acc += meal.amount), 0);
-  const servedMeals = orderMeals.reduce((acc, meal) => (acc += meal.servedAmount), 0);
-  const progress = (servedMeals / totalMeals) * 100;
+  const totalMeals = useMemo(() => orderMeals.reduce((acc, meal) => (acc += meal.amount), 0), [orderMeals]);
+  const servedMeals = useMemo(() => orderMeals.reduce((acc, meal) => (acc += meal.servedAmount), 0), [orderMeals]);
+  const progress = useMemo(() => (servedMeals / totalMeals) * 100, [servedMeals, totalMeals]);
 
-  const [expanded, setExpanded] = useState(false);
-  const originServedAmount = order.orderMeals.map((meal) => meal.servedAmount).join("");
+  const originServedAmount = useMemo(
+    () => order.orderMeals.map((meal) => meal.servedAmount).join(""),
+    [order.orderMeals]
+  );
   const [tempServedAmount, setUpdatedServedAmount] = useState(originServedAmount);
-  const isUpdated = originServedAmount !== tempServedAmount;
+  const isUpdated = useMemo(() => originServedAmount !== tempServedAmount, [originServedAmount, tempServedAmount]);
 
-  const handleExpand = () => {
-    setExpanded((prevExpand) => !prevExpand);
-  };
+  const handleChangeServedAmount = useCallback(
+    (idx: number, value: number | string) => {
+      let newServedAmount = tempServedAmount.split("");
+      newServedAmount[idx] = `${value}`;
+      setUpdatedServedAmount(newServedAmount.join(""));
+    },
+    [tempServedAmount]
+  );
 
-  const handleChangeServedAmount = (idx: number, value: number | string) => {
-    let newServedAmount = tempServedAmount.split("");
-    newServedAmount[idx] = `${value}`;
-    setUpdatedServedAmount(newServedAmount.join(""));
-  };
+  const handleCancelOrder = useCallback(
+    (orderId: string) => {
+      setDeleteOrderId(orderId);
+    },
+    [setDeleteOrderId]
+  );
 
-  const handleCancelOrder = (orderId: string) => {
-    setDeleteOrderId(orderId);
-  };
-
-  const handleUpdateOrder = () => {
+  const handleUpdateOrder = useCallback(() => {
     dispatch(
       patchOrder({
         id,
@@ -179,7 +229,7 @@ export const PendingAndCancelOrderItem = (props: PendingAndCancelOrderItemProps)
         paymentLogs
       })
     );
-  };
+  }, [dispatch, id, status, type, order.orderMeals, tempServedAmount, paymentLogs]);
 
   return (
     <Accordion
@@ -275,15 +325,11 @@ export const UnpaidAndSuccessOrderItem = (props: UnpaidAndSuccessOrderItemProps)
   const totalPrice = calculateParentOrderPrice(parentOrder);
 
   const dispatch = useAppDispatch();
-  const [expanded, setExpanded] = useState(false);
+  const { expanded, handleExpand } = useAccordion();
 
-  const handleExpand = () => {
-    setExpanded((prevExpand) => !prevExpand);
-  };
-
-  const handlePayment = () => {
+  const handlePayment = useCallback(() => {
     dispatch(openPaymentDrawer(parentOrder));
-  };
+  }, [dispatch, parentOrder]);
 
   return (
     <Accordion
@@ -328,7 +374,7 @@ export const UnpaidAndSuccessOrderItem = (props: UnpaidAndSuccessOrderItemProps)
           {status === OrderStatus.SUCCESS && paymentLogs && (
             <>
               <VerticalDivider />
-              <Column sx={{ flexGrow: "1", textAlign: "right" }}>
+              <Column sx={{ flexGrow: "auto", flexShrink: 0, textAlign: "right" }}>
                 <Typography variant="h6" fontWeight={700}>
                   付款方式：{paymentLogs[0]?.gateway ?? null}
                 </Typography>

@@ -233,21 +233,46 @@ const PricingSection: FC<Props> = ({ openModal }) => {
   } else {
     return (
       <Box bgcolor={"white"} py={5}>
-        <Grid container justifyContent="center">
-          <Grid item xs={12}>
-            <Card>
-              <CardContent>
-                <Typography variant="h5" component="h2">
-                  {cards[currentPage - 1].title}
-                </Typography>
-                <Typography>{cards[currentPage - 1].content}</Typography>
-              </CardContent>
-              <Button variant="contained" color="primary" sx={{ margin: "1rem" }}>
-                選擇方案
-              </Button>
-            </Card>
+        <Column px={2} gap={5}>
+          <Title
+            title="我們的價格方案"
+            subtitle="透明且無隱藏費用的定價，讓您放心選擇 PointPro 做為您的餐飲 POS 合作夥伴。"
+          />
+          <Typography component={"h3"} fontSize={32} fontWeight={900}>
+            無論您是新創餐廳還是連鎖品牌， PointPro 都能為您提供最適合的解決方案。
+          </Typography>
+          <Grid container justifyContent="center">
+            <Grid item xs={12}>
+              <Card>
+                <CardContent>
+                  <Box pt={4} px={3} pb={2} borderRadius={5} bgcolor={"background.paper"}>
+                    <img
+                      style={{ height: 262, borderRadius: "2.5rem", objectFit: "cover", width: "100%" }}
+                      src={cards[currentPage - 1].imgUrl}
+                      title={cards[currentPage - 1].title}
+                    />
+                    <Row sx={{ justifyContent: "space-between" }} mb={5}>
+                      <Typography variant="h5" component="h2" sx={{ fontWeight: 900 }}>
+                        {cards[currentPage - 1].title}
+                      </Typography>
+                      <Typography variant="h5" component="h2" sx={{ fontWeight: 900 }}>
+                        {cards[currentPage - 1].price}
+                      </Typography>
+                    </Row>
+                    <List sx={{ marginBottom: "2.5rem" }}>
+                      {cards[currentPage - 1].content.map((content, index) => (
+                        <ListItem key={`content-${index}`} sx={{ paddingTop: 0 }}>
+                          <ListItemText primary={content} />
+                        </ListItem>
+                      ))}
+                    </List>
+                    <CallToActionButton content="立即詢問" handleOnClick={() => openModal()} />
+                  </Box>
+                </CardContent>
+              </Card>
+            </Grid>
           </Grid>
-        </Grid>
+        </Column>
         <Pagination
           count={cards.length}
           page={currentPage}

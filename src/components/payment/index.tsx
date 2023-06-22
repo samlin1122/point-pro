@@ -20,27 +20,21 @@ import { DrawerBase } from "~/components/drawer";
 // Others
 import { ReactComponent as LinePayIcon } from "~/assets/line-pay-solid.svg";
 import theme from "~/theme";
-import { Order } from "~/features/orders/type";
 import { useAppDispatch, useAppSelector } from "~/app/hook";
 import { requestLinePay, requestEcPay, requestCashPayment, closePaymentDrawer } from "~/app/slices/payment";
 import { OrderType } from "~/types/common";
 import { getOrders } from "~/app/slices/order";
 import { calculateParentOrderPrice } from "~/utils/price.utils";
 
-type PaymentDrawerProps = {
-  isAdmin: boolean;
-};
-
 const { host } = location;
 
-const PaymentDrawer = (props: PaymentDrawerProps) => {
-
+const PaymentDrawer = () => {
   const dispatch = useAppDispatch();
 
   const status = useAppSelector(({ order }) => order.status);
   const linePayResponse = useAppSelector(({ payment }) => payment.linePayResponse);
   const paymentItem = useAppSelector(({ payment }) => payment.paymentItem);
-  const { id, type } = paymentItem ?? {};
+  const { id, type, status: orderStatus } = paymentItem ?? {};
   const isOpenPaymentDrawer = useAppSelector(({ payment }) => payment.isOpenPaymentDrawer);
 
   const [canPay, setCanPay] = useState<boolean>(false);
@@ -51,8 +45,8 @@ const PaymentDrawer = (props: PaymentDrawerProps) => {
   const totalPrice = paymentItem ? calculateParentOrderPrice(paymentItem) : 0;
 
   const handleCompleteOrder = async () => {
-    if (id) {
-      await handlePaymentRequest(id);
+    if (orderStatus === "UNPAID") {
+      await handlePaymentRequest();
     }
     dispatch(getOrders({ status }));
     dispatch(closePaymentDrawer());
@@ -85,8 +79,10 @@ const PaymentDrawer = (props: PaymentDrawerProps) => {
     }
   }, [linePayResponse]);
 
-  const handlePaymentRequest = async (id: string) => {
-    console.log(id);
+  const handlePaymentRequest = async () => {
+    console.log(paymentItem);
+    if (!paymentItem) return;
+    const id = paymentItem.orders.map((order) => order.id);
     if (selectPayment === "line-pay") {
       await dispatch(
         requestLinePay({
