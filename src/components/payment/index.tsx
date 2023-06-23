@@ -1,5 +1,5 @@
 // Lib
-import { ChangeEvent, Fragment, useEffect, useState } from "react";
+import { ChangeEvent, useEffect, useState } from "react";
 import {
   Accordion,
   AccordionDetails,
@@ -9,8 +9,6 @@ import {
   Divider,
   FormControl,
   Input,
-  List,
-  ListItem,
   Typography
 } from "@mui/material";
 import MoneyIcon from "@mui/icons-material/Money";
@@ -191,13 +189,6 @@ const PaymentDrawer = () => {
     }
   ];
 
-  useEffect(() => {
-    console.log(cashPaymentResponse);
-    if (cashPaymentResponse && cashPaymentResponse?.result?.result?.paymentLogs.length > 0) {
-      console.log(cashPaymentResponse);
-    }
-  }, [cashPaymentResponse, useAppSelector]);
-
   return (
     <>
       <DrawerBase title="結帳" open={isOpenPaymentDrawer} onClose={handleCloseDrawer} buttonList={paymentBtn()}>
@@ -307,7 +298,9 @@ const PaymentDrawer = () => {
         </Row>
       </DrawerBase>
       <EcPayForm />
-      <CashPaymentDialog result={cashPaymentResponse.result} />
+      {cashPaymentResponse && cashPaymentResponse.result.paymentLogs && (
+        <CashPaymentDialog result={cashPaymentResponse.result} />
+      )}
     </>
   );
 };

@@ -64,11 +64,9 @@ export const CashPaymentDialog = (payload: CashPaymentResponse) => {
   const { paymentLogs } = payload.result;
   const cashPaymentResponse = useAppSelector(({ payment }) => payment.cashPaymentResponse);
   const [showMobileDialog, setShowMobileDialog] = useState(false);
-  const [result, setResult] = useState<PaymentLog>();
 
   useEffect(() => {
     if (cashPaymentResponse) {
-      setResult(cashPaymentResponse.result.paymentLogs);
       setShowMobileDialog(true);
     }
   }, [cashPaymentResponse]);
@@ -103,73 +101,74 @@ export const CashPaymentDialog = (payload: CashPaymentResponse) => {
           >
             付款完成
           </Typography>
-          {paymentLogs?.map((paymentLog) => (
-            <Column
-              key={paymentLog.paymentNo}
-              border={"1px solid #d1d1d1"}
-              borderRadius={1.5}
-              marginBottom={2}
-              p={2}
-              gap={1}
-            >
-              <Row gap={1} justifyContent={"space-between"}>
-                <Typography fontSize={20}>訂單編號</Typography>
-                <Typography fontWeight={700} fontSize={24}>
-                  {paymentLog.orderId.slice(-5)}
-                </Typography>
-              </Row>
-              <Divider />
-              {paymentLog.order?.orderMeals?.map((orderMeal: OrderMealWithMeal) => (
-                <Fragment key={orderMeal.id}>
+          {paymentLogs &&
+            paymentLogs?.map((paymentLog) => (
+              <Column
+                key={paymentLog.paymentNo}
+                border={"1px solid #d1d1d1"}
+                borderRadius={1.5}
+                marginBottom={2}
+                p={2}
+                gap={1}
+              >
+                <Row gap={1} justifyContent={"space-between"}>
+                  <Typography fontSize={20}>訂單編號</Typography>
+                  <Typography fontWeight={700} fontSize={24}>
+                    {paymentLog.orderId.slice(-5)}
+                  </Typography>
+                </Row>
+                <Divider />
+                {paymentLog.order?.orderMeals?.map((orderMeal: OrderMealWithMeal) => (
+                  <Fragment key={orderMeal.id}>
+                    <Row gap={1} justifyContent={"space-between"}>
+                      <Typography fontSize={20}>菜單名稱</Typography>
+                      <Typography fontWeight={700} fontSize={24}>
+                        {orderMeal.meal.title}
+                      </Typography>
+                    </Row>
+                    <Row gap={1} justifyContent={"space-between"}>
+                      <Typography fontSize={20}>菜單價格</Typography>
+                      <Typography fontWeight={700} fontSize={24}>
+                        {orderMeal.meal.price} x {orderMeal.amount}
+                      </Typography>
+                    </Row>
+                    <List sx={{ margin: 0, padding: 0 }}>
+                      {JSON.parse(orderMeal.mealDetails).map((mealDetail: MealDetails) => (
+                        <ListItem
+                          key={mealDetail.id}
+                          sx={{
+                            justifyContent: "flex-end",
+                            margin: 0,
+                            padding: 0,
+                            color: theme.palette.text.secondary,
+                            fontSize: "1rem",
+                            fontWeight: 600
+                          }}
+                        >
+                          [{mealDetail.title}]:{" "}
+                          {mealDetail.items && mealDetail.items.map((item) => item.title).join("、")}
+                        </ListItem>
+                      ))}
+                    </List>
+                    <Divider />
+                  </Fragment>
+                ))}
+                <Row justifyContent={"space-between"}>
                   <Row gap={1} justifyContent={"space-between"}>
-                    <Typography fontSize={20}>菜單名稱</Typography>
+                    <Typography fontSize={20}>付款方式</Typography>
                     <Typography fontWeight={700} fontSize={24}>
-                      {orderMeal.meal.title}
+                      {paymentLog.gateway}
                     </Typography>
                   </Row>
                   <Row gap={1} justifyContent={"space-between"}>
-                    <Typography fontSize={20}>菜單價格</Typography>
+                    <Typography fontSize={20}>付款金額</Typography>
                     <Typography fontWeight={700} fontSize={24}>
-                      {orderMeal.meal.price} x {orderMeal.amount}
+                      ${paymentLog.price}
                     </Typography>
                   </Row>
-                  <List sx={{ margin: 0, padding: 0 }}>
-                    {JSON.parse(orderMeal.mealDetails).map((mealDetail: MealDetails) => (
-                      <ListItem
-                        key={mealDetail.id}
-                        sx={{
-                          justifyContent: "flex-end",
-                          margin: 0,
-                          padding: 0,
-                          color: theme.palette.text.secondary,
-                          fontSize: "1rem",
-                          fontWeight: 600
-                        }}
-                      >
-                        [{mealDetail.title}]:{" "}
-                        {mealDetail.items && mealDetail.items.map((item) => item.title).join("、")}
-                      </ListItem>
-                    ))}
-                  </List>
-                  <Divider />
-                </Fragment>
-              ))}
-              <Row justifyContent={"space-between"}>
-                <Row gap={1} justifyContent={"space-between"}>
-                  <Typography fontSize={20}>付款方式</Typography>
-                  <Typography fontWeight={700} fontSize={24}>
-                    {paymentLog.gateway}
-                  </Typography>
                 </Row>
-                <Row gap={1} justifyContent={"space-between"}>
-                  <Typography fontSize={20}>付款金額</Typography>
-                  <Typography fontWeight={700} fontSize={24}>
-                    ${paymentLog.price}
-                  </Typography>
-                </Row>
-              </Row>
-            </Column>
-          ))}
+              </Column>
+            ))}
         </Box>
         <Box
           sx={{
@@ -184,7 +183,7 @@ export const CashPaymentDialog = (payload: CashPaymentResponse) => {
           <Row gap={2}>
             <MoneyIcon />
             <Typography variant="h6" fontWeight={900} fontSize={32}>
-              ${paymentLogs.reduce((acc, cur) => acc + cur.price, 0)}
+              ${paymentLogs?.reduce((acc, cur) => acc + cur.price, 0)}
             </Typography>
           </Row>
         </Box>
