@@ -15,7 +15,7 @@ export const MenuContainer = () => {
   }, []);
 
   return (
-    <Grid container sx={{ height: `calc(100vh - ${headerHeight})` }}>
+    <Grid container sx={{ height: `calc(100vh - ${headerHeight})` }} bgcolor={"background.paper"}>
       <Grid item xs={8} sx={{ overflow: "hidden" }}>
         <MenuTabs />
         <MealList />

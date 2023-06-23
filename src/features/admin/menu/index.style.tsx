@@ -87,7 +87,8 @@ const MealItem = (props: MealItemProps) => {
       key={meal.id}
       sx={{
         backgroundColor: isSelected ? "primary.main" : "transparent",
-        boxShadow: "rgba(0, 0, 0, 0.5) 0px 1px 4px"
+        boxShadow: `${theme.palette.common.black_40} 0px 1px 4px`,
+        border: `1px solid ${theme.palette.common.black_20}`
       }}
       onClick={handleSelectedMeal}
     >

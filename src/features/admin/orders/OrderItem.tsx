@@ -90,12 +90,15 @@ function OrderMealItem(order: orderMealItemProps) {
 
   return (
     <Row
+      key={id}
+      justifyContent={"space-between"}
+      width={"100%"}
+      gap={2}
       sx={{
-        padding: ".5rem",
-        justifyContent: "space-between"
+        padding: ".5rem"
       }}
     >
-      <Row sx={{ width: "100%", gap: "1rem" }}>
+      <Row gap={2}>
         <Typography variant="body1" sx={{ minWidth: "9rem" }}>
           {title}
         </Typography>
@@ -128,7 +131,8 @@ function OrderMealItem(order: orderMealItemProps) {
             display: "flex",
             alignItems: "center",
             flexDirection: "column",
-            minWidth: "7rem"
+            minWidth: "7rem",
+            gap: ".5rem"
           }}
         >
           <Typography>已出餐數量</Typography>
@@ -237,7 +241,7 @@ export const PendingAndCancelOrderItem = (props: PendingAndCancelOrderItemProps)
       onChange={handleExpand}
       sx={{
         bgcolor: "white",
-        boxShadow: "rgba(0, 0, 0, 0.24) 0px 3px 8px",
+        boxShadow: `0 0 0.5rem #d1d1d181`,
         "&:before": {
           height: 0
         }
@@ -337,7 +341,7 @@ export const UnpaidAndSuccessOrderItem = (props: UnpaidAndSuccessOrderItemProps)
       onChange={handleExpand}
       sx={{
         bgcolor: "white",
-        boxShadow: "rgba(0, 0, 0, 0.24) 0px 3px 8px",
+        boxShadow: `0 0 0.5rem #d1d1d181`,
         "&:before": {
           height: 0
         }
@@ -374,7 +378,7 @@ export const UnpaidAndSuccessOrderItem = (props: UnpaidAndSuccessOrderItemProps)
           {status === OrderStatus.SUCCESS && paymentLogs && (
             <>
               <VerticalDivider />
-              <Column sx={{ flexGrow: "auto", flexShrink: 0, textAlign: "right" }}>
+              <Column sx={{ flexGrow: "auto", flexShrink: 0, textAlign: "right", marginLeft: "auto" }}>
                 <Typography variant="h6" fontWeight={700}>
                   付款方式：{paymentLogs[0]?.gateway ?? null}
                 </Typography>
@@ -386,7 +390,11 @@ export const UnpaidAndSuccessOrderItem = (props: UnpaidAndSuccessOrderItemProps)
       <AccordionDetails sx={{ padding: "0 1rem .5rem" }}>
         {orders.map(({ id, orderMeals, createdAt }) => (
           <Box key={id} sx={{ margin: "1rem 0" }}>
-            <Accordion>
+            <Accordion
+              sx={{
+                boxShadow: `0 0 0.25rem #b8b8b881`
+              }}
+            >
               {type === OrderType.DineIn && (
                 <AccordionSummary>
                   <Row sx={{ width: "100%" }}>

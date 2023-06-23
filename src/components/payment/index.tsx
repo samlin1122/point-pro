@@ -1,5 +1,5 @@
 // Lib
-import { ChangeEvent, useEffect, useState } from "react";
+import { ChangeEvent, Fragment, useEffect, useState } from "react";
 import {
   Accordion,
   AccordionDetails,
@@ -9,6 +9,8 @@ import {
   Divider,
   FormControl,
   Input,
+  List,
+  ListItem,
   Typography
 } from "@mui/material";
 import MoneyIcon from "@mui/icons-material/Money";
@@ -25,6 +27,7 @@ import { requestLinePay, requestEcPay, requestCashPayment, closePaymentDrawer } 
 import { OrderType } from "~/types/common";
 import { getOrders } from "~/app/slices/order";
 import { calculateParentOrderPrice } from "~/utils/price.utils";
+import { CashPaymentDialog } from "./index.style";
 
 const { host } = location;
 
@@ -36,6 +39,7 @@ const PaymentDrawer = () => {
   const paymentItem = useAppSelector(({ payment }) => payment.paymentItem);
   const { id, type, status: orderStatus } = paymentItem ?? {};
   const isOpenPaymentDrawer = useAppSelector(({ payment }) => payment.isOpenPaymentDrawer);
+  const cashPaymentResponse = useAppSelector(({ payment }) => payment.cashPaymentResponse);
 
   const [canPay, setCanPay] = useState<boolean>(false);
 
@@ -80,7 +84,6 @@ const PaymentDrawer = () => {
   }, [linePayResponse]);
 
   const handlePaymentRequest = async () => {
-    console.log(paymentItem);
     if (!paymentItem) return;
     const id = paymentItem.orders.map((order) => order.id);
     if (selectPayment === "line-pay") {
@@ -187,6 +190,13 @@ const PaymentDrawer = () => {
       target: "line-pay"
     }
   ];
+
+  useEffect(() => {
+    console.log(cashPaymentResponse);
+    if (cashPaymentResponse && cashPaymentResponse?.result?.result?.paymentLogs.length > 0) {
+      console.log(cashPaymentResponse);
+    }
+  }, [cashPaymentResponse, useAppSelector]);
 
   return (
     <>
@@ -297,6 +307,7 @@ const PaymentDrawer = () => {
         </Row>
       </DrawerBase>
       <EcPayForm />
+      <CashPaymentDialog result={cashPaymentResponse.result} />
     </>
   );
 };

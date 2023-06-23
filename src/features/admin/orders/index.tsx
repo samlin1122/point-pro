@@ -1,25 +1,15 @@
-import { useEffect, useState } from "react";
 import PaymentDrawer from "~/components/payment";
-import { useAppDispatch, useAppSelector } from "~/app/hook";
-import { getOrders } from "~/app/slices/order";
 import OrderTabs from "./OrderTab";
 import OrderList from "./OrderList";
+import { Box } from "@mui/material";
 
 export const OrdersContainer = () => {
-  const dispatch = useAppDispatch();
-
-  const status = useAppSelector(({ order }) => order.status);
-
-  useEffect(() => {
-    dispatch(getOrders({ status }));
-  }, [status]);
-
   return (
-    <>
+    <Box bgcolor={"background.paper"}>
       <OrderTabs />
       <OrderList />
       <PaymentDrawer />
-    </>
+    </Box>
   );
 };
 
