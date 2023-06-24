@@ -47,6 +47,7 @@ const Order = () => {
       <MobileModal.Payment />
       <MobileModal.CounterReminder />
       <MobileModal.CartItemIsOffReminder />
+      <MobileModal.EcPayForm />
     </>
   );
 };

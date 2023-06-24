@@ -6,20 +6,22 @@ import { Box, Button, List, ListItem, Typography } from "@mui/material";
 
 // Others
 import { useAppDispatch, useAppSelector } from "~/app/hook";
-import { confirmLinePay } from "~/app/slices/payment";
+import { confirmEcPay, confirmLinePay } from "~/app/slices/payment";
 import { Column, Row } from "~/components/layout";
-import { LinePayConfirmPayload, MealDetails } from "~/types/api";
+import { EcPayConfirmPayload, LinePayConfirmPayload, MealDetails } from "~/types/api";
 import { useDeviceType } from "~/features/home/slice";
 import theme from "~/theme";
 import { OrderMeal } from "~/types";
 
-export const LinePayPaymentReturn = () => {
+export const PaymentReturnContainer = () => {
   const [searchParams] = useSearchParams();
   const dispatch = useAppDispatch();
   const linePayConfirmResponse = useAppSelector(({ payment }) => payment.linePayConfirmResponse);
+  const ecPayConfirmResponse = useAppSelector(({ payment }) => payment.ecPayConfirmResponse);
 
   const transactionId = searchParams.get("transactionId");
   const orderId = searchParams.get("orderId");
+  const from = searchParams.get("from");
 
   const navigate = useNavigate();
   const isAuthenticated = useAppSelector(({ auth }) => auth.isAuthenticated);
@@ -35,7 +37,14 @@ export const LinePayPaymentReturn = () => {
         await dispatch(confirmLinePay({ transactionId, orderId }));
       }
     };
-    handleConfirmLinePay();
+    const handleConfirmEcPay = async () => {
+      if (transactionId && orderId) {
+        await dispatch(confirmEcPay({ transactionId, orderId }));
+      }
+    };
+    console.log("from", from);
+    from === "linePay" && handleConfirmLinePay();
+    from === "ecPay" && handleConfirmEcPay();
   }, []);
 
   return (
@@ -43,7 +52,13 @@ export const LinePayPaymentReturn = () => {
       <Typography variant="h1" textAlign={"center"} fontWeight={900} marginBottom={1}>
         完成付款
       </Typography>
-      {linePayConfirmResponse.message === "success" && <LinePayPaymentReturnData {...linePayConfirmResponse} />}
+      {linePayConfirmResponse.message === "success" && (
+        <PaymentReturnData
+          message={linePayConfirmResponse.message || ecPayConfirmResponse.message}
+          result={from === "linePay" ? linePayConfirmResponse.result : ecPayConfirmResponse.result}
+        />
+      )}
+
       <Button variant="contained" color="primary" onClick={handleReturnMeal}>
         返回繼續點餐
       </Button>
@@ -51,11 +66,11 @@ export const LinePayPaymentReturn = () => {
   );
 };
 
-const LinePayPaymentReturnData = (response: { message: string; result: LinePayConfirmPayload }) => {
-  const { result } = response;
+const PaymentReturnData = (props: { message: string; result: LinePayConfirmPayload | EcPayConfirmPayload }) => {
+  const { result, message } = props;
   const deviceType = useDeviceType();
 
-  if (response.message !== "success") {
+  if (message !== "success") {
     return (
       <Column>
         <Typography variant="h2" textAlign={"center"}>
@@ -163,7 +178,7 @@ const LinePayPaymentReturnData = (response: { message: string; result: LinePayCo
             ))
           )}
       </Column>
-      {result && result.response.body.info.packages && (
+      {result && (
         <Row justifyContent={"space-between"} marginBottom={2} bgcolor={"white"} p={3}>
           <Row
             justifyContent={"flex-start"}
@@ -186,7 +201,7 @@ const LinePayPaymentReturnData = (response: { message: string; result: LinePayCo
               fontWeight={700}
               fontSize={deviceType === "tablet" ? "2rem" : "1.5rem"}
             >
-              {result.paymentLogs[0].gateway === "LINE_PAY" ? "LINE Pay" : null}
+              {result.paymentLogs[0].gateway === "LINE_PAY" ? "LINE Pay" : "EC Pay"}
             </Typography>
           </Row>
           <Typography
@@ -195,7 +210,7 @@ const LinePayPaymentReturnData = (response: { message: string; result: LinePayCo
             fontWeight={900}
             fontSize={deviceType === "tablet" ? "2rem" : "1.5rem"}
           >
-            ${result.response.body.info.packages.reduce((total, packageItem) => total + packageItem.amount, 0)}
+            ${result.paymentLogs.reduce((total, paymentLog) => total + paymentLog.price, 0)}
           </Typography>
         </Row>
       )}

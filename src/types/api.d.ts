@@ -102,7 +102,7 @@ interface LinePayRequestBody {
   cancelUrl: string;
 }
 
-interface LinePayConfirmProps {
+interface PaymentConfirmProps {
   transactionId: string;
   orderId: string;
 }
@@ -188,10 +188,15 @@ interface LinePayConfirmPayload {
   };
 }
 
+interface EcPayConfirmPayload {
+  paymentLogs: PaymentLogsResponse[];
+}
+
 type LinePayResponse = ApiResponse<LinePayPayload>;
 type EcPayResponse = ApiResponse<EcPayPayload>;
 type CashPaymentResponse = ApiResponse<CashPaymentPayload>;
 type LinePayConfirmResponse = ApiResponse<LinePayConfirmPayload>;
+type EcPayConfirmResponse = ApiResponse<EcPayConfirmPayload>;
 
 type PaymentSliceState = {
   isLoading: boolean;
@@ -202,6 +207,7 @@ type PaymentSliceState = {
   ecPayResponse: EcPayResponse;
   cashPaymentResponse: CashPaymentResponse;
   linePayConfirmResponse: LinePayConfirmResponse;
+  ecPayConfirmResponse: EcPayConfirmResponse;
 };
 
 interface PostReservationPayload {

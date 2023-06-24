@@ -1,6 +1,6 @@
 import { createSlice, createAsyncThunk, PayloadAction } from "@reduxjs/toolkit";
 import { PaymentApi } from "~/api";
-import { EcPayResponseBody, Id, LinePayConfirmProps, LinePayRequestBody, PaymentSliceState } from "~/types/api";
+import { EcPayResponseBody, Id, LinePayRequestBody, PaymentConfirmProps, PaymentSliceState } from "~/types/api";
 
 const name = "payment";
 const initialState: PaymentSliceState = {
@@ -21,6 +21,10 @@ const initialState: PaymentSliceState = {
     result: {}
   },
   linePayConfirmResponse: {
+    message: "",
+    result: {}
+  },
+  ecPayConfirmResponse: {
     message: "",
     result: {}
   }
@@ -58,25 +62,9 @@ export const requestLinePay = createAsyncThunk(
   }
 );
 
-export const requestEcPay = createAsyncThunk(
-  `${name}/requestEcPay`,
-  async (request: EcPayResponseBody, { rejectWithValue }) => {
-    try {
-      const response = await PaymentApi.paymentEcPayRequest(request);
-      return response;
-    } catch (error) {
-      if (error instanceof Error) {
-        return rejectWithValue({ message: error.message });
-      } else {
-        return rejectWithValue({ message: "unknown error" });
-      }
-    }
-  }
-);
-
 export const confirmLinePay = createAsyncThunk(
   `${name}/confirmLinePay`,
-  async (Ids: LinePayConfirmProps, { rejectWithValue }) => {
+  async (Ids: PaymentConfirmProps, { rejectWithValue }) => {
     try {
       const { transactionId, orderId } = Ids;
       const response = await PaymentApi.paymentLinePayConfirm(transactionId, orderId);
@@ -103,6 +91,39 @@ export const cancelLinePay = createAsyncThunk(`${name}/cancelLinePay`, async (or
     }
   }
 });
+
+export const requestEcPay = createAsyncThunk(
+  `${name}/requestEcPay`,
+  async (request: EcPayResponseBody, { rejectWithValue }) => {
+    try {
+      const response = await PaymentApi.paymentEcPayRequest(request);
+      return response;
+    } catch (error) {
+      if (error instanceof Error) {
+        return rejectWithValue({ message: error.message });
+      } else {
+        return rejectWithValue({ message: "unknown error" });
+      }
+    }
+  }
+);
+
+export const confirmEcPay = createAsyncThunk(
+  `${name}/confirmEcPay`,
+  async (Ids: PaymentConfirmProps, { rejectWithValue }) => {
+    try {
+      const { transactionId, orderId } = Ids;
+      const response = await PaymentApi.paymentEcPayConfirm(transactionId, orderId);
+      return response;
+    } catch (error) {
+      if (error instanceof Error) {
+        return rejectWithValue({ message: error.message });
+      } else {
+        return rejectWithValue({ message: "unknown error" });
+      }
+    }
+  }
+);
 
 export const cancelEcPay = createAsyncThunk(`${name}/cancelEcPay`, async (_, { rejectWithValue }) => {
   try {
@@ -134,14 +155,17 @@ export const paymentSlice = createSlice({
     builder.addCase(requestLinePay.fulfilled, (state, { payload }) => {
       state.linePayResponse = payload;
     });
-    builder.addCase(requestEcPay.fulfilled, (state, { payload }) => {
-      state.ecPayResponse = payload;
-    });
     builder.addCase(confirmLinePay.fulfilled, (state, { payload }) => {
       state.linePayConfirmResponse = payload;
     });
     builder.addCase(cancelLinePay.fulfilled, (state, { payload }) => {
       state.linePayResponse = payload;
+    });
+    builder.addCase(requestEcPay.fulfilled, (state, { payload }) => {
+      state.ecPayResponse = payload;
+    });
+    builder.addCase(confirmEcPay.fulfilled, (state, { payload }) => {
+      state.ecPayResponse = payload;
     });
     builder.addCase(cancelEcPay.fulfilled, (state, { payload }) => {
       state.ecPayResponse = payload;

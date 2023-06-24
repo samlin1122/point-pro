@@ -9,7 +9,7 @@ import { useAppDispatch, useAppSelector } from "~/app/hook";
 import { closeModal, deleteCartItem, openModal } from "~/features/orders/slice";
 import linePay from "~/assets/images/line-pay.png";
 import { MobileModal } from "~/types/common";
-import { requestLinePay } from "~/app/slices/payment";
+import { requestEcPay, requestLinePay } from "~/app/slices/payment";
 import { useEffect, useState } from "react";
 
 interface IMobileModalLayout {
@@ -102,7 +102,15 @@ const Payment = () => {
 
   const handlePaymentByCard = async () => {
     // [TODO]: jump to NewebPay
-    console.log(orders);
+    const orderIds = orders.filter((order) => order.status === "UNPAID").map((order) => order.id);
+    await dispatch(
+      requestEcPay({
+        orderId: orderIds,
+        confirmUrl: import.meta.env.DEV
+          ? `http://${host}/payment/confirm?from=ecPay&`
+          : `https://${host}/payment/confirm?from=ecPay&`
+      })
+    );
   };
 
   const handlePaymentByLinePay = async () => {
@@ -113,8 +121,8 @@ const Payment = () => {
       requestLinePay({
         orderId: orderIds,
         confirmUrl: import.meta.env.DEV
-          ? `http://${host}/payment/confirm?from=customer`
-          : `https://${host}/payment/confirm?from=customer`,
+          ? `http://${host}/payment/confirm?from=linePay&`
+          : `https://${host}/payment/confirm?from=linePay&`,
         cancelUrl: import.meta.env.DEV ? `http://${host}/payment/cancel` : `https://${host}/payment/cancel`
       })
     );
@@ -194,9 +202,32 @@ const CartItemIsOffReminder = () => {
   );
 };
 
+const EcPayForm = () => {
+  const ecPayResponse = useAppSelector(({ payment }) => payment.ecPayResponse);
+
+  useEffect(() => {
+    if (ecPayResponse && ecPayResponse.result) {
+      const parser = new DOMParser();
+      const doc = parser.parseFromString(ecPayResponse.result, "text/html");
+      const form = doc.querySelector("form");
+      if (form) {
+        document.body.appendChild(form);
+        form.submit();
+      }
+    }
+  }, [ecPayResponse]);
+
+  if (!ecPayResponse || !ecPayResponse.result) {
+    return null;
+  }
+
+  return null;
+};
+
 export default {
   ConfirmRemoveCartItem,
   Payment,
   CounterReminder,
-  CartItemIsOffReminder
+  CartItemIsOffReminder,
+  EcPayForm
 };

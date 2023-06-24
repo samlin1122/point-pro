@@ -12,7 +12,6 @@ import {
   Typography
 } from "@mui/material";
 import MoneyIcon from "@mui/icons-material/Money";
-import CreditCardIcon from "@mui/icons-material/CreditCard";
 import ExpandMoreIcon from "@mui/icons-material/ExpandMore";
 // Components
 import { Column, Row } from "~/components/layout";
@@ -21,7 +20,7 @@ import { DrawerBase } from "~/components/drawer";
 import { ReactComponent as LinePayIcon } from "~/assets/line-pay-solid.svg";
 import theme from "~/theme";
 import { useAppDispatch, useAppSelector } from "~/app/hook";
-import { requestLinePay, requestEcPay, requestCashPayment, closePaymentDrawer } from "~/app/slices/payment";
+import { requestLinePay, requestCashPayment, closePaymentDrawer } from "~/app/slices/payment";
 import { OrderType } from "~/types/common";
 import { getOrders } from "~/app/slices/order";
 import { calculateParentOrderPrice } from "~/utils/price.utils";
@@ -87,16 +86,10 @@ const PaymentDrawer = () => {
       await dispatch(
         requestLinePay({
           orderId: id,
-          confirmUrl: import.meta.env.DEV ? `http://${host}/payment/confirm` : `https://${host}/payment/confirm`,
+          confirmUrl: import.meta.env.DEV
+            ? `http://${host}/payment/confirm?from=linePay&`
+            : `https://${host}/payment/confirm?from=linePay&`,
           cancelUrl: import.meta.env.DEV ? `http://${host}/payment/cancel` : `https://${host}/payment/cancel`
-        })
-      );
-    }
-    if (selectPayment === "ec-pay") {
-      await dispatch(
-        requestEcPay({
-          orderId: id,
-          confirmUrl: import.meta.env.DEV ? `http://${host}/payment/confirm` : `https://${host}/payment/confirm`
         })
       );
     }
@@ -106,28 +99,6 @@ const PaymentDrawer = () => {
         handleRestPayment();
       }
     }
-  };
-
-  const EcPayForm = () => {
-    const ecPayResponse = useAppSelector(({ payment }) => payment.ecPayResponse);
-
-    useEffect(() => {
-      if (ecPayResponse && ecPayResponse.result) {
-        const parser = new DOMParser();
-        const doc = parser.parseFromString(ecPayResponse.result, "text/html");
-        const form = doc.querySelector("form");
-        if (form) {
-          document.body.appendChild(form);
-          form.submit();
-        }
-      }
-    }, [ecPayResponse]);
-
-    if (!ecPayResponse || !ecPayResponse.result) {
-      return null;
-    }
-
-    return null;
   };
 
   const CashPaymentForm = () => {
@@ -173,12 +144,6 @@ const PaymentDrawer = () => {
       icon: <MoneyIcon />,
       content: CashPaymentForm,
       target: "cash"
-    },
-    {
-      label: "信用卡結帳",
-      type: "button",
-      icon: <CreditCardIcon />,
-      target: "ec-pay"
     },
     {
       label: "Line Pay",
@@ -296,7 +261,6 @@ const PaymentDrawer = () => {
           </Typography>
         </Row>
       </DrawerBase>
-      <EcPayForm />
       {cashPaymentResponse && cashPaymentResponse.result.paymentLogs && <CashPaymentDialog {...cashPaymentResponse} />}
     </>
   );
