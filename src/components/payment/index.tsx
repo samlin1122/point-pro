@@ -74,9 +74,8 @@ const PaymentDrawer = () => {
 
   useEffect(() => {
     if (linePayResponse) {
-      if (linePayResponse?.result.returnCode === "0000") {
-        console.log(linePayResponse.result.info);
-        window.location.href = linePayResponse.result.info.paymentUrl.web;
+      if (linePayResponse.result.body && linePayResponse.result.body.returnCode === "0000") {
+        window.location.href = linePayResponse.result.body.info.paymentUrl.web;
       }
     }
   }, [linePayResponse]);
@@ -298,9 +297,7 @@ const PaymentDrawer = () => {
         </Row>
       </DrawerBase>
       <EcPayForm />
-      {cashPaymentResponse && cashPaymentResponse.result.paymentLogs && (
-        <CashPaymentDialog result={cashPaymentResponse.result} />
-      )}
+      {cashPaymentResponse && cashPaymentResponse.result.paymentLogs && <CashPaymentDialog {...cashPaymentResponse} />}
     </>
   );
 };

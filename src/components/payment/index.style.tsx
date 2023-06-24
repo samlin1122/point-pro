@@ -9,59 +9,12 @@ import { MobileDialogLayout } from "../dialog";
 
 import { useAppSelector } from "~/app/hook";
 import theme from "~/theme";
-import { OrderStatus, OrderType } from "~/types/common";
-import { Meal, Order } from "~/features/orders/type";
+import { CashPaymentResponse, MealDetails, OrderMealWithMeal, PaymentLogsResponse } from "~/types/api";
 
-interface OrderMealWithMeal {
-  id: string;
-  orderId: string;
-  mealId: string;
-  mealTitle: string;
-  price: number;
-  mealDetails: string;
-  amount: number;
-  servedAmount: number;
-  meal: Meal;
-  order: Order;
-}
-interface OrderWithMeal {
-  id: string;
-  status: OrderStatus;
-  type: OrderType;
-  paymentLogs: any[];
-  createdAt?: number | undefined;
-  updatedAt?: number | undefined;
-  seats?: string[] | undefined;
-  orderMeals: OrderMealWithMeal[];
-}
 
-interface PaymentLog {
-  createdAt: string;
-  gateway: string;
-  order: OrderWithMeal;
-  orderId: string;
-  paymentNo: string;
-  price: number;
-  status: string;
-  updatedAt: string;
-}
-
-interface CashPaymentResponse {
-  result: {
-    paymentLogs: PaymentLog[];
-  };
-}
-
-interface MealDetails {
-  id: string;
-  title: string;
-  type: string;
-  price?: number;
-  items?: MealDetails[];
-}
 
 export const CashPaymentDialog = (payload: CashPaymentResponse) => {
-  const { paymentLogs } = payload.result;
+  const { paymentLogs }: { paymentLogs: PaymentLogsResponse[] } = payload.result;
   const cashPaymentResponse = useAppSelector(({ payment }) => payment.cashPaymentResponse);
   const [showMobileDialog, setShowMobileDialog] = useState(false);
 

@@ -178,8 +178,14 @@ interface CashPaymentPayload {
 }
 
 interface LinePayConfirmPayload {
-  paymentLog: IPaymentLog;
-  result: ConfirmResponseBody;
+  paymentLogs: PaymentLogsResponse[];
+  response: {
+    body: {
+      info: Info;
+      returnCode: string;
+      returnMessage: string;
+    };
+  };
 }
 
 type LinePayResponse = ApiResponse<LinePayPayload>;
@@ -220,6 +226,106 @@ type CreateReservation = {
   token: string;
   seats: PartialSeat[];
 };
+
+export type PayInfo = {
+  method: string;
+  amount: number;
+  creditCardNickname?: string;
+  creditCardBrand?: string;
+  maskedCreditCardNumber?: string;
+};
+
+export type Package = {
+  id: string;
+  name?: string;
+  amount: number;
+  userFeeAmount?: number;
+};
+
+export type Shipping = {
+  methodId: string;
+  feeAmount: number;
+  address: Address;
+};
+
+export type Info = {
+  orderId: string;
+  transactionId: string;
+  authorizationExpireDate?: string;
+  regKey?: string;
+  payInfo: PayInfo[];
+  packages: Package[];
+  shipping?: Shipping;
+};
+
+type PaymentLogsResponse = {
+  orderId: string;
+  price: number;
+  status: string;
+  gateway: string;
+  createdAt: string;
+  paymentNo: string;
+  updateAt: string;
+  order: {
+    id: string;
+    orderId: string;
+    mealId: string;
+    mealTitle: string;
+    price: number;
+    mealDetails: string;
+    amount: string;
+    servedAmount: string;
+    meal: Meal;
+    orderMeals: OrderMeal[];
+  };
+  parentOrder: {
+    id: string;
+    parentOrderId: string;
+    reservationLogId: string;
+    type: string;
+    status: string;
+    createdAt: string;
+    updatedAt: string;
+  };
+};
+
+export interface OrderMealWithMeal {
+  id: string;
+  orderId: string;
+  mealId: string;
+  mealTitle: string;
+  price: number;
+  mealDetails: string;
+  amount: number;
+  servedAmount: number;
+  meal: Meal;
+  order: Order;
+}
+export interface OrderWithMeal {
+  id: string;
+  status: OrderStatus;
+  type: OrderType;
+  paymentLogs: any[];
+  createdAt?: number | undefined;
+  updatedAt?: number | undefined;
+  seats?: string[] | undefined;
+  orderMeals: OrderMealWithMeal[];
+}
+
+interface CashPaymentResponse {
+  result: {
+    paymentLogs: PaymentLogsResponse[];
+  };
+}
+
+interface MealDetails {
+  id: string;
+  title: string;
+  type: string;
+  price?: number;
+  items?: MealDetails[];
+}
+
 
 type PostReservationResponse = ApiResponse<CreateReservation>;
 

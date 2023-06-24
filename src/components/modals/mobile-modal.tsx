@@ -107,22 +107,22 @@ const Payment = () => {
 
   const handlePaymentByLinePay = async () => {
     // [TODO]: jump to LINEPay
-    const orderIds = orders.filter((order) => order.status !== "UNPAID").map((order) => order.id);
+    const orderIds = orders.filter((order) => order.status === "UNPAID").map((order) => order.id);
+    console.log(orders);
     await dispatch(
       requestLinePay({
         orderId: orderIds,
-        confirmUrl: `${host}/payment/confirm`,
-        cancelUrl: `${host}/payment/cancel`
+        confirmUrl: import.meta.env.DEV
+          ? `http://${host}/payment/confirm?from=customer`
+          : `https://${host}/payment/confirm?from=customer`,
+        cancelUrl: import.meta.env.DEV ? `http://${host}/payment/cancel` : `https://${host}/payment/cancel`
       })
     );
   };
 
   useEffect(() => {
-    if (linePayResponse) {
-      if (linePayResponse?.result.returnCode === "0000") {
-        console.log(linePayResponse.result.info);
-        window.location.href = linePayResponse.result.info.paymentUrl.web;
-      }
+    if (linePayResponse && linePayResponse.result.body && linePayResponse.result.body.returnCode === "0000") {
+      window.location.href = linePayResponse.result.body.info.paymentUrl.web;
     }
   }, [linePayResponse]);
 
