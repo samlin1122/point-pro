@@ -38,6 +38,7 @@ export const DrawerBase: FC<DrawerBaseProps> = ({
       onClose={onClose}
       sx={{
         flexShrink: 0,
+        userSelect: "none",
         "& .MuiDrawer-paper": { width, pt: headerHeight, boxSizing: "border-box" },
         "& .MuiIconButton-sizeLarge": { width: "46px", height: "46px" },
         ...sx
@@ -54,7 +55,13 @@ export const DrawerBase: FC<DrawerBaseProps> = ({
           <IconButton
             size="large"
             onClick={onClose}
-            sx={{ bgcolor: (theme) => theme.palette.common.black, borderRadius: 0, width: "36px", height: "36px" }}
+            sx={{
+              bgcolor: (theme) => theme.palette.common.black,
+              borderRadius: 0,
+              width: "36px",
+              height: "36px",
+              "&:hover": { bgcolor: (theme) => theme.palette.common.black_60 }
+            }}
           >
             <CloseIcon sx={{ color: (theme) => theme.palette.common.white }} />
           </IconButton>

@@ -99,7 +99,7 @@ export const FieldContainer: FC<FieldContainerPropsType> = ({ width = 500, label
     }
   };
   return (
-    <Stack direction="row" spacing={8} alignItems="center" flexWrap="wrap">
+    <Stack direction="row" spacing={8} alignItems="center" flexWrap="wrap" sx={{ userSelect: "none" }}>
       <Typography width={130} variant="h3">
         {label}
       </Typography>

@@ -90,7 +90,7 @@ export const MealSettingsContainer: FC<RouterProps> = ({ navigate }) => {
   };
 
   return (
-    <Base display="flex" justifyContent="space-between">
+    <Base display="flex" justifyContent="space-between" sx={{ userSelect: "none" }}>
       <Stack width="50%" gap={3} p={2}>
         <Typography variant="h3" sx={{ mb: 1 }}>
           分類
