@@ -23,30 +23,16 @@ const BackToTopStyleButton = styled(IconButton)`
   }
 `;
 
-const fadeInOut = (isVisible: boolean) => `
-  @keyframes fadeInOut {
-    0% {
-      opacity: 0;
-      transform: scale(0);
-    }
-    100% {
-      opacity: ${isVisible ? 1 : 0};
-      transform: scale(${isVisible ? 1 : 0});
-    }
-  }
-`;
-
 const BackToTopButton: FC<BackToTopButtonProps> = ({ position }) => {
   const deviceType = useDeviceType();
   const [isVisible, setIsVisible] = useState(false);
 
-  const handleScroll = () => {
-    const currentScrollPosition = window.scrollY;
-    const windowHeight = window.innerHeight;
-    setIsVisible(currentScrollPosition > windowHeight * 0.1);
-  };
-
   useEffect(() => {
+    const handleScroll = () => {
+      const currentScrollPosition = window.scrollY;
+      const windowHeight = window.innerHeight;
+      setIsVisible(currentScrollPosition > windowHeight * 0.1);
+    };
     window.addEventListener("scroll", handleScroll);
     return () => {
       window.removeEventListener("scroll", handleScroll);
@@ -72,7 +58,7 @@ const BackToTopButton: FC<BackToTopButtonProps> = ({ position }) => {
         flexDirection: deviceType === "tablet" ? "column" : "row",
         transform: `scale(${buttonScale})`,
         opacity: buttonOpacity,
-        transition: "transform 0.3s ease, opacity 0.3s ease",
+        transition: ".3s",
         zIndex: (theme) => theme.zIndex.tooltip
       }}
     >

@@ -61,12 +61,9 @@ const HeroSection: FC<Props> = ({ openModal }) => {
         setCurvePath(getCurvePath(clientWidth, clientHeight, borderRadius));
       }
     };
-    handleSetCurvePath();
-    window.addEventListener("resize", () => {
-      handleSetCurvePath();
-    });
+    window.addEventListener("resize", handleSetCurvePath);
     return () => {
-      window.removeEventListener("resize", () => handleSetCurvePath());
+      window.removeEventListener("resize", handleSetCurvePath);
     };
   }, [isTablet]);
 

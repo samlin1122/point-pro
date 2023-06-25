@@ -14,6 +14,7 @@ import TestimonialsSection from "./TestimonialsSection";
 import Footer from "~/components/footer";
 import { HeaderNavBar } from "./HeaderNavBar";
 import { Box } from "@mui/material";
+import SuccessCase from "./SuccessCase";
 
 interface HomeContainerProps {}
 
@@ -27,6 +28,7 @@ const HomeContainer: FC<HomeContainerProps> = ({ ...rest }) => {
   };
   return (
     <>
+      <BackToTopButton position={{ bottom: 50, right: 50 }} />
       <Box style={{ position: "fixed", top: 0, width: "100%", zIndex: 999 }}>
         <HeaderNavBar />
       </Box>
@@ -40,6 +42,9 @@ const HomeContainer: FC<HomeContainerProps> = ({ ...rest }) => {
         <PricingSection openModal={handleOpenModal} />
       </section>
       <TestimonialsSection />
+      <section id="success-case">
+        <SuccessCase />
+      </section>
       <SubscribedSection />
       <section id="about">
         <AboutUsSection />
@@ -48,7 +53,6 @@ const HomeContainer: FC<HomeContainerProps> = ({ ...rest }) => {
       <SiteMapSection />
       <Footer />
       <ContactFormModal open={isOpen} onClose={handleCloseModal} />
-      <BackToTopButton position={{ bottom: 50, right: 50 }} />
     </>
   );
 };

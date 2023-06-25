@@ -26,7 +26,7 @@ const siteMapData = [
       },
       {
         name: "成功案例",
-        url: "#success"
+        url: "#success-case"
       }
     ]
   },
@@ -57,9 +57,7 @@ const SiteMapSection: FC = () => {
   const deviceType = useDeviceType();
   const handleClick = (event: React.MouseEvent, targetId: string) => {
     event.preventDefault();
-    console.log(targetId);
     const targetElement = document.getElementById(targetId);
-    console.log(targetElement);
     if (targetElement) {
       targetElement.scrollIntoView({ behavior: "smooth", block: "start" });
     }

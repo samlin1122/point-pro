@@ -29,7 +29,7 @@ const navData = [
       },
       {
         name: "成功案例",
-        url: "#success"
+        url: "#success-case"
       }
     ]
   }
@@ -50,75 +50,6 @@ const SwipeableMenu: FC<SwipeableMenuProps> = ({ menuItems }) => {
   const toggleDrawer = (open: boolean) => {
     setIsOpen(open);
   };
-
-  const menuList = (
-    <Box
-      sx={{
-        width: "100vw",
-        height: "100vh",
-        display: "flex",
-        flexDirection: "column"
-      }}
-      bgcolor={"primary.main"}
-      color={"common.black"}
-    >
-      <Box sx={{ display: "flex", justifyContent: "flex-end", paddingTop: "1.25rem", paddingBottom: "1.25rem" }}>
-        <Button
-          onClick={() => toggleDrawer(false)}
-          sx={{
-            backgroundColor: "common.black",
-            color: "white",
-            display: "flex",
-            alignItems: "center",
-            justifyContent: "center",
-            gap: "0.5rem",
-            padding: "0.75rem 0.75rem 0.75rem 1.5rem",
-            borderRadius: "1.25rem 0 0 1.25rem"
-          }}
-        >
-          <CloseIcon />
-          <Typography variant="body1" component={"span"}>
-            CLOSE
-          </Typography>
-        </Button>
-      </Box>
-      <List
-        sx={{
-          display: "flex",
-          flexDirection: "column",
-          justifyContent: "center",
-          height: "100%"
-        }}
-      >
-        {menuItems &&
-          menuItems.map((item, index) => (
-            <ListItem
-              key={item.name}
-              disablePadding
-              sx={{
-                marginBottom: "1rem",
-                padding: "0.5rem 1rem"
-              }}
-            >
-              <ListItemText
-                primary={
-                  <NavLink
-                    href={item.url}
-                    underline={"none"}
-                    color={"common.black"}
-                    onClick={() => toggleDrawer(false)}
-                  >
-                    <Typography variant="h1" component={"span"} fontWeight={900} color={"common.black"}>
-                      {item.name}
-                    </Typography>
-                  </NavLink>
-                }
-              />
-            </ListItem>
-          ))}
-      </List>
-    </Box>
-  );
 
   return (
     <Box sx={{ display: "flex", justifyContent: "flex-end", paddingTop: "1.25rem", paddingBottom: "1.25rem" }}>
@@ -147,7 +78,72 @@ const SwipeableMenu: FC<SwipeableMenuProps> = ({ menuItems }) => {
         onClose={() => toggleDrawer(false)}
         PaperProps={{ style: { minWidth: "100vw", minHeight: "100vh" } }}
       >
-        {menuList}
+        <Box
+          sx={{
+            width: "100vw",
+            height: "100vh",
+            display: "flex",
+            flexDirection: "column"
+          }}
+          bgcolor={"primary.main"}
+          color={"common.black"}
+        >
+          <Box sx={{ display: "flex", justifyContent: "flex-end", paddingTop: "1.25rem", paddingBottom: "1.25rem" }}>
+            <Button
+              onClick={() => toggleDrawer(false)}
+              sx={{
+                backgroundColor: "common.black",
+                color: "white",
+                display: "flex",
+                alignItems: "center",
+                justifyContent: "center",
+                gap: "0.5rem",
+                padding: "0.75rem 0.75rem 0.75rem 1.5rem",
+                borderRadius: "1.25rem 0 0 1.25rem"
+              }}
+            >
+              <CloseIcon />
+              <Typography variant="body1" component={"span"}>
+                CLOSE
+              </Typography>
+            </Button>
+          </Box>
+          <List
+            sx={{
+              display: "flex",
+              flexDirection: "column",
+              justifyContent: "center",
+              height: "100%"
+            }}
+          >
+            {menuItems &&
+              menuItems.map((item) => (
+                <ListItem
+                  key={item.name}
+                  disablePadding
+                  sx={{
+                    marginBottom: "1rem",
+                    padding: "0.5rem 1rem"
+                  }}
+                >
+                  <ListItemText
+                    primary={
+                      <NavLink
+                        href={item.url}
+                        underline={"none"}
+                        color={"common.black"}
+                        onClick={() => toggleDrawer(false)}
+                      >
+                        <Typography variant="h1" component={"span"} fontWeight={900} color={"common.black"}>
+                          {item.name}
+                        </Typography>
+                      </NavLink>
+                    }
+                  />
+                </ListItem>
+              ))}
+          </List>
+        </Box>
       </Drawer>
     </Box>
   );
@@ -163,7 +159,7 @@ export const HeaderNavBar: FC = () => {
     const handleScroll = () => {
       setIsHidden(true);
       if (scrollTimeout) clearTimeout(scrollTimeout);
-      setScrollTimeout(window.setTimeout(() => setIsHidden(false), 1200));
+      setScrollTimeout(window.setTimeout(() => setIsHidden(false), 300));
     };
 
     window.addEventListener("scroll", handleScroll);
@@ -187,8 +183,8 @@ export const HeaderNavBar: FC = () => {
           left: 0,
           right: 0,
           bottom: 0,
-          backgroundImage: "linear-gradient(to bottom, rgba(0, 0, 0, 0.2), rgba(0, 0, 0, 0))",
-          backdropFilter: "blur(0.5rem)"
+          backgroundImage: "linear-gradient(to bottom, rgba(3, 3, 3, 0.5), rgba(0, 0, 0, 0))",
+          backdropFilter: "blur(0.9rem)"
         }
       }}
     >
@@ -224,7 +220,7 @@ export const HeaderNavBar: FC = () => {
                 }}
               >
                 {deviceType === "tablet" &&
-                  item.items?.map((item, index) => (
+                  item.items?.map((item) => (
                     <ListItem
                       key={item.name}
                       disablePadding
@@ -246,7 +242,7 @@ export const HeaderNavBar: FC = () => {
                   ))}
               </List>
             ) : (
-              <SwipeableMenu menuItems={item.items} />
+              <SwipeableMenu key={item.title} menuItems={item.items} />
             )
           )}
         </Row>

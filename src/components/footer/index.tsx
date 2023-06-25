@@ -1,9 +1,6 @@
 import * as React from "react";
 // Components
-import { Box, Container, Grid, Typography, IconButton } from "@mui/material";
-import FacebookIcon from "@mui/icons-material/Facebook";
-import TwitterIcon from "@mui/icons-material/Twitter";
-import LinkedInIcon from "@mui/icons-material/LinkedIn";
+import { Box, Typography } from "@mui/material";
 
 interface FooterProps {}
 
