@@ -62,7 +62,8 @@ const OrderList = (props: OrderListProps) => {
             flexDirection: "column",
             gap: "0.75rem",
             padding: "0.75rem",
-            height: `calc(100vh - ${headerHeight} - 54px)`
+            height: `calc(100vh - ${headerHeight} - 54px)`,
+            userSelect: "none"
           }}
         >
           {isPendingOrCancelOrder
@@ -74,7 +75,14 @@ const OrderList = (props: OrderListProps) => {
               gatherOrders().map((order) => <UnpaidAndSuccessOrderItem key={order.id} parentOrder={order} />)}
         </Box>
       ) : (
-        <Column justifyContent="center" bgcolor="background.paper" height={`calc(100vh - ${headerHeight} - 54px)`}>
+        <Column
+          justifyContent="center"
+          bgcolor="background.paper"
+          height={`calc(100vh - ${headerHeight} - 54px)`}
+          sx={{
+            userSelect: "none"
+          }}
+        >
           <Typography variant="h4" textAlign="center" color="text.disabled">
             無此分類訂單
           </Typography>

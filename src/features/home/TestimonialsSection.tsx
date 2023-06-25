@@ -52,7 +52,7 @@ const testimonialsData = [
 const TestimonialsSection: FC = () => {
   const deviceType = useDeviceType();
   return (
-    <Box pt={20} bgcolor={"background.paper"} sx={{ userSelect: "none" }}>
+    <Box py={20} bgcolor={"background.paper"} sx={{ userSelect: "none" }}>
       <Container>
         <Column
           sx={{

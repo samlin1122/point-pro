@@ -68,6 +68,7 @@ const Header: FC<RouterProps> = ({ location, navigate }) => {
           borderColor: "divider",
           boxShadow: "none",
           height: headerHeight,
+          userSelect: "none",
           "& .MuiToolbar-root": {
             padding: 0
           }

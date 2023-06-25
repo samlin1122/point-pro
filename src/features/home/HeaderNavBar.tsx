@@ -159,7 +159,7 @@ export const HeaderNavBar: FC = () => {
     const handleScroll = () => {
       setIsHidden(true);
       if (scrollTimeout) clearTimeout(scrollTimeout);
-      setScrollTimeout(window.setTimeout(() => setIsHidden(false), 300));
+      setScrollTimeout(window.setTimeout(() => setIsHidden(false), 500));
     };
 
     window.addEventListener("scroll", handleScroll);
