@@ -43,7 +43,7 @@ export const Header = () => {
 
   return (
     <>
-      <Breadcrumbs separator=">">
+      <Breadcrumbs separator=">" sx={{ userSelect: "none" }}>
         <Link href="/" underline="hover" color="inherit">
           首頁
         </Link>
@@ -59,7 +59,8 @@ export const Header = () => {
           position: "sticky",
           top: 0,
           zIndex: 2,
-          bgcolor: "background.paper"
+          bgcolor: "background.paper",
+          userSelect: "none"
         }}
       >
         港都熱炒
@@ -74,7 +75,7 @@ export const SeatInfo = () => {
   return (
     <>
       {userInfo && (
-        <Box sx={{ padding: "0 0 1rem" }}>
+        <Box sx={{ padding: "0 0 1rem", userSelect: "none" }}>
           <Typography variant="h3" fontWeight={900} sx={{ paddingBottom: "1rem" }}>
             內用資訊
           </Typography>
@@ -139,7 +140,7 @@ export const CategoryNavbar = () => {
 
   return (
     <>
-      <Typography variant="h3" sx={{ fontWeight: 900, paddingBottom: "1rem" }}>
+      <Typography variant="h3" sx={{ fontWeight: 900, paddingBottom: "1rem", userSelect: "none" }}>
         菜單
       </Typography>
       <Box
@@ -148,7 +149,8 @@ export const CategoryNavbar = () => {
           top: "4.5rem",
           zIndex: 2,
           bgcolor: "background.paper",
-          transform: "translateY(10%)" // sticky jumping when scroll in mobile
+          transform: "translateY(10%)", // sticky jumping when scroll in mobile
+          userSelect: "none"
         }}
         id="category-tabs"
       >
@@ -252,7 +254,7 @@ export const Meals = () => {
   // [TODO]: scrolling change tab focus
 
   return (
-    <Box sx={{ padding: "0 .2rem 5rem" }}>
+    <Box sx={{ padding: "0 .2rem 5rem", userSelect: "none" }}>
       <List sx={{ width: "100%", zIndex: 0, "& ul": { padding: 0 } }} subheader={<li />} id="meal-list">
         {menu.map((category) => (
           <li key={category.id}>
@@ -441,7 +443,8 @@ export const InputNumber = (props: InputNumberProps) => {
         border: "1px solid ",
         borderColor: "common.black_40",
         borderRadius: ".5rem",
-        bgcolor: "common.white"
+        bgcolor: "common.white",
+        userSelect: "none"
       }}
       onClick={handleStopPropagation}
     >
@@ -510,7 +513,11 @@ export const CartMeal = (props: CartMealProps) => {
 
   return (
     <Fragment key={`${id}-${idx}`}>
-      <ListItemButton onClick={handleCustomized(cartItem, idx)} sx={{ padding: ".5rem" }} disableRipple>
+      <ListItemButton
+        onClick={handleCustomized(cartItem, idx)}
+        sx={{ padding: ".5rem", userSelect: "none" }}
+        disableRipple
+      >
         <Box sx={{ width: "100%" }}>
           <Grid container gap={1} sx={{ justifyContent: "space-between", marginBottom: "1rem" }}>
             <Grid item sx={{ position: "relative" }} xs={3}>

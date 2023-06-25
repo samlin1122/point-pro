@@ -43,7 +43,7 @@ export const CashPaymentDialog = (payload: CashPaymentResponse) => {
         }
       }}
     >
-      <Column justifyContent={"space-between"} gap={2} height={"100%"}>
+      <Column justifyContent={"space-between"} gap={2} height={"100%"} sx={{ userSelect: "none" }}>
         <Box borderBottom={`1px solid ${theme.palette.common.black_40}`}>
           <Typography
             variant="h2"

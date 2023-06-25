@@ -113,7 +113,7 @@ const PaymentDrawer = () => {
     };
     return (
       <FormControl fullWidth>
-        <FormControl fullWidth sx={{ marginBottom: "1.5rem" }}>
+        <FormControl fullWidth sx={{ marginBottom: "1.5rem", userSelect: "none" }}>
           <Typography component="label" variant="body1" htmlFor="cash" fontWeight={700} mb={1.5}>
             結帳
           </Typography>
@@ -155,7 +155,13 @@ const PaymentDrawer = () => {
 
   return (
     <>
-      <DrawerBase title="結帳" open={isOpenPaymentDrawer} onClose={handleCloseDrawer} buttonList={paymentBtn()}>
+      <DrawerBase
+        title="結帳"
+        open={isOpenPaymentDrawer}
+        onClose={handleCloseDrawer}
+        buttonList={paymentBtn()}
+        sx={{ userSelect: "none" }}
+      >
         <Column p={3}>
           <Row justifyContent="space-between">
             <Typography variant="body1" fontWeight={700}>

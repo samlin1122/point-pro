@@ -59,7 +59,7 @@ const CustomizedSpecialties = () => {
   return (
     <>
       {customizedSpecialties.length ? (
-        <List subheader={<li />} sx={{ "& ul": { padding: 0 } }}>
+        <List subheader={<li />} sx={{ "& ul": { padding: 0 }, userSelect: "none" }}>
           {customizedSpecialties.map((specialty) => (
             <li key={specialty.id}>
               <ul>
@@ -88,7 +88,8 @@ const CustomizedSpecialties = () => {
           sx={{
             textAlign: "center",
             margin: "auto",
-            color: "text.disabled"
+            color: "text.disabled",
+            userSelect: "none"
           }}
         >
           此餐點無客製化選項
@@ -137,7 +138,15 @@ const Customized = () => {
         <>
           {userInfo && (
             <>
-              <Box sx={{ display: "flex", justifyContent: "space-between", alignItems: "center", width: "100%" }}>
+              <Box
+                sx={{
+                  display: "flex",
+                  justifyContent: "space-between",
+                  alignItems: "center",
+                  width: "100%",
+                  userSelect: "none"
+                }}
+              >
                 <InputNumber value={customized.amount} onAdd={handleAdd} onMinus={handleMinus} />
                 <Typography variant="h5" fontWeight={900}>
                   {customized.id ? calculateCartItemPrice(customized) : 0}元
@@ -198,7 +207,8 @@ const Cart = () => {
             sx={{
               display: "flex",
               flexDirection: "column",
-              width: "100%"
+              width: "100%",
+              userSelect: "none"
             }}
           >
             <Box
@@ -234,7 +244,7 @@ const Cart = () => {
         </>
       }
     >
-      <Box sx={{ flexGrow: 1, display: "flex", flexDirection: "column" }}>
+      <Box sx={{ flexGrow: 1, display: "flex", flexDirection: "column", userSelect: "none" }}>
         {cart.length > 0 ? (
           <List>
             {cart.map((cartItem, idx) => (
@@ -245,7 +255,9 @@ const Cart = () => {
             ))}
           </List>
         ) : (
-          <Typography sx={{ textAlign: "center", margin: "auto", color: "text.disabled" }}>快去點餐囉！</Typography>
+          <Typography sx={{ textAlign: "center", margin: "auto", color: "text.disabled", userSelect: "none" }}>
+            快去點餐囉！
+          </Typography>
         )}
       </Box>
     </MobileDialogLayout>
@@ -316,7 +328,15 @@ const Orders = (props: IOrders) => {
       actionButton={
         <>
           {orderStatus !== 2 && (
-            <Box sx={{ display: "flex", justifyContent: "space-between", alignItems: "center", width: "100%" }}>
+            <Box
+              sx={{
+                display: "flex",
+                justifyContent: "space-between",
+                alignItems: "center",
+                width: "100%",
+                userSelect: "none"
+              }}
+            >
               <Typography variant="h6" fontWeight={900}>
                 總計
               </Typography>
@@ -338,7 +358,8 @@ const Orders = (props: IOrders) => {
           position: "fixed",
           zIndex: 5,
           bgcolor: "background.paper",
-          width: "100%"
+          width: "100%",
+          userSelect: "none"
         }}
       >
         {/* 訂單狀態分類 */}
@@ -366,7 +387,8 @@ const Orders = (props: IOrders) => {
           display: "flex",
           flexDirection: "column",
           paddingTop: "4rem",
-          paddingBottom: "10rem"
+          paddingBottom: "10rem",
+          userSelect: "none"
         }}
       >
         {/* 訂單記錄 */}
@@ -476,12 +498,12 @@ const Orders = (props: IOrders) => {
                 >
                   {toggleList.includes(order.id) ? (
                     <>
-                      <Box>收合</Box>
+                      <Box sx={{ cursor: "pointer" }}>收合</Box>
                       <ExpandMoreIcon sx={{ rotate: "180deg" }} fontSize="small" />
                     </>
                   ) : (
                     <>
-                      <Box>點擊查看訂單內容</Box>
+                      <Box sx={{ cursor: "pointer" }}>點擊查看訂單內容</Box>
                       <ExpandMoreIcon fontSize="small" />
                     </>
                   )}

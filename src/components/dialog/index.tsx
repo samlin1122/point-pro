@@ -53,14 +53,15 @@ export const MobileDialogLayout = (props: IMobileDialogLayout) => {
       fullScreen
       onClose={onCloseDialog}
       open={isOpen}
-      sx={{ bgcolor: "#E1E1E1", width: "100vw", maxWidth: "768px", margin: "0 auto" }}
+      sx={{ bgcolor: "#E1E1E1", width: "100vw", maxWidth: "768px", margin: "0 auto", userSelect: "none" }}
     >
       <DialogTitle {...dialogTitleProps}>
         <Box sx={{ display: "flex", justifyContent: "center", alignItems: "center" }}>
           <Typography variant={titleSize} fontWeight={900} sx={{ flexGrow: 1 }}>
             {title}
           </Typography>
-          {isShowCloseIcon && <CancelIcon sx={{ fontSize: "2.5rem" }} onClick={onCloseDialog} />}
+
+          {isShowCloseIcon && <CancelIcon sx={{ fontSize: "2.5rem", cursor: "pointer" }} onClick={onCloseDialog} />}
         </Box>
       </DialogTitle>
 

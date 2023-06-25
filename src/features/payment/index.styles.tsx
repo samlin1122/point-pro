@@ -48,7 +48,7 @@ export const PaymentReturnContainer = () => {
   }, []);
 
   return (
-    <Column justifyContent={"space-between"} p={3} sx={{ height: "100%", minHeight: "90vh" }}>
+    <Column justifyContent={"space-between"} p={3} sx={{ height: "100%", minHeight: "90vh", userSelect: "none" }}>
       <Typography variant="h1" textAlign={"center"} fontWeight={900} marginBottom={1}>
         完成付款
       </Typography>
@@ -220,11 +220,22 @@ const PaymentReturnData = (props: { message: string; result: LinePayConfirmPaylo
 
 export const PaymentCancel = () => {
   const [searchParams] = useSearchParams();
+
+  const navigate = useNavigate();
+  const isAuthenticated = useAppSelector(({ auth }) => auth.isAuthenticated);
+
+  const handleReturnMeal = () => {
+    const token = localStorage.getItem("token");
+    isAuthenticated ? navigate("/admin/orders") : navigate(`/orders?token=${token}`);
+  };
   return (
-    <div>
+    <Column justifyContent={"space-between"} p={3} sx={{ height: "100%", minHeight: "90vh", userSelect: "none" }}>
       <Typography variant="h1" textAlign={"center"}>
         取消付款
       </Typography>
-    </div>
+      <Button variant="contained" color="primary" onClick={handleReturnMeal}>
+        返回繼續點餐
+      </Button>
+    </Column>
   );
 };
