@@ -14,7 +14,6 @@ type TakeOrderSliceState = {
   meals: Meal[];
   customized: CartItem | null;
   cart: CartItem[];
-  orders: Order[];
   currentCategory: Category["id"];
   currentDialog: DialogType | "";
   currentModal: MobileModal | "";
@@ -32,7 +31,6 @@ const initialState: TakeOrderSliceState = {
   meals: [],
   customized: null,
   cart: [],
-  orders: [],
   currentCategory: "",
   currentDialog: "",
   currentModal: "",

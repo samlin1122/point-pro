@@ -13,6 +13,7 @@ type OrderSliceState = {
   orders: Order[];
   isLoading: boolean;
   currentOrder: ParentOrder | null;
+  mobileOrderStatusTab: number;
 };
 
 const name = "order";
@@ -20,7 +21,8 @@ const initialState: OrderSliceState = {
   status: OrderStatus.PENDING,
   orders: [],
   isLoading: false,
-  currentOrder: null
+  currentOrder: null,
+  mobileOrderStatusTab: 0
 };
 
 export const getOrders = createAppAsyncThunk(
@@ -47,7 +49,7 @@ export const getOrders = createAppAsyncThunk(
 
 export const postOrder = createAppAsyncThunk(
   `${name}/postOrder`,
-  async (_, { getState, dispatch, rejectWithValue }) => {
+  async (payload: { isUser: boolean }, { getState, dispatch, rejectWithValue }) => {
     try {
       const cart = getState().takeOrder.cart;
       const socket = getState().socket.socket;
@@ -59,7 +61,8 @@ export const postOrder = createAppAsyncThunk(
           title,
           amount,
           price: mealsPrice,
-          specialties
+          specialties,
+          servedAmount: 0
         };
       });
 
@@ -67,8 +70,11 @@ export const postOrder = createAppAsyncThunk(
 
       socket && socket.emit(SocketTopic.ORDER, order);
       dispatch(clearCart());
-      dispatch(getOrders({}));
-      dispatch(openDialog({ type: DialogType.ORDER }));
+      if (payload.isUser) {
+        dispatch(getOrders({}));
+        dispatch(setMobileOrderStatusTab(0));
+        dispatch(openDialog({ type: DialogType.ORDER }));
+      }
 
       return order;
     } catch (error) {
@@ -123,6 +129,9 @@ export const orderSlice = createSlice({
   reducers: {
     setOrderStatus: (state, action) => {
       state.status = action.payload;
+    },
+    setMobileOrderStatusTab: (state, action) => {
+      state.mobileOrderStatusTab = action.payload;
     }
   },
   extraReducers: (builder) => {
@@ -173,4 +182,4 @@ export const orderSlice = createSlice({
   }
 });
 
-export const { setOrderStatus } = orderSlice.actions;
+export const { setOrderStatus, setMobileOrderStatusTab } = orderSlice.actions;

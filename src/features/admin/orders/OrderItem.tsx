@@ -25,7 +25,7 @@ import { useAppDispatch } from "~/app/hook";
 import { patchOrder } from "~/app/slices/order";
 import { Order, OrderMeal, ParentOrder } from "~/features/orders/type";
 import appDayjs from "~/utils/dayjs.util";
-import { calculateParentOrderPrice } from "~/utils/price.utils";
+import { calculateOrderPrice, calculateParentOrderPrice } from "~/utils/price.utils";
 import theme from "~/theme";
 import { OrderStatus, OrderType } from "~/types/common";
 import { openPaymentDrawer } from "~/app/slices/payment";
@@ -83,7 +83,7 @@ interface orderMealItemProps {
 
 function OrderMealItem(order: orderMealItemProps) {
   const { tempServedAmount, handleChangeServedAmount, idx, orderMeal, status } = order;
-  const { id, title, price, amount, servedAmount } = orderMeal;
+  const { id, title, mealPrice, price, amount, specialties } = orderMeal;
 
   const isPendingOrCancelOrder = status === OrderStatus.PENDING || status === OrderStatus.CANCEL;
   const isShowServedAmount = isPendingOrCancelOrder && status !== OrderStatus.CANCEL;
@@ -98,36 +98,22 @@ function OrderMealItem(order: orderMealItemProps) {
         padding: ".5rem"
       }}
     >
-      <Row gap={2}>
-        <Typography variant="body1" sx={{ minWidth: "9rem" }}>
-          {title}
-        </Typography>
-        <Typography variant="h6" fontWeight={700} sx={{ minWidth: "5rem" }}>
-          {price}
-        </Typography>
-        <Typography variant="body1" sx={{ minWidth: "5rem" }}>
-          x {amount}
-        </Typography>
-        <Typography variant="body1" sx={{ minWidth: "5rem" }}>
-          {price * amount}
-        </Typography>
-        <List sx={{ margin: 0, padding: 0 }}>
-          {orderMeal.specialties.map((specialty) => (
-            <ListItem key={specialty.id} sx={{ margin: 0, padding: 0, color: theme.palette.text.secondary }}>
-              [{specialty.title}]: {specialty.items.map((item) => item.title).join("、")}
-            </ListItem>
-          ))}
-        </List>
-      </Row>
-      {isPendingOrCancelOrder && (
-        <Typography variant="h6" fontWeight={700} sx={{ flexGrow: "1", textAlign: "right" }}>
-          {orderMeal.price}元
-        </Typography>
-      )}
+      <Typography sx={{ minWidth: "15rem" }}>{title}</Typography>
+      <Typography sx={{ minWidth: "5rem" }}>{mealPrice}</Typography>
+      <Typography sx={{ minWidth: "5rem" }}>x {amount}</Typography>
+      <List sx={{ margin: 0, padding: 0, flexGrow: 1 }}>
+        {specialties.map((specialty) => (
+          <ListItem key={specialty.id} sx={{ margin: 0, padding: 0, color: theme.palette.text.secondary }}>
+            [{specialty.title}]: {specialty.items.map((item) => item.title).join("、")}
+          </ListItem>
+        ))}
+      </List>
+      <Typography fontWeight={700} sx={{ minWidth: "6rem", textAlign: "right" }}>
+        {price}元
+      </Typography>
       {isShowServedAmount && handleChangeServedAmount && tempServedAmount && (
         <Box
           sx={{
-            marginLeft: "auto",
             display: "flex",
             alignItems: "center",
             flexDirection: "column",
@@ -167,7 +153,10 @@ const OrderItemsDetail = (props: OrderItemsDetailProps) => {
       {orderMeals.map((orderMeal, idx) => (
         <ListItem
           key={orderMeal.id}
-          sx={{ borderBottom: `1px solid ${theme.palette.common.black_20}`, padding: ".5rem" }}
+          sx={{
+            borderBottom: orderMeals[idx + 1] ? `1px solid ${theme.palette.common.black_20}` : "none",
+            padding: ".5rem"
+          }}
         >
           <OrderMealItem
             idx={idx}
@@ -257,11 +246,6 @@ export const PendingAndCancelOrderItem = (props: PendingAndCancelOrderItemProps)
         <Row sx={{ width: "100%" }}>
           <VerticalDivider />
           <Column sx={{ flex: "0 70%" }}>
-            <Typography>訂單編號</Typography>
-            <Typography>{id.slice(-5)}</Typography>
-          </Column>
-          <VerticalDivider />
-          <Column sx={{ flex: "0 70%" }}>
             <Typography variant="body1" fontWeight={700}>
               {type === OrderType.DineIn ? "內用" : "外帶"}
             </Typography>
@@ -270,6 +254,11 @@ export const PendingAndCancelOrderItem = (props: PendingAndCancelOrderItemProps)
                 {seats.join(", ")}
               </Typography>
             )}
+          </Column>
+          <VerticalDivider />
+          <Column sx={{ flex: "0 70%" }}>
+            <Typography>訂單編號</Typography>
+            <Typography>{id.slice(-5)}</Typography>
           </Column>
           <VerticalDivider />
           <Typography sx={{ flex: "0 50%" }}>{appDayjs(createdAt).format("YYYY/MM/DD HH:mm:ss")}</Typography>
@@ -331,9 +320,13 @@ export const UnpaidAndSuccessOrderItem = (props: UnpaidAndSuccessOrderItemProps)
   const dispatch = useAppDispatch();
   const { expanded, handleExpand } = useAccordion();
 
-  const handlePayment = useCallback(() => {
-    dispatch(openPaymentDrawer(parentOrder));
-  }, [dispatch, parentOrder]);
+  const handlePayment = useCallback(
+    (e: React.MouseEvent<HTMLButtonElement, MouseEvent>) => {
+      e.stopPropagation();
+      dispatch(openPaymentDrawer(parentOrder));
+    },
+    [dispatch, parentOrder]
+  );
 
   return (
     <Accordion
@@ -356,7 +349,7 @@ export const UnpaidAndSuccessOrderItem = (props: UnpaidAndSuccessOrderItemProps)
       >
         <Row sx={{ width: "100%" }}>
           <VerticalDivider />
-          <Column sx={{ flex: "0 70%" }}>
+          <Column sx={{ flexGrow: 1 }}>
             <Typography variant="body1" fontWeight={700}>
               {type === OrderType.DineIn ? "內用" : "外帶"}
             </Typography>
@@ -369,27 +362,35 @@ export const UnpaidAndSuccessOrderItem = (props: UnpaidAndSuccessOrderItemProps)
           {type === OrderType.TakeOut && (
             <>
               <VerticalDivider />
-              <Column sx={{ flex: "0 70%" }}>
+              <Column sx={{ flexGrow: 1 }}>
                 <Typography>訂單編號</Typography>
                 <Typography>{id.slice(-5)}</Typography>
               </Column>
             </>
           )}
-          {status === OrderStatus.SUCCESS && paymentLogs && (
+          <VerticalDivider />
+          <Column sx={{ minWidth: "13rem", textAlign: "right" }}>
+            <Typography variant="h6" fontWeight={700}>
+              總金額：{totalPrice}元
+            </Typography>
+          </Column>
+          {status === OrderStatus.UNPAID && (
             <>
               <VerticalDivider />
-              <Column sx={{ flexGrow: "auto", flexShrink: 0, textAlign: "right", marginLeft: "auto" }}>
-                <Typography variant="h6" fontWeight={700}>
-                  付款方式：{paymentLogs[0]?.gateway ?? null}
-                </Typography>
-              </Column>
+              <Button
+                variant="contained"
+                onClick={handlePayment}
+                sx={{ fontSize: theme.typography.body1.fontSize, fontWeight: 700, height: "100%" }}
+              >
+                收款
+              </Button>
             </>
           )}
         </Row>
       </AccordionSummary>
       <AccordionDetails sx={{ padding: "0 1rem .5rem" }}>
-        {orders.map(({ id, orderMeals, createdAt }) => (
-          <Box key={id} sx={{ margin: "1rem 0" }}>
+        {orders.map((order) => (
+          <Box key={order.id} sx={{ margin: "1rem 0" }}>
             <Accordion
               sx={{
                 boxShadow: `0 0 0.25rem #b8b8b881`
@@ -398,32 +399,35 @@ export const UnpaidAndSuccessOrderItem = (props: UnpaidAndSuccessOrderItemProps)
               {type === OrderType.DineIn && (
                 <AccordionSummary>
                   <Row sx={{ width: "100%" }}>
-                    <Column sx={{ flex: "0 70%" }}>
+                    <Column sx={{ flexGrow: 1 }}>
                       <Typography>訂單編號</Typography>
-                      <Typography>{id.slice(-5)}</Typography>
+                      <Typography>{order.id.slice(-5)}</Typography>
                     </Column>
                     <VerticalDivider />
-                    <Typography sx={{ flex: "0 50%" }}>{appDayjs(createdAt).format("YYYY/MM/DD HH:mm:ss")}</Typography>
+                    <Typography sx={{ minWidth: "13rem" }}>
+                      {appDayjs(order.createdAt).format("YYYY/MM/DD HH:mm:ss")}
+                    </Typography>
+                    {status === OrderStatus.SUCCESS && (
+                      <>
+                        <VerticalDivider />
+                        <Column sx={{ minWidth: "13rem" }}>
+                          <Typography fontWeight={700}>付款方式：{order.paymentLogs[0]?.gateway ?? null}</Typography>
+                        </Column>
+                      </>
+                    )}
+                    <VerticalDivider />
+                    <Column sx={{ minWidth: "12rem", textAlign: "right" }}>
+                      <Typography fontWeight={700}>金額：{calculateOrderPrice(order)}元</Typography>
+                    </Column>
                   </Row>
                 </AccordionSummary>
               )}
               <AccordionDetails sx={{ bgcolor: theme.palette.secondary.contrastText }}>
-                <OrderItemsDetail status={status} orderMeals={orderMeals} />
+                <OrderItemsDetail status={status} orderMeals={order.orderMeals} />
               </AccordionDetails>
             </Accordion>
           </Box>
         ))}
-        {status === OrderStatus.UNPAID && (
-          <Box sx={{ display: "flex" }}>
-            <Button
-              variant="contained"
-              onClick={handlePayment}
-              sx={{ fontSize: theme.typography.body1.fontSize, fontWeight: 700, marginLeft: "auto" }}
-            >
-              收款 {totalPrice} 元
-            </Button>
-          </Box>
-        )}
       </AccordionDetails>
     </Accordion>
   );

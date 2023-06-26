@@ -71,10 +71,8 @@ const SubmitOrderConfirm = (props: SubmitOrderConfirmProps) => {
   const { open, setOpen } = props;
   const dispatch = useAppDispatch();
 
-  const handleSubmitOrder = async () => {
-    const res = await dispatch(postOrder());
-    // [TODO] get order id from res
-    console.log({ res });
+  const handleSubmitOrder = () => {
+    dispatch(postOrder({ isUser: false }));
     setOpen(false);
   };
 

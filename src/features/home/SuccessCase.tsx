@@ -15,7 +15,7 @@ const SuccessCase = () => {
   const deviceType = useDeviceType();
 
   return (
-    <Box paddingY={20}>
+    <Box pt={20} pb={10}>
       <Container>
         <Typography variant="h3">成功案例</Typography>
         <Column

@@ -34,7 +34,7 @@ import {
   deleteCartItem
 } from "~/features/orders/slice";
 import { SpecialtyItem, Specialty, Order, DialogType } from "~/features/orders/type";
-import { postOrder } from "~/app/slices/order";
+import { postOrder, setMobileOrderStatusTab } from "~/app/slices/order";
 import { MOBILE_ORDER_STATUS_TAB, ORDER_STATUS } from "~/utils/constants";
 import { calculateCartItemPrice, calculateCartPrice, calculateOrderPrice } from "~/utils/price.utils";
 import { MobileModal, OrderStatus, OrderType } from "~/types/common";
@@ -182,7 +182,7 @@ const Cart = () => {
   };
 
   const handleSubmitOrders = () => {
-    dispatch(postOrder());
+    dispatch(postOrder({ isUser: true }));
   };
 
   useEffect(() => {
@@ -264,20 +264,16 @@ const Cart = () => {
   );
 };
 
-type IOrders = {
-  orderStatusTab?: number;
-};
-const Orders = (props: IOrders) => {
-  const { orderStatusTab = 0 } = props;
+const Orders = () => {
   const dispatch = useAppDispatch();
   const currentDialog = useAppSelector(({ takeOrder }) => takeOrder.currentDialog);
   const orders = useAppSelector(({ order }) => order.orders);
+  const mobileOrderStatusTab = useAppSelector(({ order }) => order.mobileOrderStatusTab);
 
-  const [orderStatus, setOrderStatus] = useState(orderStatusTab);
   const [toggleList, setToggleList] = useState<Order["id"][]>([]);
   const [canPay, setCanPay] = useState<boolean>(false);
 
-  const showOrders = orders.filter(({ status }) => MOBILE_ORDER_STATUS_TAB[orderStatus].type.includes(status));
+  const showOrders = orders.filter(({ status }) => MOBILE_ORDER_STATUS_TAB[mobileOrderStatusTab].type.includes(status));
 
   const totalPrice = useMemo(
     () => showOrders.reduce((acc, cur) => acc + cur.orderMeals.reduce((acc, cur) => acc + cur.price, 0), 0),
@@ -302,7 +298,7 @@ const Orders = (props: IOrders) => {
   };
 
   const handleClickOrderStatus = (orderStatus: number) => {
-    setOrderStatus(orderStatus);
+    dispatch(setMobileOrderStatusTab(orderStatus));
   };
 
   const handleToggleListItem = (orderId: Order["id"]) => () => {
@@ -327,7 +323,7 @@ const Orders = (props: IOrders) => {
       onCloseDialog={handleClose}
       actionButton={
         <>
-          {orderStatus !== 2 && (
+          {mobileOrderStatusTab !== 2 && (
             <Box
               sx={{
                 display: "flex",
@@ -345,7 +341,7 @@ const Orders = (props: IOrders) => {
               </Typography>
             </Box>
           )}
-          {orderStatus === 0 && showOrders.length > 0 && (
+          {mobileOrderStatusTab === 0 && showOrders.length > 0 && (
             <Button disabled={!canPay} variant="contained" color="primary" onClick={handleCheckout}>
               前往結帳
             </Button>
@@ -364,7 +360,7 @@ const Orders = (props: IOrders) => {
       >
         {/* 訂單狀態分類 */}
         <Tabs
-          value={orderStatus}
+          value={mobileOrderStatusTab}
           onChange={(_, value) => handleClickOrderStatus(value)}
           sx={{
             [`& .${tabsClasses.scrollButtons}`]: {
@@ -419,7 +415,7 @@ const Orders = (props: IOrders) => {
                       display: "flex",
                       justifyContent: "space-between",
                       alignItems: "center",
-                      fontSize: "h6.fontSize",
+                      fontSize: "body1.fontSize",
                       padding: ".5rem 0"
                     }}
                   >
@@ -428,23 +424,20 @@ const Orders = (props: IOrders) => {
                       <Box component="span" sx={{ color: "common.black_80" }}>
                         狀態：
                       </Box>
-                      <Box component="span" sx={{ fontWeight: 900 }}>
+                      <Box component="span" sx={{ fontWeight: 700 }}>
                         {ORDER_STATUS.find((status) => status.id === order.status)?.title}
                       </Box>
                     </Box>
                     {/* 訂單總金額 */}
                     {order.status !== OrderStatus.CANCEL && (
-                      <Box sx={{ fontWeight: 900 }}>{calculateOrderPrice(order)}元</Box>
+                      <Box sx={{ fontWeight: 700 }}>{calculateOrderPrice(order)}元</Box>
                     )}
                   </Box>
                 </Box>
+                <Divider sx={{ width: "100%", margin: ".5rem 0" }} />
                 <Box sx={{ width: "100%", display: toggleList.includes(order.id) ? "block" : "none" }}>
                   {order.orderMeals.map((orderMeal) => (
-                    <Grid
-                      container
-                      key={orderMeal.id}
-                      sx={{ borderBottom: "1px solid common.black_60", fontWeight: 700 }}
-                    >
+                    <Grid container key={orderMeal.id} sx={{ borderBottom: "1px solid common.black_60" }}>
                       <Grid item xs={1}>
                         {/* 出餐狀態 */}
                         {order.status !== OrderStatus.CANCEL && (
@@ -455,9 +448,9 @@ const Orders = (props: IOrders) => {
                           />
                         )}
                       </Grid>
-                      <Grid item sx={{ flexGrow: 1 }} xs={5}>
+                      <Grid item sx={{ flexGrow: 1 }} xs={8}>
                         {/* 餐點名稱 */}
-                        <Box sx={{ paddingBottom: ".5rem" }}>{orderMeal.title}</Box>
+                        <Typography sx={{ paddingBottom: ".5rem" }}>{orderMeal.title}</Typography>
                         {/* 客製化項目 */}
                         {orderMeal.specialties.map((specialty) => (
                           <Box
@@ -465,7 +458,7 @@ const Orders = (props: IOrders) => {
                             sx={{
                               fontSize: "small.fontSize",
                               fontWeight: 300,
-                              color: "common.black_80",
+                              color: "common.black_60",
                               paddingBottom: ".5rem"
                             }}
                           >
@@ -480,7 +473,7 @@ const Orders = (props: IOrders) => {
                         <Box>x{orderMeal.amount}</Box>
                       </Grid>
                       {/* 金額 */}
-                      <Grid item sx={{ textAlign: "right" }} xs={5}>
+                      <Grid item sx={{ textAlign: "right" }} xs={2}>
                         {order.status !== OrderStatus.CANCEL && <Box>{orderMeal.price}元</Box>}
                       </Grid>
                     </Grid>
