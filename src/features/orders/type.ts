@@ -90,6 +90,7 @@ export type Order = {
   createdAt?: number;
   updatedAt?: number;
   seats?: string[];
+  reservationLogId?: string;
 };
 
 export type ParentOrder = {
@@ -99,6 +100,7 @@ export type ParentOrder = {
   seats: string[];
   paymentLogs: any[];
   orders: Order[];
+  reservationLogId?: string;
 };
 
 export type CartItem = Meal & { amount: number };

@@ -223,16 +223,14 @@ export const CategoryNavbar = () => {
 };
 
 export const Meals = () => {
-  const subHeaderHeight = 48;
-  const stickyTopOffset = 128;
-
   const dispatch = useAppDispatch();
 
   const menu = useAppSelector(({ takeOrder }) => takeOrder.menu);
   const currentCategory = useAppSelector(({ takeOrder }) => takeOrder.currentCategory);
+  const prevCategory = usePrevious(currentCategory);
+  const showMenu = menu.find((category) => category.id === currentCategory);
   const cart = useAppSelector(({ takeOrder }) => takeOrder.cart);
 
-  const prevCategory = usePrevious(currentCategory);
   const getItemAmountInCart = useCallback(
     (mealId: string) => cart.reduce((acc, cur) => (cur.id === mealId ? acc + cur.amount : acc), 0),
     [cart]
@@ -243,85 +241,70 @@ export const Meals = () => {
   };
 
   useEffect(() => {
-    if (prevCategory && currentCategory) {
-      const categoryDividerEl = document.getElementById(currentCategory) as HTMLHRElement;
-      const categoryFirstElTop = categoryDividerEl.getBoundingClientRect().top;
-      const scrollToTop = categoryFirstElTop - (stickyTopOffset + subHeaderHeight) + window.scrollY;
-      window.scroll({ top: scrollToTop, behavior: "smooth" });
+    // Don't scroll when it's the first-mounted.
+    if (prevCategory && currentCategory && prevCategory !== currentCategory) {
+      window.scroll({ top: 290, behavior: "smooth" });
     }
-  }, [currentCategory]);
-
-  // [TODO]: scrolling change tab focus
+  }, [prevCategory, currentCategory]);
 
   return (
     <Box sx={{ padding: "0 .2rem 5rem", userSelect: "none" }}>
       <List sx={{ width: "100%", zIndex: 0, "& ul": { padding: 0 } }} subheader={<li />} id="meal-list">
-        {menu.map((category) => (
-          <li key={category.id}>
-            <ul>
-              <ListSubheader sx={{ padding: ".5rem 0", color: "common.black", top: stickyTopOffset }}>
-                <Typography variant="h6" fontWeight={900}>
-                  {category.title}
-                </Typography>
-              </ListSubheader>
-              <Divider light id={category.id} />
-              {category.meals.map((meal, idx) => (
-                <Box key={`${meal.id}-${idx}`}>
-                  <ListItem sx={{ padding: ".5rem" }}>
-                    <ListItemButton sx={{ padding: "0" }} onClick={handleSelectedMeal(meal)}>
-                      <Grid container gap={1} sx={{ alignItems: "center", justifyContent: "space-between" }}>
-                        <Grid item sx={{ position: "relative" }}>
-                          <Box
-                            component="img"
-                            src={meal.coverUrl.split(".jpeg")[0] + "s" + ".jpeg"}
-                            alt={`${meal.title}-img`}
-                            sx={{ width: "5rem", verticalAlign: "middle" }}
-                          />
-                          {meal?.isPopular && (
-                            <Box
-                              sx={{
-                                position: "absolute",
-                                left: 0,
-                                top: 0,
-                                bgcolor: "primary.main",
-                                display: "flex",
-                                padding: ".1rem"
-                              }}
-                            >
-                              <ThumbUpIcon sx={{ width: "1rem", height: "1rem" }} />
-                            </Box>
-                          )}
-                        </Grid>
-                        <Grid item sx={{ flexGrow: 1 }}>
-                          <Box sx={{ fontWeight: "700" }}>{meal.title}</Box>
-                          <Box>{meal.price}元</Box>
-                        </Grid>
+        {showMenu &&
+          showMenu.meals.map((meal, idx) => (
+            <Box key={`${meal.id}-${idx}`}>
+              <ListItem sx={{ padding: ".5rem" }}>
+                <ListItemButton sx={{ padding: "0" }} onClick={handleSelectedMeal(meal)}>
+                  <Grid container gap={1} sx={{ alignItems: "center", justifyContent: "space-between" }}>
+                    <Grid item sx={{ position: "relative" }}>
+                      <Box
+                        component="img"
+                        src={meal.coverUrl.split(".jpeg")[0] + "s" + ".jpeg"}
+                        alt={`${meal.title}-img`}
+                        sx={{ width: "5rem", verticalAlign: "middle" }}
+                      />
+                      {meal?.isPopular && (
+                        <Box
+                          sx={{
+                            position: "absolute",
+                            left: 0,
+                            top: 0,
+                            bgcolor: "primary.main",
+                            display: "flex",
+                            padding: ".1rem"
+                          }}
+                        >
+                          <ThumbUpIcon sx={{ width: "1rem", height: "1rem" }} />
+                        </Box>
+                      )}
+                    </Grid>
+                    <Grid item sx={{ flexGrow: 1 }}>
+                      <Box sx={{ fontWeight: "700" }}>{meal.title}</Box>
+                      <Box>{meal.price}元</Box>
+                    </Grid>
 
-                        {getItemAmountInCart(meal.id) > 0 && (
-                          <Grid item>
-                            <Box
-                              sx={{
-                                bgcolor: "common.black",
-                                color: "common.white",
-                                borderRadius: "50%",
-                                width: "2rem",
-                                height: "2rem",
-                                textAlign: "center"
-                              }}
-                            >
-                              {getItemAmountInCart(meal.id)}
-                            </Box>
-                          </Grid>
-                        )}
+                    {getItemAmountInCart(meal.id) > 0 && (
+                      <Grid item>
+                        <Box
+                          sx={{
+                            bgcolor: "common.black",
+                            color: "common.white",
+                            borderRadius: "50%",
+                            width: "2rem",
+                            height: "2rem",
+                            textAlign: "center"
+                          }}
+                        >
+                          {getItemAmountInCart(meal.id)}
+                        </Box>
                       </Grid>
-                    </ListItemButton>
-                  </ListItem>
-                  <Divider light />
-                </Box>
-              ))}
-            </ul>
-          </li>
-        ))}
+                    )}
+                  </Grid>
+                </ListItemButton>
+              </ListItem>
+              <Divider light />
+            </Box>
+          ))}
       </List>
     </Box>
   );

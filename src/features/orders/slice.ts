@@ -206,7 +206,9 @@ export const takeOrderSlice = createSlice({
         const { menu, categories, meals } = action.payload;
         state.menu = menu;
         state.categories = categories;
-        state.currentCategory = categories[0]?.id ?? "";
+        if (state.currentCategory === initialState.currentCategory) {
+          state.currentCategory = categories[0]?.id ?? "";
+        }
         state.meals = meals;
         state.isLoading = false;
       })

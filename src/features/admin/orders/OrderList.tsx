@@ -24,19 +24,21 @@ const OrderList = (props: OrderListProps) => {
 
   const gatherOrders = () => {
     let showNewOrders: ParentOrder[] = [];
+
     orders.forEach((order) => {
-      const orderSeats = order.seats;
-      const { id, status, type, seats = [], paymentLogs } = order;
-      const parentOrder: ParentOrder = { id, status, type, seats, paymentLogs, orders: [order] };
+      const { id, status, type, seats = [], paymentLogs, reservationLogId } = order;
+      const parentOrder: ParentOrder = { id, status, type, seats, paymentLogs, orders: [order], reservationLogId };
 
-      if (orderSeats !== undefined) {
+      if (seats !== undefined) {
         // 內用單
-        const sameTableOrderIndex = showNewOrders.findIndex((item) => item.seats?.join(",") === orderSeats.join(","));
+        const sameGroupOrderIndex = showNewOrders.findIndex(
+          (item) => item.seats?.join(",") === seats.join(",") && item.reservationLogId === reservationLogId
+        );
 
-        if (sameTableOrderIndex === -1 && !showNewOrders[sameTableOrderIndex]) {
+        if (sameGroupOrderIndex === -1 && !showNewOrders[sameGroupOrderIndex]) {
           showNewOrders.push(parentOrder);
         } else {
-          (showNewOrders[sameTableOrderIndex] as ParentOrder).orders.push(order);
+          (showNewOrders[sameGroupOrderIndex] as ParentOrder).orders.push(order);
         }
       } else {
         // 外帶單
