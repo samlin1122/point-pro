@@ -7,11 +7,11 @@ import { ReservationsResponse, ReservationResponse, PostReservationPayload, Id }
 
 const name = "reservation";
 
-export const getReservations = createAppAsyncThunk<ReservationsResponse>(
+export const getReservations = createAppAsyncThunk<ReservationsResponse, Date>(
   `${name}/getReservations`,
   async (payload, { rejectWithValue }) => {
     try {
-      return await ReservationApi.getReservations();
+      return await ReservationApi.getReservations(payload);
     } catch (error) {
       if (error instanceof Error) {
         return rejectWithValue({ message: error.message });

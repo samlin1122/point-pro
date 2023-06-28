@@ -1,27 +1,21 @@
-import React, { useState } from "react";
+import React from "react";
 import { Box, InputAdornment } from "@mui/material";
 import AddIcon from "@mui/icons-material/Add";
 import SearchIcon from "@mui/icons-material/Search";
 import { ButtonBase } from "~/components/buttons";
 import { InputDate, InputText } from "~/components/input";
-import { DatePicker, DesktopDatePicker, LocalizationProvider } from "@mui/x-date-pickers";
+import { DesktopDatePicker, LocalizationProvider } from "@mui/x-date-pickers";
 import { AdapterDayjs } from "@mui/x-date-pickers/AdapterDayjs";
 import appDayjs from "~/utils/dayjs.util";
 
 interface ISeatSearchBarProps {
   view: number;
   setView: React.Dispatch<React.SetStateAction<number>>;
+  date: appDayjs.Dayjs;
+  handleDateChange: (value: appDayjs.Dayjs | null) => void;
 }
 
-const SeatSearchBar = (props: ISeatSearchBarProps) => {
-  const { view, setView } = props;
-
-  const [date, setDate] = useState(appDayjs());
-
-  const handleChangeBookingDate = (value: appDayjs.Dayjs | null) => {
-    setDate(value ?? appDayjs());
-  };
-
+const SeatSearchBar = ({ view, setView, date, handleDateChange }: ISeatSearchBarProps) => {
   return (
     <Box
       sx={{
@@ -33,14 +27,18 @@ const SeatSearchBar = (props: ISeatSearchBarProps) => {
         borderBottom: (theme) => `1px solid ${theme.palette.divider}`
       }}
     >
-      <ButtonBase sx={{ border: "1px solid", borderColor: "common.black_40", color: "common.black", fontWeight: 900 }}>
+      <ButtonBase
+        sx={{ border: "1px solid", borderColor: "common.black_40", color: "common.black", fontWeight: 900 }}
+        onClick={() => handleDateChange(appDayjs())}
+      >
         現在
       </ButtonBase>
       <LocalizationProvider dateAdapter={AdapterDayjs}>
         <DesktopDatePicker
           value={date}
           format="YYYY年MM月DD日 (星期dd)"
-          onChange={handleChangeBookingDate}
+          onChange={handleDateChange}
+          minDate={appDayjs()}
           sx={{
             "& .MuiOutlinedInput-root": {
               fontWeight: 900
@@ -51,33 +49,35 @@ const SeatSearchBar = (props: ISeatSearchBarProps) => {
           }}
         />
       </LocalizationProvider>
-      <Box sx={{ flexGrow: 1, display: "flex", justifyContent: "center" }}>
-        <InputText
-          sx={{ width: "25rem", bgcolor: "common.black_20" }}
-          placeholder="搜尋訂單編號/姓名/電話/mail"
-          startAdornment={
-            <InputAdornment position="start">
-              <SearchIcon />
-            </InputAdornment>
-          }
-        />
-      </Box>
       {view === 1 && (
-        <Box
-          sx={{
-            flexGrow: 1,
-            display: "flex",
-            flexDirection: "row-reverse"
-          }}
-        >
-          <ButtonBase
-            onClick={() => setView(0)}
-            sx={{ color: "common.black", bgcolor: "primary.main", width: "12rem" }}
+        <>
+          <Box sx={{ flexGrow: 1, display: "flex", justifyContent: "center" }}>
+            <InputText
+              sx={{ width: "25rem", bgcolor: "common.black_20" }}
+              placeholder="搜尋訂單編號/姓名/電話/mail"
+              startAdornment={
+                <InputAdornment position="start">
+                  <SearchIcon />
+                </InputAdornment>
+              }
+            />
+          </Box>
+          <Box
+            sx={{
+              flexGrow: 1,
+              display: "flex",
+              flexDirection: "row-reverse"
+            }}
           >
-            <AddIcon sx={{ fontSize: "h6.fontSize" }} />
-            新增
-          </ButtonBase>
-        </Box>
+            <ButtonBase
+              onClick={() => setView(0)}
+              sx={{ color: "common.black", bgcolor: "primary.main", width: "12rem" }}
+            >
+              <AddIcon sx={{ fontSize: "h6.fontSize" }} />
+              新增
+            </ButtonBase>
+          </Box>
+        </>
       )}
     </Box>
   );
