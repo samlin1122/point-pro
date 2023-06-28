@@ -37,7 +37,6 @@ const PaymentDrawer = () => {
   const { id, type, status: orderStatus } = paymentItem ?? {};
   const isOpenPaymentDrawer = useAppSelector(({ payment }) => payment.isOpenPaymentDrawer);
   const cashPaymentResponse = useAppSelector(({ payment }) => payment.cashPaymentResponse);
-
   const [canPay, setCanPay] = useState<boolean>(false);
 
   const [selectPayment, setSelectPayment] = useState<string>("");
@@ -267,7 +266,7 @@ const PaymentDrawer = () => {
           </Typography>
         </Row>
       </DrawerBase>
-      {cashPaymentResponse && cashPaymentResponse.result.paymentLogs && <CashPaymentDialog {...cashPaymentResponse} />}
+      <CashPaymentDialog {...cashPaymentResponse} />
     </>
   );
 };

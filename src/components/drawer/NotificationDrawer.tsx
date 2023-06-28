@@ -1,7 +1,7 @@
 import React, { useState } from "react";
 import { DrawerBase } from "./drawer-base";
 import { Box, Card, CardActionArea, Chip, DrawerProps, List, ListItem, Typography } from "@mui/material";
-import { useLocalStorage } from "~/hooks/useLocalStorage";
+import { usesessionStorage } from "~/hooks/usesessionStorage";
 import { useAppSelector } from "~/app/hook";
 import { SocketTopic } from "~/hooks/useSocket";
 import theme from "~/theme";
@@ -24,7 +24,7 @@ const NotificationDrawer = (props: NotificationDrawerType) => {
       {notifications.length > 0 ? (
         <Box>
           {notifications
-            .filter((notification) => !notification.isRead) // TODO: remove filter, filter when setLocalStorage
+            .filter((notification) => !notification.isRead) // TODO: remove filter, filter when setsessionStorage
             .map((notification, idx) => (
               <Card
                 key={idx}

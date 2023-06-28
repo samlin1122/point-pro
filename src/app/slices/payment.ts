@@ -149,6 +149,9 @@ export const paymentSlice = createSlice({
     closePaymentDrawer: (state) => {
       state.paymentItem = initialState.paymentItem;
       state.isOpenPaymentDrawer = initialState.isOpenPaymentDrawer;
+    },
+    clearCashPaymentResponse: (state) => {
+      state.cashPaymentResponse = initialState.cashPaymentResponse;
     }
   },
   extraReducers: (builder) => {
@@ -176,4 +179,4 @@ export const paymentSlice = createSlice({
   }
 });
 
-export const { openPaymentDrawer, closePaymentDrawer } = paymentSlice.actions;
+export const { openPaymentDrawer, closePaymentDrawer, clearCashPaymentResponse } = paymentSlice.actions;

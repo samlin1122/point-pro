@@ -3,7 +3,8 @@ import { PayloadAction, createSlice } from "@reduxjs/toolkit";
 import { AuthApi } from "~/api";
 // Others
 import { createAppAsyncThunk } from "~/app/hook";
-import { LoginPayload, LoginResponse } from "~/types/api";
+import { UserInfo } from "~/features/orders/type";
+import { GetUserInfoResponse, LoginPayload, LoginResponse } from "~/types/api";
 
 const name = "auth";
 
@@ -27,16 +28,34 @@ export const login = createAppAsyncThunk<LoginResponse, LoginPayload>(
   }
 );
 
+export const getUserInfo = createAppAsyncThunk<GetUserInfoResponse>(
+  `${name}/getUserInfo`,
+  async (payload, { rejectWithValue }) => {
+    try {
+      const data = await AuthApi.getUserInfo();
+      return data;
+    } catch (error) {
+      if (error instanceof Error) {
+        return rejectWithValue({ message: error.message });
+      } else {
+        return rejectWithValue({ message: "unknown error" });
+      }
+    }
+  }
+);
+
 interface IAuthState {
   isLoading: boolean;
   isAuthenticated: boolean;
   authToken: string | null;
+  userRole: UserInfo | null;
 }
 
 const initialState: IAuthState = {
   isLoading: false,
   isAuthenticated: false,
-  authToken: null
+  authToken: null,
+  userRole: null
 };
 
 export const authSlice = createSlice({
@@ -70,6 +89,9 @@ export const authSlice = createSlice({
         state.isAuthenticated = false;
         state.authToken = null;
       });
+    builder.addCase(getUserInfo.fulfilled, (state, action) => {
+      state.userRole = action.payload.result;
+    });
   }
 });
 

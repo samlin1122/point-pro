@@ -7,25 +7,27 @@ import MoneyIcon from "@mui/icons-material/Money";
 import { Column, Row } from "~/components/layout";
 import { MobileDialogLayout } from "../dialog";
 
-import { useAppSelector } from "~/app/hook";
 import theme from "~/theme";
 import { CashPaymentResponse, MealDetails, OrderMealWithMeal, PaymentLogsResponse } from "~/types/api";
+import { useAppDispatch } from "~/app/hook";
+import { clearCashPaymentResponse } from "~/app/slices/payment";
 
-
-
-export const CashPaymentDialog = (payload: CashPaymentResponse) => {
-  const { paymentLogs }: { paymentLogs: PaymentLogsResponse[] } = payload.result;
-  const cashPaymentResponse = useAppSelector(({ payment }) => payment.cashPaymentResponse);
+export const CashPaymentDialog = ({ result }: CashPaymentResponse) => {
+  const dispatch = useAppDispatch();
+  const [paymentLogs, setPaymentLogs] = useState<PaymentLogsResponse[]>([]);
   const [showMobileDialog, setShowMobileDialog] = useState(false);
 
   useEffect(() => {
-    if (cashPaymentResponse) {
+    if (result.paymentLogs) {
+      setPaymentLogs(result.paymentLogs);
       setShowMobileDialog(true);
     }
-  }, [cashPaymentResponse]);
+  }, [result]);
 
   const handleCloseCashPayment = () => {
     setShowMobileDialog(false);
+    setPaymentLogs([]);
+    dispatch(clearCashPaymentResponse());
   };
   return (
     <MobileDialogLayout
@@ -55,7 +57,7 @@ export const CashPaymentDialog = (payload: CashPaymentResponse) => {
             付款完成
           </Typography>
           {paymentLogs &&
-            paymentLogs?.map((paymentLog) => (
+            paymentLogs.map((paymentLog: PaymentLogsResponse) => (
               <Column
                 key={paymentLog.paymentNo}
                 border={"1px solid #d1d1d1"}
@@ -136,7 +138,7 @@ export const CashPaymentDialog = (payload: CashPaymentResponse) => {
           <Row gap={2}>
             <MoneyIcon />
             <Typography variant="h6" fontWeight={900} fontSize={32}>
-              ${paymentLogs?.reduce((acc, cur) => acc + cur.price, 0)}
+              ${paymentLogs && paymentLogs.reduce((acc, cur) => acc + cur.price, 0)}
             </Typography>
           </Row>
         </Box>

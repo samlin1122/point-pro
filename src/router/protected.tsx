@@ -6,7 +6,7 @@ export const ProtectedRoute = () => {
   const location = useLocation();
 
   const isAuthenticated = useAppSelector(({ auth }) => auth.isAuthenticated);
-  const Token = localStorage.getItem("token");
+  const Token = sessionStorage.getItem("token");
   useSocket({ ns: "admin" });
 
   return (isAuthenticated || Token) && location.pathname !== "/admin" ? (

@@ -6,7 +6,7 @@ let http = axios.create({ baseURL: `${apiHost}/api` });
 
 http.interceptors.request.use(
   (configs) => {
-    let Token = localStorage.getItem("token");
+    let Token = sessionStorage.getItem("token");
 
     if (Token) {
       configs.headers.authorization = `Bearer ${Token}`;
@@ -38,7 +38,7 @@ const errorCodeCheck = (status: number) => {
     case 403:
     case 500:
       if (location.href.includes("admin")) {
-        localStorage.removeItem("token");
+        sessionStorage.removeItem("token");
         location.replace(`${location.origin}/admin`);
       }
       break;

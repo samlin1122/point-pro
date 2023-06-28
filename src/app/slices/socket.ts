@@ -8,7 +8,7 @@ type SocketSliceState = {
 };
 const initialState: SocketSliceState = {
   socket: undefined,
-  notifications: JSON.parse(localStorage.getItem("notifications") ?? "[]")
+  notifications: JSON.parse(sessionStorage.getItem("notifications") ?? "[]")
 };
 export const socketSlice = createSlice({
   name,
@@ -22,7 +22,7 @@ export const socketSlice = createSlice({
     },
     addNotifications: (state, action) => {
       state.notifications.unshift(action.payload);
-      localStorage.setItem("notifications", JSON.stringify(state.notifications));
+      sessionStorage.setItem("notifications", JSON.stringify(state.notifications));
     }
   }
 });

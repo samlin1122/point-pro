@@ -12,23 +12,24 @@ import { EcPayConfirmPayload, LinePayConfirmPayload, MealDetails } from "~/types
 import { useDeviceType } from "~/features/home/slice";
 import theme from "~/theme";
 import { OrderMeal } from "~/types";
+import { getUserInfo } from "~/app/slices/auth";
 
 export const PaymentReturnContainer = () => {
   const [searchParams] = useSearchParams();
   const dispatch = useAppDispatch();
   const linePayConfirmResponse = useAppSelector(({ payment }) => payment.linePayConfirmResponse);
   const ecPayConfirmResponse = useAppSelector(({ payment }) => payment.ecPayConfirmResponse);
+  const userRole = useAppSelector(({ auth }) => auth.userRole);
 
   const transactionId = searchParams.get("transactionId");
   const orderId = searchParams.get("orderId");
   const from = searchParams.get("from");
 
   const navigate = useNavigate();
-  const isAuthenticated = useAppSelector(({ auth }) => auth.isAuthenticated);
 
-  const handleReturnMeal = () => {
-    const token = localStorage.getItem("token");
-    isAuthenticated ? navigate("/admin/orders") : navigate(`/orders?token=${token}`);
+  const handleReturnMeal = async () => {
+    const token = sessionStorage.getItem("token");
+    userRole?.role === "USER" ? navigate(`/orders?token=${token}`) : navigate("/admin/orders");
   };
 
   useEffect(() => {
@@ -42,7 +43,10 @@ export const PaymentReturnContainer = () => {
         await dispatch(confirmEcPay({ transactionId, orderId }));
       }
     };
-    console.log("from", from);
+    const handleGetUserInfo = async () => {
+      await dispatch(getUserInfo());
+    };
+    handleGetUserInfo();
     from === "linePay" && handleConfirmLinePay();
     from === "ecPay" && handleConfirmEcPay();
   }, []);
@@ -225,7 +229,7 @@ export const PaymentCancel = () => {
   const isAuthenticated = useAppSelector(({ auth }) => auth.isAuthenticated);
 
   const handleReturnMeal = () => {
-    const token = localStorage.getItem("token");
+    const token = sessionStorage.getItem("token");
     isAuthenticated ? navigate("/admin/orders") : navigate(`/orders?token=${token}`);
   };
   return (

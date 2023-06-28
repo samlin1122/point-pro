@@ -43,7 +43,7 @@ const Header: FC<RouterProps> = ({ location, navigate }) => {
   }, []);
 
   const handleLogout = () => {
-    localStorage.removeItem("token");
+    sessionStorage.removeItem("token");
     navigate({ pathname: "/admin" });
   };
 

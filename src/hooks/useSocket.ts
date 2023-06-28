@@ -6,7 +6,7 @@ import { useAppDispatch, useAppSelector } from "~/app/hook";
 import { getOrders } from "~/app/slices/order";
 import { addNotifications, resetSocket, setSocket } from "~/app/slices/socket";
 import { closeDialog, getMenu } from "~/features/orders/slice";
-import { useLocalStorage } from "./useLocalStorage";
+import { usesessionStorage } from "./usesessionStorage";
 
 export enum SocketTopic {
   MENU = "MENU",
@@ -32,7 +32,7 @@ export const useSocket = (props: useSocketProps) => {
       transports: ["websocket", "polling"],
       autoConnect: false,
       auth: {
-        token: localStorage.getItem("token")
+        token: sessionStorage.getItem("token")
       }
     })
   );
