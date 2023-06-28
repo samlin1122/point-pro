@@ -7,8 +7,8 @@ import {
   PostReservationResponse
 } from "~/types/api";
 
-export const getReservations = () => {
-  return http.get<string, ReservationsResponse>("reservation");
+export const getReservations = (date: Date) => {
+  return http.get<string, ReservationsResponse>("reservation", { params: { date: date ?? new Date() } });
 };
 
 export const getReservationById = (reservationId: Id) => {

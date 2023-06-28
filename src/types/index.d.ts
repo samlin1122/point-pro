@@ -194,17 +194,27 @@ type DatePeriodInfo = {
   totalAvailable: number;
 };
 
-type ReservationRecord = {
-  periodStartedAt: Date;
-  periodEndedAt: Date;
+interface ReservationHistory extends ReservationInfo {
+  periodId: string;
+}
+export type ReservationRecord = {
+  periodId?: string;
+  startedAt: Date;
+  startOfMeal: Date | null;
+  endOfMeal: Date | null;
   options?: { [key: string]: any };
 };
 
 export type ReservationInfo = {
-  reservationTime: Date;
   id: string;
-  seats: string[];
+  reservedAt: Date;
+  type: BookingType;
   options: { [key: string]: any };
+  periodStartedAt: Date;
+  periodEndedAt: Date;
+  startOfMeal: Date | null;
+  endOfMeal: Date | null;
+  seats: PartialSeat[];
 };
 
 type SeatInfo = {
@@ -212,18 +222,13 @@ type SeatInfo = {
   seatNo: string;
   status: "RESERVED" | "AVAILABLE" | "OCCUPIED";
   date: Date;
-  current: ReservationInfo;
+  currentReservation: ReservationRecord;
 };
 
-// type ReservationInfo = {
-//   startedAt: Date;
-//   endedAt: Date;
-//   customer?: {
-//     name?: string;
-//     title?: string;
-//     phone: string;
-//     email?: string;
-//     adults: number;
-//     children: number;
-//   };
-// };
+type SeatDetails = {
+  id: string;
+  seatNo: string;
+  status: "RESERVED" | "AVAILABLE" | "OCCUPIED";
+  date: Date;
+  history: ReservationHistory[];
+};

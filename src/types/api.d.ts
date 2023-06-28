@@ -332,7 +332,6 @@ interface MealDetails {
   items?: MealDetails[];
 }
 
-
 type PostReservationResponse = ApiResponse<CreateReservation>;
 
 type PeriodsResponse = ApiResponse<DatePeriodInfo>;
@@ -342,3 +341,8 @@ type ReservationResponse = ApiResponse<ReservationInfo>;
 type ReservationsResponse = ApiResponse<ReservationInfo[]>;
 
 type SeatsResponse = ApiResponse<SeatInfo[]>;
+
+interface SeatsPayload {
+  data?: Date;
+  periodId?: Id;
+}

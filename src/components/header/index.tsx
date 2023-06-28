@@ -133,7 +133,7 @@ const Header: FC<RouterProps> = ({ location, navigate }) => {
           <Typography variant="h2" sx={{ flexGrow: 1, pl: 2 }}>
             {pageTitle()}
           </Typography>
-          <Typography sx={{ pr: 2 }}>{appDayjs().format(dateForm.dateWithTime)}</Typography>
+          <Typography sx={{ pr: 2 }}>{appDayjs().format(dateForm.fullDateWithTime)}</Typography>
 
           {/* action icon */}
           <Box

@@ -29,11 +29,11 @@ appDayjs.locale("zh-tw");
 export default appDayjs;
 
 export const dateForm = {
-  fullDateWithTime: "YYYY年MM月DD日 HH:mm",
-  fullDate: "YYYY年MM月DD日",
-  dateWithTime: "MM月DD日 HH:mm",
-  dateOnly: "MM月DD日",
-  yearOnly: "YYYY年",
+  fullDateWithTime: "YYYY/MM/DD HH:mm",
+  fullDate: "YYYY/MM/DD",
+  dateWithTime: "MM/DD HH:mm",
+  dateOnly: "MM/DD",
+  yearOnly: "YYYY",
   timeOnly: "HH:mm"
 };
 
@@ -48,4 +48,9 @@ export const formatDateOnly = (date: any) => {
 };
 export const formatTimeOnly = (date: any) => {
   return date ? appDayjs(date).format(dateForm.timeOnly) : date;
+};
+export const percentOfUsed = (start: any, end: any) => {
+  let startAt = appDayjs(start),
+    endAt = appDayjs(end);
+  return `${Math.round(startAt.diff() / startAt.diff(endAt))}%`;
 };
