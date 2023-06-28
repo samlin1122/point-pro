@@ -73,7 +73,10 @@ export const PeopleAndTime = () => {
   const reservedAt = useAppSelector(({ customerReservation }) => customerReservation.reservationParams.reservedAt);
   const adults = useAppSelector(({ customerReservation }) => customerReservation.reservationParams.user.adults);
 
-  const availableDate = availableBookings.map((availableBooking) => availableBooking.date);
+  // const availableDates = availableBookings.map((availableBooking) => availableBooking.date);
+  const availableDateStrings = availableBookings.map(
+    (availableBooking) => new Date(availableBooking.date).toLocaleString("zh-tw").split(" ")[0]
+  );
   const choosedPeriodInfo = availablePeriod.find((availablePeriod) => availablePeriod.startedAt === reservedAt);
   const adultOptionList =
     choosedPeriodInfo?.peopleAmount && choosedPeriodInfo?.peopleAmount > 10
@@ -122,7 +125,14 @@ export const PeopleAndTime = () => {
               views={["day"]}
               disablePast
               maxDate={appDayjs().add(30, "day")}
-              shouldDisableDate={(day) => !availableDate.includes(appDayjs(day).valueOf())}
+              shouldDisableDate={(day) => {
+                // const dayTimeStamp = appDayjs(day).valueOf();
+                // console.log(day.toDate(), dayTimeStamp);
+                const currentDate = day.toDate().toLocaleDateString("zh-tw");
+                // console.log(currentDate);
+
+                return !availableDateStrings.includes(currentDate);
+              }}
               slots={{
                 actionBar: (props: PickersActionBarProps) => (
                   <DialogActions className={props.className} sx={{ padding: ".5rem" }}>

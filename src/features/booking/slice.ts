@@ -110,7 +110,9 @@ export const customerBookingSlice = createSlice({
       state.choosedDate = action.payload;
 
       const availableBooking = state.availableBookings.find(
-        (availableBooking) => availableBooking.date === action.payload
+        (availableBooking) =>
+          appDayjs(availableBooking.date).startOf("date").valueOf() ===
+          appDayjs(action.payload).startOf("date").valueOf()
       );
 
       state.availablePeriod =
