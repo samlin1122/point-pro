@@ -6,7 +6,7 @@ import { useAppDispatch, useAppSelector } from "~/app/hook";
 import { getOrders } from "~/app/slices/order";
 import { addNotifications, resetSocket, setSocket } from "~/app/slices/socket";
 import { closeDialog, getMenu } from "~/features/orders/slice";
-import { usesessionStorage } from "./usesessionStorage";
+import { useSessionStorage } from "./useSessionStorage";
 
 export enum SocketTopic {
   MENU = "MENU",
