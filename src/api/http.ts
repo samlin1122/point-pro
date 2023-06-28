@@ -1,4 +1,5 @@
 import axios, { AxiosRequestConfig } from "axios";
+import { getToken } from "~/utils/token.utils";
 
 export const apiHost = import.meta.env.DEV ? import.meta.env.VITE_API_HOST_DEV : import.meta.env.VITE_API_HOST_PROD;
 
@@ -6,11 +7,9 @@ let http = axios.create({ baseURL: `${apiHost}/api` });
 
 http.interceptors.request.use(
   (configs) => {
-    let Token = sessionStorage.getItem("token");
+    const token = getToken();
 
-    if (Token) {
-      configs.headers.authorization = `Bearer ${Token}`;
-    }
+    configs.headers.authorization = `Bearer ${token}`;
     return configs;
   },
   (error) => {
@@ -37,8 +36,8 @@ const errorCodeCheck = (status: number) => {
     case 401:
     case 403:
     case 500:
+      sessionStorage.removeItem("token");
       if (location.href.includes("admin")) {
-        sessionStorage.removeItem("token");
         location.replace(`${location.origin}/admin`);
       }
       break;

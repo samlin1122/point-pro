@@ -1,6 +1,5 @@
 // Libs
 import { useEffect } from "react";
-import { useSearchParams } from "react-router-dom";
 // Components
 import { SeatInfo, CategoryNavbar, Meals, Header, Footer } from "./index.styles";
 // Others
@@ -9,25 +8,23 @@ import { getMenu, getUserInfo } from "./slice";
 import { getOrders } from "~/app/slices/order";
 import { MobileModal } from "~/components/modals";
 import { DialogType } from "~/components/dialog";
-import { useSocket } from "~/hooks/useSocket";
+import { NameSpace, useSocket } from "~/hooks/useSocket";
+import { getToken } from "~/utils/token.utils";
 
 const Order = () => {
   const dispatch = useAppDispatch();
-  const [searchParams] = useSearchParams();
-  const token = searchParams.get("token");
-  useSocket({ ns: "user" });
+
+  useSocket({ ns: NameSpace.user });
 
   useEffect(() => {
-    if (token) {
-      sessionStorage.setItem("token", token);
-    } else {
-      sessionStorage.removeItem("token");
-    }
-
-    dispatch(getUserInfo());
     dispatch(getMenu());
-    dispatch(getOrders({}));
-  }, [token]);
+
+    const token = getToken();
+    if (token) {
+      dispatch(getUserInfo());
+      dispatch(getOrders({}));
+    }
+  }, []);
 
   return (
     <>

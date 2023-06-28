@@ -1,7 +1,6 @@
-import React, { useState } from "react";
+import React from "react";
 import { DrawerBase } from "./drawer-base";
-import { Box, Card, CardActionArea, Chip, DrawerProps, List, ListItem, Typography } from "@mui/material";
-import { useSessionStorage } from "~/hooks/useSessionStorage";
+import { Box, Card, CardActionArea, Typography } from "@mui/material";
 import { useAppSelector } from "~/app/hook";
 import { SocketTopic } from "~/hooks/useSocket";
 import theme from "~/theme";

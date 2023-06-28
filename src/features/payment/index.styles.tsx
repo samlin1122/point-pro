@@ -13,6 +13,7 @@ import { useDeviceType } from "~/features/home/slice";
 import theme from "~/theme";
 import { OrderMeal } from "~/types";
 import { getUserInfo } from "~/app/slices/auth";
+import { getToken } from "~/utils/token.utils";
 
 export const PaymentReturnContainer = () => {
   const [searchParams] = useSearchParams();
@@ -27,8 +28,8 @@ export const PaymentReturnContainer = () => {
 
   const navigate = useNavigate();
 
-  const handleReturnMeal = async () => {
-    const token = sessionStorage.getItem("token");
+  const handleReturnMeal = () => {
+    const token = getToken();
     userRole?.role === "USER" ? navigate(`/orders?token=${token}`) : navigate("/admin/orders");
   };
 
@@ -229,7 +230,7 @@ export const PaymentCancel = () => {
   const isAuthenticated = useAppSelector(({ auth }) => auth.isAuthenticated);
 
   const handleReturnMeal = () => {
-    const token = sessionStorage.getItem("token");
+    const token = getToken();
     isAuthenticated ? navigate("/admin/orders") : navigate(`/orders?token=${token}`);
   };
   return (

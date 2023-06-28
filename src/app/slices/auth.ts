@@ -15,7 +15,7 @@ export const login = createAppAsyncThunk<LoginResponse, LoginPayload>(
       const data = await AuthApi.postLogin(payload);
 
       if (data.result.authToken) {
-        localStorage.setItem("token", data.result.authToken);
+        sessionStorage.setItem("token", data.result.authToken);
       }
       return data;
     } catch (error) {
