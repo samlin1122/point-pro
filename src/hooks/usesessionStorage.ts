@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import { useState, useEffect } from "react";
 
 export const usesessionStorage = <T>(key: string, defaultValue: T): [T, React.Dispatch<T>] => {
   const [value, setValue] = useState(() => {
