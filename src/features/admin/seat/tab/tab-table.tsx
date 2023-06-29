@@ -7,10 +7,9 @@ import { headerHeight } from "~/components/header";
 import { useAppDispatch } from "~/app/hook";
 import { getSeatById, getSeats } from "~/app/slices/seat";
 import { getPeriodByDate } from "~/app/slices/period";
-import { PeriodInfo, ReservationHistory, SeatInfo, SeatDetails } from "~/types";
+import { PeriodInfo, SeatInfo, SeatDetails } from "~/types";
 import appDayjs from "~/utils/dayjs.util";
 import { SeatDetail } from "~/features/admin/seat/tab/SeatDetail";
-import { BookingType } from "~/types/common";
 
 interface TabTablePros {
   date: appDayjs.Dayjs;
@@ -55,8 +54,6 @@ export const TabTable: FC<TabTablePros> = ({ date }) => {
 
   const dispatchGetSeatById = async () => {
     let { result } = await dispatch(getSeatById(selectedSeat as string)).unwrap();
-    console.log(result);
-    result.history = resetvationshistory;
     setSeatDetail(result);
   };
 
@@ -129,78 +126,3 @@ export const TabTable: FC<TabTablePros> = ({ date }) => {
 };
 
 export default memo(TabTable);
-
-const resetvationshistory: ReservationHistory[] = [
-  {
-    periodId: "123",
-    id: "123123",
-    reservedAt: new Date("2023-06-28 12:00"),
-    type: BookingType["online-booking"],
-    options: {
-      name: "葉小姐",
-      adult: 4,
-      child: 2,
-      phone: "0912345678",
-      email: "test@email.com"
-    },
-    periodStartedAt: new Date("2023-06-28 12:00"),
-    periodEndedAt: new Date("2023-06-28 14:00"),
-    startOfMeal: new Date("2023-06-28 12:00"),
-    endOfMeal: new Date("2023-06-28 12:00"),
-    seats: ["A1", "A2", "A3"]
-  },
-  {
-    periodId: "456",
-    id: "1231232323",
-    reservedAt: new Date("2023-06-28 14:00"),
-    type: BookingType["online-booking"],
-    options: {
-      name: "葉小姐",
-      adult: 4,
-      child: 2,
-      phone: "0912345678",
-      email: "test@email.com"
-    },
-    periodStartedAt: new Date("2023-06-28 14:00"),
-    periodEndedAt: new Date("2023-06-28 16:00"),
-    startOfMeal: new Date("2023-06-28 14:00"),
-    endOfMeal: new Date("2023-06-28 14:00"),
-    seats: ["A1", "A2", "A3"]
-  }
-  // {
-  //   reservedAt: new Date("2023-06-28 16:00"),
-  //   id: "2",
-  //   seats: ["A1", "A2", "A3"],
-  //   options: {
-  //     name: "曹小姐",
-  //     adult: 3,
-  //     child: 2,
-  //     phone: "0912345678",
-  //     email: "test@email.com"
-  //   }
-  // },
-  // {
-  //   reservedAt: new Date("2023-06-28 18:00"),
-  //   id: "3",
-  //   seats: ["A1", "A2", "A3"],
-  //   options: {
-  //     name: "宋小姐",
-  //     adult: 4,
-  //     child: 2,
-  //     phone: "0912345678",
-  //     email: "test@email.com"
-  //   }
-  // },
-  // {
-  //   reservedAt: new Date("2023-06-28 20:00"),
-  //   id: "4",
-  //   seats: ["A1", "A2", "A3"],
-  //   options: {
-  //     name: "田小姐",
-  //     adult: 4,
-  //     child: 2,
-  //     phone: "0912345678",
-  //     email: "test@email.com"
-  //   }
-  // }
-];

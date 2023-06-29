@@ -1,21 +1,23 @@
-import React from "react";
+import { useState } from "react";
 import { Box, InputAdornment } from "@mui/material";
 import AddIcon from "@mui/icons-material/Add";
 import SearchIcon from "@mui/icons-material/Search";
 import { ButtonBase } from "~/components/buttons";
-import { InputDate, InputText } from "~/components/input";
+import { InputText } from "~/components/input";
 import { DesktopDatePicker, LocalizationProvider } from "@mui/x-date-pickers";
 import { AdapterDayjs } from "@mui/x-date-pickers/AdapterDayjs";
 import appDayjs from "~/utils/dayjs.util";
+import ReservationDetail from "./tab/ReservationDetail";
 
 interface ISeatSearchBarProps {
   view: number;
-  setView: React.Dispatch<React.SetStateAction<number>>;
   date: appDayjs.Dayjs;
   handleDateChange: (value: appDayjs.Dayjs | null) => void;
+  handleSearchChange: (value: string) => void;
 }
 
-const SeatSearchBar = ({ view, setView, date, handleDateChange }: ISeatSearchBarProps) => {
+const SeatSearchBar = ({ view, date, handleDateChange, handleSearchChange }: ISeatSearchBarProps) => {
+  const [open, setOpen] = useState<boolean>(false);
   return (
     <Box
       sx={{
@@ -50,35 +52,35 @@ const SeatSearchBar = ({ view, setView, date, handleDateChange }: ISeatSearchBar
         />
       </LocalizationProvider>
       {view === 1 && (
-        <>
-          <Box sx={{ flexGrow: 1, display: "flex", justifyContent: "center" }}>
-            <InputText
-              sx={{ width: "25rem", bgcolor: "common.black_20" }}
-              placeholder="搜尋訂單編號/姓名/電話/mail"
-              startAdornment={
-                <InputAdornment position="start">
-                  <SearchIcon />
-                </InputAdornment>
-              }
-            />
-          </Box>
-          <Box
-            sx={{
-              flexGrow: 1,
-              display: "flex",
-              flexDirection: "row-reverse"
-            }}
-          >
-            <ButtonBase
-              onClick={() => setView(0)}
-              sx={{ color: "common.black", bgcolor: "primary.main", width: "12rem" }}
-            >
-              <AddIcon sx={{ fontSize: "h6.fontSize" }} />
-              新增
-            </ButtonBase>
-          </Box>
-        </>
+        <Box sx={{ flexGrow: 1, display: "flex", justifyContent: "center" }}>
+          <InputText
+            sx={{ width: "25rem", bgcolor: "common.black_20" }}
+            placeholder="輸入電話號碼搜尋"
+            onChange={(event) => handleSearchChange(event.target.value)}
+            startAdornment={
+              <InputAdornment position="start">
+                <SearchIcon />
+              </InputAdornment>
+            }
+          />
+        </Box>
       )}
+      <Box
+        sx={{
+          flexGrow: 1,
+          display: "flex",
+          flexDirection: "row-reverse"
+        }}
+      >
+        <ButtonBase
+          onClick={() => setOpen(true)}
+          sx={{ color: "common.black", bgcolor: "primary.main", width: "12rem" }}
+        >
+          <AddIcon sx={{ fontSize: "h6.fontSize" }} />
+          新增預約
+        </ButtonBase>
+      </Box>
+      <ReservationDetail isCreate={true} open={open} onClose={() => setOpen(false)} date={date} />
     </Box>
   );
 };

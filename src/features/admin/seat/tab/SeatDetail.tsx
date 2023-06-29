@@ -1,13 +1,14 @@
 import { FC, useState } from "react";
 import { Stack, Typography, styled, Button, Box, Divider } from "@mui/material";
 import appDayjs, { formatTimeOnly } from "~/utils/dayjs.util";
-import { DrawerBaseButtonType } from "~/components/drawer/drawer-base";
 import { DrawerBase } from "~/components/drawer";
 import TabsBase from "~/components/tabs";
 import theme from "~/theme";
-import { ReservationInfo, SeatDetails } from "~/types";
+import { SeatDetailsPeriod, SeatDetails } from "~/types";
 import UnDraw from "~/assets/images/undraw_login.svg";
 import { reservationStatusConfig } from "./index.styles";
+import ReservationDetail from "./ReservationDetail";
+import { genderListStringArray } from "~/utils/constants";
 
 const enum SeatTab {
   CURRENT = "CURRENT",
@@ -26,7 +27,7 @@ type SeatProps = {
 };
 
 type ReservationProps = {
-  info: ReservationInfo | undefined;
+  info: SeatDetailsPeriod | undefined;
 };
 
 const SelectTab = styled(Button)(({ theme }) => ({
@@ -78,58 +79,31 @@ export const SeatStatusTabs: FC<SeatProps> = ({ seatTab, setSeatTab }) => {
 };
 
 export const SeatInfo: FC<ReservationProps> = ({ info }) => {
+  const config = [
+    { label: "訂位編號", value: info?.id.slice(0, 12) },
+    {
+      label: "姓名",
+      value: info?.reservation?.options.name + genderListStringArray[info?.reservation?.options.gender]
+    },
+    { label: "總人數", value: info?.reservation?.options.adults + info?.reservation?.options.children },
+    { label: "電話", value: info?.reservation?.options.phone },
+    { label: "信箱", value: info?.reservation?.options.email },
+    { label: "使用座位", value: info?.reservation?.seats.map((e) => e.seatNo).join(", ") }
+  ];
   return (
-    <Box height="inherit" sx={{ px: 3 }}>
-      {info ? (
+    <Stack height="inherit" gap={2} sx={{ px: 4, py: 2 }}>
+      {info?.reservation ? (
         <>
-          <Stack direction="row" justifyContent="space-between" alignItems="center" sx={{ pt: 2 }}>
-            <Typography variant="body1" sx={{ pl: 2 }}>
-              訂位編號
-            </Typography>
-            <Typography variant="h6" sx={{ pr: 2 }}>
-              {info?.id}
-            </Typography>
-          </Stack>
-          <Stack direction="row" justifyContent="space-between" alignItems="center" sx={{ pt: 2 }}>
-            <Typography variant="body1" sx={{ pl: 2 }}>
-              姓名
-            </Typography>
-            <Typography variant="h6" sx={{ pr: 2 }}>
-              {info?.options.name ?? "-"}
-            </Typography>
-          </Stack>
-          <Stack direction="row" justifyContent="space-between" alignItems="center" sx={{ pt: 2 }}>
-            <Typography variant="body1" sx={{ pl: 2 }}>
-              總人數
-            </Typography>
-            <Typography variant="h6" sx={{ pr: 2 }}>
-              {info?.options.adult + info.options.child + "人"}
-            </Typography>
-          </Stack>
-          <Stack direction="row" justifyContent="space-between" alignItems="center" sx={{ pt: 2 }}>
-            <Typography variant="body1" sx={{ pl: 2 }}>
-              電話
-            </Typography>
-            <Typography variant="h6" sx={{ pr: 2 }}>
-              {info?.options.phone ?? "-"}
-            </Typography>
-          </Stack>
-          <Stack direction="row" justifyContent="space-between" alignItems="center" sx={{ pt: 2 }}>
-            <Typography variant="body1" sx={{ pl: 2 }}>
-              信箱
-            </Typography>
-            <Typography variant="h6" sx={{ pr: 2 }}>
-              {info?.options.email ?? "-"}
-            </Typography>
-          </Stack>
-          <Stack direction="row" justifyContent="space-between" alignItems="center" sx={{ pt: 2 }}>
-            <Typography variant="body1" sx={{ pl: 2 }}>
-              使用座位
-            </Typography>
-            <Typography variant="h6" sx={{ pr: 2 }}>
-              {info.seats.join(", ")}
-            </Typography>
-          </Stack>
+          {config.map((e) => (
+            <Stack key={e.label} direction="row" justifyContent="space-between" alignItems="center">
+              <Typography variant="body1" whiteSpace="nowrap">
+                {e.label}
+              </Typography>
+              <Typography variant="h6" textAlign="end">
+                {e.value ?? "-"}
+              </Typography>
+            </Stack>
+          ))}
         </>
       ) : (
         <Stack alignItems="center" justifyContent="center" height="100%">
@@ -139,39 +113,42 @@ export const SeatInfo: FC<ReservationProps> = ({ info }) => {
           </Typography>
         </Stack>
       )}
-    </Box>
+    </Stack>
   );
 };
 
 export const SeatDetail: FC<SeatDetailProps> = ({ open, onClose, state }) => {
   const [seatTab, setSeatTab] = useState(SeatTab.CURRENT);
   const [period, setPeriod] = useState<string>();
+  const [editMode, setEditMode] = useState<string | undefined>();
 
   const handlePeriodSelect = (periodId: string) => {
     setPeriod(periodId);
   };
-  const info = state.history.find((reservation) => {
+  const info = state.periods.find((e) => {
     if (seatTab === SeatTab.CURRENT) {
-      return appDayjs().isAfter(reservation.periodStartedAt) && appDayjs().isBefore(reservation.periodEndedAt);
+      return appDayjs().isAfter(e.startedAt) && appDayjs().isBefore(e.endedAt);
     } else {
       if (period) {
-        return reservation.periodId === period;
+        return e.id === period;
       } else {
-        setPeriod(reservation.periodId);
+        setPeriod(e.id);
         return true;
       }
     }
   });
+
   const handleButtonClick = (key: string) => {
     console.log(key);
     switch (key) {
       case "start":
         break;
       case "edit":
+        setEditMode("edit");
         break;
       case "create":
+        setEditMode("create");
         break;
-
       default:
         break;
     }
@@ -184,21 +161,28 @@ export const SeatDetail: FC<SeatDetailProps> = ({ open, onClose, state }) => {
             {
               label: "編輯",
               onClick: () => handleButtonClick("edit"),
-              isEnabled: state.status !== "OCCUPIED"
+              disabled: info.status === "INUSE"
             },
-            { label: "客到開始使用", onClick: () => handleButtonClick("start"), isEnabled: true }
+            { label: "客到開始使用", onClick: () => handleButtonClick("start") }
           ]
-        : [{ label: "新增現場使用", onClick: () => handleButtonClick("create"), isEnabled: true }]
-      : info
+        : [{ label: "新增現場使用", onClick: () => handleButtonClick("create") }]
+      : info?.reservation
       ? [
           {
             label: "編輯",
             onClick: () => handleButtonClick("edit"),
-            isEnabled: appDayjs().isBefore(appDayjs(info.endOfMeal))
+            disabled: appDayjs().isAfter(info.startedAt)
           }
         ]
-      : [{ label: "新增預約", onClick: () => handleButtonClick("create"), isEnabled: true }];
+      : [
+          {
+            label: "新增預約",
+            onClick: () => handleButtonClick("create"),
+            disabled: appDayjs().isAfter(info?.startedAt)
+          }
+        ];
   };
+
   return (
     <DrawerBase title="座位概況" open={open} onClose={onClose} buttonList={getButtonList()}>
       <Stack direction="row" justifyContent="space-between" alignItems="center" sx={{ pt: 2 }}>
@@ -214,7 +198,7 @@ export const SeatDetail: FC<SeatDetailProps> = ({ open, onClose, state }) => {
           座況
         </Typography>
         <Typography variant="h4" sx={{ pr: 3 }}>
-          {reservationStatusConfig(state.status).name}
+          {reservationStatusConfig(info?.status as string).name}
         </Typography>
       </Stack>
       {/* <Stack direction="row" justifyContent="space-between" alignItems="center" sx={{ pt: 2 }}>
@@ -231,23 +215,17 @@ export const SeatDetail: FC<SeatDetailProps> = ({ open, onClose, state }) => {
       <SeatStatusTabs seatTab={seatTab} setSeatTab={setSeatTab} />
       {/* period seletor */}
       {seatTab === SeatTab.TODAY ? (
-        <Stack direction="row" alignItems="center" gap={2} px={3} py={2}>
-          {state.history.map((reservation) => (
+        <Stack direction="row" alignItems="center" gap={2} px={3} pt={2}>
+          {state.periods.map((e) => (
             <SelectTab
-              key={reservation.id}
+              key={e.id}
               onClick={() => {
-                handlePeriodSelect(reservation.periodId);
+                handlePeriodSelect(e.id);
               }}
-              className={
-                reservation.periodId === period
-                  ? "Mui-selected"
-                  : reservation.reservedAt.getTime() < new Date().getTime()
-                  ? "disabled"
-                  : ""
-              }
+              className={e.id === period ? "Mui-selected" : appDayjs().isAfter(appDayjs(e.startedAt)) ? "disabled" : ""}
             >
               <Typography variant="body1" fontWeight={700}>
-                {formatTimeOnly(reservation.reservedAt)}
+                {formatTimeOnly(e.startedAt)}
               </Typography>
             </SelectTab>
           ))}
@@ -255,6 +233,12 @@ export const SeatDetail: FC<SeatDetailProps> = ({ open, onClose, state }) => {
       ) : null}
       {/* seat info */}
       <SeatInfo info={info} />
+      <ReservationDetail
+        isCreate={editMode === "create"}
+        open={!!editMode}
+        onClose={() => setEditMode(undefined)}
+        date={appDayjs(state.date)}
+      />
     </DrawerBase>
   );
 };

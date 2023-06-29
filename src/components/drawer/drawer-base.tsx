@@ -8,7 +8,7 @@ import { headerHeight } from "../header";
 export type DrawerBaseButtonType = {
   label: string;
   onClick: (data: string) => void;
-  isEnabled?: boolean;
+  disabled?: boolean;
 };
 
 export interface DrawerBaseProps extends DrawerProps {
@@ -82,7 +82,7 @@ export const DrawerBase: FC<DrawerBaseProps> = ({
               fullWidth
               variant="contained"
               onClick={() => btn.onClick(btn.label)}
-              disabled={!btn.isEnabled}
+              disabled={btn.disabled}
               sx={{ height: 80 }}
               color={key % 2 ? "secondary" : "primary"}
             >

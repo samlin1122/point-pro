@@ -66,7 +66,7 @@ const PaymentDrawer = () => {
     {
       label: "結帳",
       onClick: () => handleCompleteOrder(),
-      isEnabled: selectPayment === "line-pay" || selectPayment === "ec-pay" || canPay
+      disabled: !(selectPayment === "line-pay" || selectPayment === "ec-pay" || canPay)
     }
   ];
 

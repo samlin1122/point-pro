@@ -194,9 +194,6 @@ type DatePeriodInfo = {
   totalAvailable: number;
 };
 
-interface ReservationHistory extends ReservationInfo {
-  periodId: string;
-}
 export type ReservationRecord = {
   periodId?: string;
   startedAt: Date;
@@ -225,10 +222,14 @@ type SeatInfo = {
   currentReservation: ReservationRecord;
 };
 
+type SeatDetailsPeriod = Pick<Period, "id" | "startedAt" | "endedAt"> & {
+  status: SeatStatus;
+  reservation: ReservationInfo | null;
+};
+
 type SeatDetails = {
   id: string;
   seatNo: string;
-  status: "RESERVED" | "AVAILABLE" | "OCCUPIED";
   date: Date;
-  history: ReservationHistory[];
+  periods: SeatDetailsPeriod[];
 };

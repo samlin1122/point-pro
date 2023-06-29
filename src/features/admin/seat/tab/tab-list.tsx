@@ -14,12 +14,14 @@ import { ReservationInfo } from "~/types";
 import { useAppDispatch } from "~/app/hook";
 import { getReservations } from "~/app/slices/reservation";
 import { reservationStatusConfig } from "./index.styles";
+import { genderListStringArray } from "~/utils/constants";
 
 interface TabListProps {
   date: appDayjs.Dayjs;
+  search: string;
 }
 
-const TabList = ({ date }: TabListProps) => {
+const TabList = ({ date, search }: TabListProps) => {
   const dispatch = useAppDispatch();
   const [reservations, setReservations] = useState<GridRowsProp>([]);
 
@@ -32,19 +34,17 @@ const TabList = ({ date }: TabListProps) => {
     const list = result?.map((e: ReservationInfo) => ({
       id: e.id,
       type: e.type,
-      name: e.options.name,
-      phone: e.options.phone,
+      ...e.options,
       periodStartedAt: e.periodStartedAt,
       periodEndedAt: e.periodEndedAt,
       seatNo: e.seats.map((seat) => seat.seatNo).join(", "),
-      people: e.options,
-      remark: e.options.remark
+      people: e.options
     })) as GridRowsProp;
 
     setReservations(list);
     console.log({ result });
   };
-
+  const phoneRegex = new RegExp(search, "i");
   return (
     <Box
       sx={{
@@ -54,7 +54,7 @@ const TabList = ({ date }: TabListProps) => {
       }}
     >
       <DataGrid
-        rows={reservations}
+        rows={reservations.filter((e) => phoneRegex.test(e.phone))}
         columns={columns}
         getRowHeight={() => "auto"}
         disableRowSelectionOnClick
@@ -103,8 +103,22 @@ const columns: GridColDef[] = [
       );
     }
   },
-  // { field: "reservationId", headerName: "訂單編號", minWidth: 140, flex: 0.5 },
-  { field: "name", headerName: "姓名", minWidth: 120, flex: 0.5 },
+  {
+    field: "name",
+    headerName: "姓名",
+    minWidth: 120,
+    flex: 0.5,
+    valueGetter: (params: GridValueGetterParams) => {
+      return {
+        name: params.row.name,
+        gender: params.row.gender
+      };
+    },
+    valueFormatter: (params: GridValueFormatterParams<{ name: string; gender: number }>) => {
+      const { name, gender } = params.value;
+      return name + genderListStringArray[gender];
+    }
+  },
   { field: "phone", headerName: "電話號碼", minWidth: 120, flex: 0.5 },
   {
     field: "periodStartedAt",

@@ -2,9 +2,11 @@ import { OrderStatus, SpecialtyType, OrderStatusTitle } from "~/types/common";
 
 // 專門放固定參數
 export const genderList = [
-  { id: "male", name: "男生" },
-  { id: "female", name: "女生" }
+  { id: 0, title: "先生" },
+  { id: 1, title: "小姐" },
+  { id: 2, title: "其他" }
 ];
+export const genderListStringArray = ["先生", "小姐", ""];
 
 export const SpecialtyTypeList = [
   { id: SpecialtyType.SINGLE, title: "單選" },
