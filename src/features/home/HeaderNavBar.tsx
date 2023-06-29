@@ -199,14 +199,12 @@ export const HeaderNavBar: FC = () => {
           {navData.map((item, index) =>
             index === 0 ? (
               <Link href={item.url} key={item.name}>
-                <ListItem sx={{ padding: 0 }}>
-                  <Logo
-                    style={{
-                      height: deviceType === "tablet" ? 64 : 40,
-                      aspectRatio: 1
-                    }}
-                  />
-                </ListItem>
+                <Logo
+                  style={{
+                    height: deviceType === "tablet" ? 64 : 40,
+                    aspectRatio: 1
+                  }}
+                />
               </Link>
             ) : deviceType === "tablet" ? (
               <List
