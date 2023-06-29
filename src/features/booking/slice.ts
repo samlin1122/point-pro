@@ -184,7 +184,7 @@ export const customerBookingSlice = createSlice({
       .addCase(postReservation.fulfilled, (state, action) => {
         state.token = action.payload.token;
         state.reservationParams.id = action.payload.id;
-        state.reservationParams.reservedAt = action.payload.reservedAt;
+        state.reservationParams.reservedAt = action.payload.periodStartedAt;
         state.reservationParams.user = action.payload.options;
         state.isLoading = false;
       })
