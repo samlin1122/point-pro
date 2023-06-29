@@ -43,9 +43,13 @@ const Booking = () => {
 
       <BookingStep stepLength={stepTitle.length} />
 
+      {/* 預訂查詢 */}
       <BookingRecordQueryModal />
+      {/* 隱私權政策 */}
       <PrivacyPolicyModal />
+      {/* 已為您安排訂位 */}
       <BookingReminderModal />
+      {/* 請出示此畫面 QR Code */}
       <BookingQRCodeModal />
     </>
   );

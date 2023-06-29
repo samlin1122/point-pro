@@ -10,6 +10,7 @@ import { specialtySlice } from "./slices/specialty";
 import { orderSlice } from "./slices/order";
 import { paymentSlice } from "./slices/payment";
 import { socketSlice } from "./slices/socket";
+import { loadingSlice } from "./slices/loading";
 
 const reducer = combineReducers({
   [counterSlice.name]: counterSlice.reducer,
@@ -20,7 +21,8 @@ const reducer = combineReducers({
   [specialtySlice.name]: specialtySlice.reducer,
   [orderSlice.name]: orderSlice.reducer,
   [paymentSlice.name]: paymentSlice.reducer,
-  [socketSlice.name]: socketSlice.reducer
+  [socketSlice.name]: socketSlice.reducer,
+  [loadingSlice.name]: loadingSlice.reducer
 });
 
 export default reducer;

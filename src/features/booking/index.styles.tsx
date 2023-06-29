@@ -1,11 +1,13 @@
 // Libs
-import React from "react";
+import React, { useEffect, useState } from "react";
 import {
   Box,
   Button,
   ButtonBase,
   DialogActions,
+  FormControl,
   FormControlLabel,
+  FormLabel,
   Grid,
   InputAdornment,
   MenuItem,
@@ -24,7 +26,6 @@ import PhoneIphoneIcon from "@mui/icons-material/PhoneIphone";
 import EmailIcon from "@mui/icons-material/Email";
 import QrCodeIcon from "@mui/icons-material/QrCode";
 import LocalPhoneIcon from "@mui/icons-material/LocalPhone";
-import ClearIcon from "@mui/icons-material/Clear";
 import DirectionsIcon from "@mui/icons-material/Directions";
 import InfoIcon from "@mui/icons-material/Info";
 import StickyNote2Icon from "@mui/icons-material/StickyNote2";
@@ -46,7 +47,7 @@ import {
   setReservedAt,
   setPhone,
   getBookingRecord,
-  setQueryString,
+  setReservationPhone,
   setDialog,
   setName,
   setEmail,
@@ -57,6 +58,8 @@ import {
   resetUserInfo
 } from "./slice";
 import { QRCodeSVG } from "qrcode.react";
+import { emailRegex, phoneRegex } from "~/utils/regex.utils";
+import Loading from "~/components/loading";
 
 const genderObj = {
   0: "先生",
@@ -73,7 +76,8 @@ export const PeopleAndTime = () => {
   const reservedAt = useAppSelector(({ customerReservation }) => customerReservation.reservationParams.reservedAt);
   const adults = useAppSelector(({ customerReservation }) => customerReservation.reservationParams.user.adults);
 
-  // const availableDates = availableBookings.map((availableBooking) => availableBooking.date);
+  const isLoading = useAppSelector(({ customerReservation }) => customerReservation.isLoading);
+
   const availableDateStrings = availableBookings.map(
     (availableBooking) => new Date(availableBooking.date).toLocaleString("zh-tw").split(" ")[0]
   );
@@ -82,16 +86,6 @@ export const PeopleAndTime = () => {
     choosedPeriodInfo?.peopleAmount && choosedPeriodInfo?.peopleAmount > 10
       ? [1, 2, 3, 4, 7, 8, 9, 10]
       : Array.from({ length: choosedPeriodInfo?.peopleAmount ?? 1 }, (_, i) => i + 1);
-
-  // [TODO]: add or remove children amount
-  // const children = useAppSelector(({ customerReservation }) => customerReservation.reservationParams.user.children);
-  // const childrenOptionList = useMemo(
-  //   () => Array.from({ length: children }, (_, i) => ({ value: i, label: `${i} 位小孩` })),
-  //   [children]
-  // );
-  // const handleChangeChildrenAmount = (e: SelectChangeEvent<`${number}`>) => {
-  //   dispatch(setChildrenAmount(+e.target.value));
-  // };
 
   const handleOpenBookingSearch = () => {
     dispatch(setDialog(CustomerBookingDialog.RECORD_QUERY));
@@ -109,106 +103,82 @@ export const PeopleAndTime = () => {
     dispatch(setReservedAt(+e.target.value));
   };
 
+  if (isLoading) {
+    return <Loading open={isLoading} />;
+  }
+
   return (
     <>
-      <Box sx={{ marginBottom: "1.5rem" }}>
-        <Typography fontWeight={700} sx={{ marginBottom: ".5rem" }}>
-          用餐日期
-        </Typography>
-        <Box>
-          <LocalizationProvider dateAdapter={AdapterDayjs}>
-            <DatePicker
-              value={appDayjs(choosedDate)}
-              sx={{ width: "95%" }}
-              format="MM月DD日 (星期dd)"
-              onChange={handleChangeBookingDate}
-              views={["day"]}
-              disablePast
-              maxDate={appDayjs().add(30, "day")}
-              shouldDisableDate={(day) => {
-                // const dayTimeStamp = appDayjs(day).valueOf();
-                // console.log(day.toDate(), dayTimeStamp);
-                const currentDate = day.toDate().toLocaleDateString("zh-tw");
-                // console.log(currentDate);
+      <FormControl margin="normal" fullWidth>
+        <FormLabel sx={{ fontWeight: 700, color: "common.black" }}>用餐日期</FormLabel>
+        <LocalizationProvider dateAdapter={AdapterDayjs}>
+          <DatePicker
+            defaultValue={appDayjs(choosedDate)}
+            format="MM月DD日 星期dd"
+            onChange={handleChangeBookingDate}
+            views={["day"]}
+            disablePast
+            maxDate={appDayjs().add(30, "day")}
+            shouldDisableDate={(day) => {
+              const currentDate = day.toDate().toLocaleDateString("zh-tw");
 
-                return !availableDateStrings.includes(currentDate);
-              }}
-              slots={{
-                actionBar: (props: PickersActionBarProps) => (
-                  <DialogActions className={props.className} sx={{ padding: ".5rem" }}>
-                    <ButtonBase
-                      onClick={props.onAccept}
-                      sx={{
-                        fontSize: "body1.fontSize",
-                        bgcolor: "primary.main",
-                        padding: ".5rem",
-                        borderRadius: ".5rem",
-                        width: "100%"
-                      }}
-                    >
-                      確定
-                    </ButtonBase>
-                  </DialogActions>
-                )
-              }}
-              slotProps={{
-                toolbar: {
-                  hidden: true
-                },
-                actionBar: {
-                  actions: ["accept"]
-                }
-              }}
-            />
-          </LocalizationProvider>
-        </Box>
-      </Box>
-      <Box sx={{ marginBottom: "1.5rem" }}>
-        <Typography fontWeight={700} sx={{ marginBottom: ".5rem" }}>
-          用餐時段
-        </Typography>
-        <Box sx={{ display: "flex", justifyContent: "space-between", alignItem: "center", gap: "1rem" }}>
-          <Box sx={{ flexGrow: 1 }}>
-            <Select onChange={handleChangeReservedPeriod} value={`${reservedAt}`} sx={{ width: "95%" }}>
-              {!reservedAt && <MenuItem value="0"></MenuItem>}
-              {availablePeriod.map((option) => (
-                <MenuItem value={`${option.startedAt}`} key={option.startedAt}>
-                  {formatTimeOnly(option.startedAt)}
-                </MenuItem>
-              ))}
-            </Select>
-          </Box>
-        </Box>
-      </Box>
-      <Box sx={{ marginBottom: "1.5rem" }}>
-        <Typography fontWeight={700} sx={{ marginBottom: ".5rem" }}>
-          用餐人數
-        </Typography>
-        <Box sx={{ display: "flex", justifyContent: "space-between", alignItem: "center", gap: "1rem" }}>
-          <Box sx={{ flexGrow: 1 }}>
-            <Select onChange={handleChangeAdultsAmount} value={`${adults}`} sx={{ width: "95%" }}>
-              {adultOptionList.map((value) => (
-                <MenuItem value={`${value}`} key={value}>
-                  {`${value} 位`}
-                </MenuItem>
-              ))}
-            </Select>
-          </Box>
-          {/* [TODO] */}
-          {/* <Box sx={{ flexGrow: 1 }}>
-            <Select onChange={handleChangeChildrenAmount} value={`${children}`} sx={{ width: "95%" }}>
-              {childrenOptionList.map((option) => (
-                <MenuItem value={`${option.value}`} key={option.value}>
-                  {option.label}
-                </MenuItem>
-              ))}
-            </Select>
-          </Box> */}
-        </Box>
-      </Box>
+              return !availableDateStrings.includes(currentDate);
+            }}
+            slots={{
+              actionBar: (props: PickersActionBarProps) => (
+                <DialogActions className={props.className} sx={{ padding: ".5rem" }}>
+                  <ButtonBase
+                    onClick={props.onAccept}
+                    sx={{
+                      fontSize: "body1.fontSize",
+                      bgcolor: "primary.main",
+                      padding: ".5rem",
+                      borderRadius: ".5rem",
+                      width: "100%"
+                    }}
+                  >
+                    確定
+                  </ButtonBase>
+                </DialogActions>
+              )
+            }}
+            slotProps={{
+              toolbar: {
+                hidden: true
+              },
+              actionBar: {
+                actions: ["accept"]
+              }
+            }}
+          />
+        </LocalizationProvider>
+      </FormControl>
+
+      <FormControl margin="normal" fullWidth>
+        <FormLabel sx={{ fontWeight: 700, color: "common.black" }}>用餐時段</FormLabel>
+        <Select onChange={handleChangeReservedPeriod} value={`${reservedAt}`}>
+          {!reservedAt && <MenuItem value="0"></MenuItem>}
+          {availablePeriod.map((option) => (
+            <MenuItem value={`${option.startedAt}`} key={option.startedAt}>
+              {formatTimeOnly(option.startedAt)}
+            </MenuItem>
+          ))}
+        </Select>
+      </FormControl>
+
+      <FormControl margin="normal" fullWidth>
+        <FormLabel sx={{ fontWeight: 700, color: "common.black" }}>用餐人數</FormLabel>
+        <Select onChange={handleChangeAdultsAmount} value={`${adults}`}>
+          {adultOptionList.map((value) => (
+            <MenuItem value={`${value}`} key={value}>
+              {`${value} 位`}
+            </MenuItem>
+          ))}
+        </Select>
+      </FormControl>
       <ButtonBase
         onClick={handleOpenBookingSearch}
-        sx={{ textDecoration: "underline", fontWeight: 700, fontSize: "body1.fontSize" }}
+        sx={{ textDecoration: "underline", fontWeight: 700, fontSize: "body1.fontSize", mt: "2rem" }}
       >
         我已經有預約了，查詢預訂資訊
       </ButtonBase>
@@ -224,20 +194,30 @@ export const BookerInfo = () => {
   );
   const isAgreedPrivacyPolicy = useAppSelector(({ customerReservation }) => customerReservation.isAgreedPrivacyPolicy);
 
+  const [nameIsError, setNameIsError] = useState(false);
+  const [phoneIsError, setPhoneIsError] = useState(false);
+  const [emailIsError, setEmailIsError] = useState(false);
+
   const handleEnterName = (e: React.ChangeEvent<HTMLInputElement>) => {
-    dispatch(setName(e.target.value));
+    const isValidated = !!e.target.value;
+    setNameIsError(!isValidated);
+    dispatch(setName(isValidated ? e.target.value : ""));
   };
 
-  const handleChooseGender = (event: React.ChangeEvent<HTMLInputElement>, value: string) => {
+  const handleChooseGender = (e: React.ChangeEvent<HTMLInputElement>, value: string) => {
     dispatch(setGender(+value));
   };
 
   const handleEnterPhone = (e: React.ChangeEvent<HTMLInputElement>) => {
-    dispatch(setPhone(e.target.value));
+    const isValidated = phoneRegex.test(e.target.value);
+    setPhoneIsError(!isValidated);
+    dispatch(setPhone(isValidated ? e.target.value : ""));
   };
 
   const handleEnterEmail = (e: React.ChangeEvent<HTMLInputElement>) => {
-    dispatch(setEmail(e.target.value));
+    const isValidated = emailRegex.test(e.target.value);
+    setEmailIsError(!isValidated);
+    dispatch(setEmail(isValidated ? e.target.value : ""));
   };
 
   const handleEnterRemark = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
@@ -253,66 +233,66 @@ export const BookerInfo = () => {
   };
 
   return (
-    <Box sx={{ paddingBottom: "10rem" }}>
-      <Box sx={{ marginBottom: "1rem" }}>
-        <Typography fontWeight={700} sx={{ marginBottom: "1rem" }}>
-          姓名*
-        </Typography>
+    <Box sx={{ pb: "10rem" }}>
+      <FormControl margin="normal" required fullWidth>
+        <FormLabel sx={{ fontWeight: 700, color: "common.black" }}>姓名</FormLabel>
         <TextField
           placeholder="如何稱呼您"
-          variant="outlined"
-          sx={{ width: "100%" }}
-          value={name}
+          defaultValue={name}
+          error={nameIsError}
+          helperText={nameIsError && "請輸入姓名"}
           onChange={handleEnterName}
         />
-        <RadioGroup row value={gender} onChange={handleChooseGender}>
+      </FormControl>
+
+      <FormControl>
+        <RadioGroup row defaultValue={gender} onChange={handleChooseGender}>
           <FormControlLabel value={0} control={<Radio />} label="先生" />
           <FormControlLabel value={1} control={<Radio />} label="小姐" />
           <FormControlLabel value={2} control={<Radio />} label="其他" />
         </RadioGroup>
-      </Box>
-      <Box sx={{ marginBottom: "1rem" }}>
-        <Typography fontWeight={700} sx={{ marginBottom: "1rem" }}>
-          手機號碼*
-        </Typography>
+      </FormControl>
+
+      <FormControl margin="normal" required fullWidth>
+        <FormLabel sx={{ fontWeight: 700, color: "common.black" }}>手機號碼</FormLabel>
         <TextField
-          placeholder="0912345678"
-          variant="outlined"
-          sx={{ width: "100%" }}
-          value={phone}
+          placeholder="0987654321"
+          type="tel"
+          defaultValue={phone}
+          error={phoneIsError}
+          helperText={phoneIsError && "手機號碼格式錯誤"}
           onChange={handleEnterPhone}
         />
-      </Box>
-      <Box sx={{ marginBottom: "1rem" }}>
-        <Typography fontWeight={700} sx={{ marginBottom: "1rem" }}>
-          電子信箱*
-        </Typography>
+      </FormControl>
+
+      <FormControl margin="normal" required fullWidth>
+        <FormLabel sx={{ fontWeight: 700, color: "common.black" }}>電子信箱</FormLabel>
         <TextField
           placeholder="example@email.com"
-          variant="outlined"
-          sx={{ width: "100%" }}
-          value={email}
+          type="email"
+          defaultValue={email}
+          error={emailIsError}
+          helperText={emailIsError && "電子信箱格式錯誤"}
           onChange={handleEnterEmail}
         />
-      </Box>
-      <Box sx={{ marginBottom: "1rem" }}>
-        <Typography fontWeight={700} sx={{ marginBottom: "1rem" }}>
-          備註
-        </Typography>
+      </FormControl>
+
+      <FormControl margin="normal" fullWidth>
+        <FormLabel sx={{ fontWeight: 700, color: "common.black" }}>備註</FormLabel>
         <TextField
           placeholder="有任何特殊需求嗎？可以先寫在這裡喔（例如：行動不便、過敏...等）。"
           multiline
           rows={4}
-          sx={{ width: "100%" }}
-          value={remark}
+          defaultValue={remark}
           onChange={handleEnterRemark}
         />
-      </Box>
+      </FormControl>
+
       <Box sx={{ padding: "0 .1rem" }}>
         <FormControlLabel
           control={<CheckboxBase checked={isAgreedPrivacyPolicy} onChange={handleAgreedPolicy} />}
           label="確認我已閱讀並同意"
-          sx={{ margin: "0" }}
+          sx={{ margin: 0 }}
         />
         <ButtonBase
           sx={{ textDecoration: "underline", fontWeight: 700, fontSize: "body1.fontSize" }}
@@ -469,7 +449,6 @@ export const BookingStep = (props: IBookingStepProps) => {
       }
       sx={{
         display: "flex",
-        // flexDirection: "column-reverse", // [TODO]: remove?
         gap: "1rem",
         width: "100vw",
         maxWidth: "768px",
@@ -484,21 +463,24 @@ export const BookingStep = (props: IBookingStepProps) => {
 export const BookingRecordQueryModal = () => {
   const dispatch = useAppDispatch();
 
-  const queryString = useAppSelector(({ customerReservation }) => customerReservation.queryString);
+  const reservationPhone = useAppSelector(({ customerReservation }) => customerReservation.reservationPhone);
   const dialog = useAppSelector(({ customerReservation }) => customerReservation.dialog);
+
+  const [isPhoneError, setIsPhoneError] = useState(true);
 
   const handleClose = () => {
     dispatch(setDialog(""));
   };
 
-  const handleQuery = async () => {
-    if (!queryString) return;
-    await dispatch(getBookingRecord());
-    dispatch(setDialog(CustomerBookingDialog.REMINDER));
+  const handleQuery = () => {
+    if (!reservationPhone) return;
+    dispatch(getBookingRecord(reservationPhone));
   };
 
   const handleQueryString = (e: React.ChangeEvent<HTMLInputElement>) => {
-    dispatch(setQueryString(e.target.value));
+    const isValidated = phoneRegex.test(e.target.value);
+    setIsPhoneError(!isValidated);
+    dispatch(setReservationPhone(isValidated ? e.target.value : ""));
   };
 
   return (
@@ -508,21 +490,15 @@ export const BookingRecordQueryModal = () => {
       isOpen={dialog === CustomerBookingDialog.RECORD_QUERY}
       onCloseDialog={handleClose}
       actionButton={
-        <Button onClick={handleQuery} disabled={!queryString}>
+        <Button onClick={handleQuery} disabled={isPhoneError}>
           查詢
         </Button>
       }
     >
-      <Typography fontWeight={700} sx={{ marginBottom: "1rem" }}>
-        姓名與手機號碼
-      </Typography>
-      <TextField
-        placeholder="請輸入預訂時留下的姓名或手機號碼"
-        variant="outlined"
-        sx={{ width: "100%" }}
-        value={queryString}
-        onChange={handleQueryString}
-      />
+      <FormControl margin="normal" fullWidth>
+        <FormLabel sx={{ fontWeight: 700, color: "common.black" }}>請輸入訂位的手機號碼</FormLabel>
+        <TextField placeholder="0987654321" onChange={handleQueryString} />
+      </FormControl>
     </MobileDialogLayout>
   );
 };
@@ -628,6 +604,7 @@ export const BookingReminderModal = () => {
   const dispatch = useAppDispatch();
 
   const dialog = useAppSelector(({ customerReservation }) => customerReservation.dialog);
+  const isLoading = useAppSelector(({ customerReservation }) => customerReservation.isLoading);
   const { name, gender, phone, email, remark, adults } = useAppSelector(
     ({ customerReservation }) => customerReservation.reservationParams.user
   );
@@ -643,12 +620,14 @@ export const BookingReminderModal = () => {
   };
 
   const handlePhoneCall = () => {
-    // [TODO]: make a phone call
+    const link = document.createElement("a");
+    link.setAttribute("href", "tel:+886-988376229");
+    link.click();
   };
 
-  const handleCancel = () => {
-    // [TODO]: make a phone call or cancel online
-  };
+  if (isLoading) {
+    return <Loading open={true} />;
+  }
 
   return (
     <MobileDialogLayout
@@ -667,7 +646,7 @@ export const BookingReminderModal = () => {
         sx: { ".MuiTypography-h6": { textAlign: "center" }, bgcolor: "primary.main" }
       }}
     >
-      <Box sx={{ paddingBottom: "5rem" }}>
+      <Box sx={{ paddingBottom: "2rem" }}>
         <br />
         <Typography variant="h3" fontWeight={900}>
           港都熱炒
@@ -695,7 +674,6 @@ export const BookingReminderModal = () => {
         >
           <ActionIcon icon={<QrCodeIcon />} title="QR Code" onClick={handleQRCode} />
           <ActionIcon icon={<LocalPhoneIcon />} title="撥打電話" onClick={handlePhoneCall} />
-          <ActionIcon icon={<ClearIcon />} title="修改/取消" onClick={handleCancel} />
         </Box>
         <ConfirmBookingTextField label="位置" value="台北市中山區民生東路一段52號" icon={<DirectionsIcon />} />
         <ConfirmBookingTextField
@@ -706,7 +684,7 @@ export const BookingReminderModal = () => {
           rows={7}
         />
         <Typography color="text.disabled" sx={{ padding: "3rem", textAlign: "center", bgcolor: "common.black_20" }}>
-          Copyright © 2023 PointPro.
+          Copyright © {appDayjs().year()} PointPro.
           <br />
           All Rights Reserved
         </Typography>
@@ -722,11 +700,15 @@ export const BookingQRCodeModal = () => {
   const token = useAppSelector(({ customerReservation }) => customerReservation.token);
   const reservationLogId = useAppSelector(({ customerReservation }) => customerReservation.reservationParams.id);
 
+  const checkInQRCode =
+    (import.meta.env.DEV ? "http://" : "https://") + window.location.host + "/orders?token=" + token ?? "";
+
+  console.log(checkInQRCode);
+
   const handleClose = () => {
     dispatch(setDialog(CustomerBookingDialog.REMINDER));
   };
 
-  console.log((import.meta.env.DEV ? "http://" : "https://") + window.location.host + "/orders?token=" + token ?? "");
   return (
     <MobileDialogLayout
       title={
@@ -744,18 +726,13 @@ export const BookingQRCodeModal = () => {
         sx={{
           display: "flex",
           justifyContent: "center",
-          alignItems: "center"
+          alignItems: "center",
+          my: "5rem"
         }}
       >
-        <QRCodeSVG
-          value={(import.meta.env.DEV ? "http://" : "https://") + window.location.host + "/orders?token=" + token ?? ""}
-        ></QRCodeSVG>
+        <QRCodeSVG size={200} value={checkInQRCode}></QRCodeSVG>
       </Box>
-      <ConfirmBookingTextField
-        label="訂位編號"
-        value={reservationLogId ? reservationLogId.slice(0, 12) : "5f02-4e28-eo29"}
-        icon={<QrCodeIcon />}
-      />
+      <ConfirmBookingTextField label="訂位編號" value={reservationLogId.slice(0, 12)} icon={<QrCodeIcon />} />
     </MobileDialogLayout>
   );
 };

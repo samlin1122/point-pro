@@ -137,7 +137,7 @@ export interface ICustomerBookingSliceState {
   choosedDate: Timestamp;
   availablePeriod: IAvailableBookingPeriod[];
   reservationParams: ICreateBookingParams;
-  queryString: string;
+  reservationPhone: string;
   dialog: CustomerBookingDialog;
   isAgreedPrivacyPolicy: boolean;
   isLoading: boolean;

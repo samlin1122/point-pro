@@ -11,18 +11,18 @@ import { SocketTopic } from "~/hooks/useSocket";
 type OrderSliceState = {
   status: OrderStatus;
   orders: Order[];
-  isLoading: boolean;
   currentOrder: ParentOrder | null;
   mobileOrderStatusTab: number;
+  isLoading: boolean;
 };
 
 const name = "order";
 const initialState: OrderSliceState = {
   status: OrderStatus.PENDING,
   orders: [],
-  isLoading: false,
   currentOrder: null,
-  mobileOrderStatusTab: 0
+  mobileOrderStatusTab: 0,
+  isLoading: false
 };
 
 export const getOrders = createAppAsyncThunk(

@@ -5,10 +5,9 @@ import { createSlice, PayloadAction } from "@reduxjs/toolkit";
 import appDayjs from "~/utils/dayjs.util";
 import { createAppAsyncThunk } from "~/app/hook";
 import { IAvailableBooking, IBookingInfo, ICustomerBookingSliceState } from "~/types";
-import { BookingType, Gender } from "~/types/common";
+import { BookingType, CustomerBookingDialog, Gender } from "~/types/common";
 import { ReservationApi, PeriodApi } from "~/api";
 import { DatePeriodInfo, PeriodInfo } from "~/types";
-import { generateToken } from "~/api/AuthApi";
 
 const name = "customerReservation";
 const initialState: ICustomerBookingSliceState = {
@@ -22,7 +21,7 @@ const initialState: ICustomerBookingSliceState = {
     reservedAt: 0,
     user: {
       name: "",
-      gender: Gender["male"],
+      gender: Gender.other,
       type: BookingType["online-booking"],
       phone: "",
       email: "",
@@ -31,13 +30,13 @@ const initialState: ICustomerBookingSliceState = {
       children: 0
     }
   },
-  queryString: "",
+  reservationPhone: "",
   dialog: null,
   isAgreedPrivacyPolicy: false,
   isLoading: false
 };
 
-export const getPeriods = createAppAsyncThunk(`${name}/getPeriods`, async (arg, thunkAPI) => {
+export const getPeriods = createAppAsyncThunk(`${name}/getPeriods`, async (arg, { rejectWithValue }) => {
   try {
     const periodsResp = await PeriodApi.getPeriods();
     const periodInfos = periodsResp.result;
@@ -55,46 +54,57 @@ export const getPeriods = createAppAsyncThunk(`${name}/getPeriods`, async (arg, 
 
     return { availableBookings: availableBookings.sort((a, b) => a.date - b.date) };
   } catch (error) {
-    // [TODO]: handle error
-    console.log(error);
-    return thunkAPI.rejectWithValue({ message: "Something went wrong..." });
+    if (error instanceof Error) {
+      return rejectWithValue({ message: error.message });
+    } else {
+      return rejectWithValue({ message: "unknown error" });
+    }
   }
 });
 
-export const postReservation = createAppAsyncThunk(`${name}/postReservation`, async (arg, thunkAPI) => {
-  try {
-    const reservationParams = thunkAPI.getState().customerReservation.reservationParams;
-    console.log({ reservationParams });
+export const postReservation = createAppAsyncThunk(
+  `${name}/postReservation`,
+  async (arg, { getState, rejectWithValue }) => {
+    try {
+      const reservationParams = getState().customerReservation.reservationParams;
 
-    const { result } = await ReservationApi.postReservation({
-      type: "OnlineBooking",
-      amount: reservationParams.user.adults + reservationParams.user.children,
-      options: reservationParams.user,
-      periodStartedAt: new Date(reservationParams.reservedAt)
-    });
+      const { result } = await ReservationApi.postReservation({
+        type: "OnlineBooking",
+        amount: reservationParams.user.adults + reservationParams.user.children,
+        options: reservationParams.user,
+        periodStartedAt: new Date(reservationParams.reservedAt)
+      });
 
-    return result;
-  } catch (error) {
-    // [TODO]: handle error
-    console.log(error);
-    return thunkAPI.rejectWithValue({ message: "Something went wrong..." });
+      return result;
+    } catch (error) {
+      if (error instanceof Error) {
+        return rejectWithValue({ message: error.message });
+      } else {
+        return rejectWithValue({ message: "unknown error" });
+      }
+    }
   }
-});
+);
 
-export const getBookingRecord = createAppAsyncThunk(`${name}/getBookingRecord`, async (arg, thunkAPI) => {
-  try {
-    // [TODO]: replace to correct API
-    // const queryString = thunkAPI.getState().customerReservation.queryString;
-    // const bookingRecordRes = await fetch(`api/reservation?input=${queryString}`);
-    const bookingRecordRes = await fetch(`/data/dummyBookingRecord.json`);
-    const bookingRecord = (await bookingRecordRes.json()) as IBookingInfo;
-    return { bookingRecord };
-  } catch (error) {
-    // [TODO]: handle error
-    console.log(error);
-    return thunkAPI.rejectWithValue({ message: "Something went wrong..." });
+export const getBookingRecord = createAppAsyncThunk(
+  `${name}/getBookingRecord`,
+  async (reservationPhone: string, { rejectWithValue, dispatch }) => {
+    try {
+      // [TODO]
+      // const { result } = await ReservationApi.getReservationByPhone(reservationPhone);
+      const bookingRecordRes = await fetch(`/data/dummyBookingRecord.json`);
+      const bookingRecord = (await bookingRecordRes.json()) as IBookingInfo;
+      dispatch(setDialog(CustomerBookingDialog.REMINDER));
+      return { bookingRecord };
+    } catch (error) {
+      if (error instanceof Error) {
+        return rejectWithValue({ message: error.message });
+      } else {
+        return rejectWithValue({ message: "unknown error" });
+      }
+    }
   }
-});
+);
 
 export const customerBookingSlice = createSlice({
   name,
@@ -127,7 +137,6 @@ export const customerBookingSlice = createSlice({
       state.reservationParams.reservedAt = action.payload;
       state.reservationParams.user.adults = initialState.reservationParams.user.adults;
     },
-    // [TODO]: simplify to one set function, function overload of setBookerInfo
     setName: (state, action: PayloadAction<IBookingInfo["name"]>) => {
       state.reservationParams.user.name = action.payload;
     },
@@ -146,8 +155,8 @@ export const customerBookingSlice = createSlice({
     setAdultsAmount: (state, action: PayloadAction<IBookingInfo["adults"]>) => {
       state.reservationParams.user.adults = action.payload;
     },
-    setQueryString: (state, action) => {
-      state.queryString = action.payload;
+    setReservationPhone: (state, action) => {
+      state.reservationPhone = action.payload;
     },
     setDialog: (state, action: PayloadAction<ICustomerBookingSliceState["dialog"]>) => {
       state.dialog = action.payload;
@@ -158,10 +167,6 @@ export const customerBookingSlice = createSlice({
     resetUserInfo: (state) => {
       state.reservationParams.user = initialState.reservationParams.user;
     }
-    // [TODO]
-    // setChildrenAmount: (state, action: PayloadAction<IBookingInfo["children"]>) => {
-    //   state.reservationParams.user.children = action.payload;
-    // }
   },
   extraReducers: (builder) => {
     builder
@@ -180,6 +185,7 @@ export const customerBookingSlice = createSlice({
         state.token = action.payload.token;
         state.reservationParams.id = action.payload.id;
         state.reservationParams.reservedAt = action.payload.reservedAt;
+        state.reservationParams.user = action.payload.options;
         state.isLoading = false;
       })
       .addCase(postReservation.pending, (state, action) => {
@@ -217,7 +223,7 @@ export const {
   setEmail,
   setRemark,
   setAdultsAmount,
-  setQueryString,
+  setReservationPhone,
   setDialog,
   setAgreedPolicy,
   resetUserInfo
