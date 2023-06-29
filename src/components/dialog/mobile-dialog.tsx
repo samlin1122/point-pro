@@ -38,11 +38,11 @@ import { postOrder, setMobileOrderStatusTab } from "~/app/slices/order";
 import { MOBILE_ORDER_STATUS_TAB, ORDER_STATUS } from "~/utils/constants";
 import { calculateCartItemPrice, calculateCartPrice, calculateOrderPrice } from "~/utils/price.utils";
 import { MobileModal, OrderStatus, OrderType } from "~/types/common";
+import { getToken } from "~/utils/token.utils";
 
 const CustomizedSpecialties = () => {
   const dispatch = useAppDispatch();
-  const [searchParams] = useSearchParams();
-  const token = searchParams.get("token");
+  const token = getToken();
 
   const meals = useAppSelector(({ takeOrder }) => takeOrder.meals);
   const customized = useAppSelector(({ takeOrder }) => takeOrder.customized);
@@ -73,7 +73,7 @@ const CustomizedSpecialties = () => {
                     <ListItemButton onClick={handleClickItem(specialty, item)}>
                       <Box sx={{ display: "flex", justifyContent: "space-between", width: "100%" }}>
                         <Typography>{item.title}</Typography>
-                        <CheckboxBase checked={!!items?.find(({ id }) => id === item.id)} />
+                        {token && <CheckboxBase checked={!!items?.find(({ id }) => id === item.id)} />}
                       </Box>
                     </ListItemButton>
                     <Divider light />
@@ -102,7 +102,7 @@ const CustomizedSpecialties = () => {
 const Customized = () => {
   const dispatch = useAppDispatch();
 
-  const userInfo = useAppSelector(({ takeOrder }) => takeOrder.userInfo);
+  const token = getToken();
   const currentDialog = useAppSelector(({ takeOrder }) => takeOrder.currentDialog);
   const customized = useAppSelector(({ takeOrder }) => takeOrder.customized);
   const isModifiedCartItem = useAppSelector(({ takeOrder }) => takeOrder.isModifiedCartItem);
@@ -136,7 +136,7 @@ const Customized = () => {
       onCloseDialog={handleClose}
       actionButton={
         <>
-          {userInfo && (
+          {token && (
             <>
               <Box
                 sx={{
@@ -448,7 +448,7 @@ const Orders = () => {
                           />
                         )}
                       </Grid>
-                      <Grid item sx={{ flexGrow: 1 }} xs={8}>
+                      <Grid item sx={{ flexGrow: 1 }} xs={7}>
                         {/* 餐點名稱 */}
                         <Typography sx={{ paddingBottom: ".5rem" }}>{orderMeal.title}</Typography>
                         {/* 客製化項目 */}
@@ -473,7 +473,7 @@ const Orders = () => {
                         <Box>x{orderMeal.amount}</Box>
                       </Grid>
                       {/* 金額 */}
-                      <Grid item sx={{ textAlign: "right" }} xs={2}>
+                      <Grid item sx={{ textAlign: "right" }} xs={3}>
                         {order.status !== OrderStatus.CANCEL && <Box>{orderMeal.price}元</Box>}
                       </Grid>
                     </Grid>

@@ -225,6 +225,7 @@ export const CategoryNavbar = () => {
 export const Meals = () => {
   const dispatch = useAppDispatch();
 
+  const userInfo = useAppSelector(({ takeOrder }) => takeOrder.userInfo);
   const menu = useAppSelector(({ takeOrder }) => takeOrder.menu);
   const currentCategory = useAppSelector(({ takeOrder }) => takeOrder.currentCategory);
   const prevCategory = usePrevious(currentCategory);
@@ -243,9 +244,9 @@ export const Meals = () => {
   useEffect(() => {
     // Don't scroll when it's the first-mounted.
     if (prevCategory && currentCategory && prevCategory !== currentCategory) {
-      window.scroll({ top: 290, behavior: "smooth" });
+      window.scroll({ top: userInfo ? 252 : 0, behavior: "smooth" });
     }
-  }, [prevCategory, currentCategory]);
+  }, [prevCategory, currentCategory, userInfo]);
 
   return (
     <Box sx={{ padding: "0 .2rem 5rem", userSelect: "none" }}>
