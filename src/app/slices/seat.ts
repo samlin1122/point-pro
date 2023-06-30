@@ -3,7 +3,7 @@ import { createSlice } from "@reduxjs/toolkit";
 import { SeatApi } from "~/api";
 // Others
 import { createAppAsyncThunk } from "~/app/hook";
-import { Id, SeatsPayload, SeatsResponse } from "~/types/api";
+import { SeatByIdPayload, SeatsPayload, SeatsResponse } from "~/types/api";
 
 const name = "seat";
 
@@ -21,7 +21,7 @@ export const getSeats = createAppAsyncThunk<SeatsResponse, SeatsPayload>(
     }
   }
 );
-export const getSeatById = createAppAsyncThunk<SeatsResponse, Id>(
+export const getSeatById = createAppAsyncThunk<SeatsResponse, SeatByIdPayload>(
   `${name}/getSeatById`,
   async (payload, { rejectWithValue }) => {
     try {

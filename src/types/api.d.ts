@@ -351,6 +351,10 @@ type ReservationsResponse = ApiResponse<ReservationInfo[]>;
 type SeatsResponse = ApiResponse<SeatInfo[]>;
 
 interface SeatsPayload {
-  data?: Date;
+  date?: Date;
   periodId?: Id;
+}
+interface SeatByIdPayload {
+  seatId: Id;
+  date: Date;
 }

@@ -35,14 +35,13 @@ const TabList = ({ date, search }: TabListProps) => {
       id: e.id,
       type: e.type,
       ...e.options,
-      periodStartedAt: e.periodStartedAt,
-      periodEndedAt: e.periodEndedAt,
+      startOfMeal: e.startOfMeal,
+      endOfMeal: e.endOfMeal,
       seatNo: e.seats.map((seat) => seat.seatNo).join(", "),
       people: e.options
     })) as GridRowsProp;
 
     setReservations(list);
-    console.log({ result });
   };
   const phoneRegex = new RegExp(search, "i");
   return (
@@ -121,7 +120,7 @@ const columns: GridColDef[] = [
   },
   { field: "phone", headerName: "電話號碼", minWidth: 120, flex: 0.5 },
   {
-    field: "periodStartedAt",
+    field: "startOfMeal",
     headerName: "開始時間",
     minWidth: 100,
     flex: 0.5,
@@ -130,7 +129,7 @@ const columns: GridColDef[] = [
     }
   },
   {
-    field: "periodEndedAt",
+    field: "endOfMeal",
     headerName: "結束時間",
     minWidth: 100,
     flex: 0.5,
@@ -145,14 +144,14 @@ const columns: GridColDef[] = [
     flex: 0.5,
     valueGetter: (params: GridValueGetterParams) => {
       return {
-        periodStartedAt: params.row.periodStartedAt,
-        periodEndedAt: params.row.periodEndedAt
+        startOfMeal: params.row.startOfMeal,
+        endOfMeal: params.row.endOfMeal
       };
     },
-    valueFormatter: (params: GridValueFormatterParams<{ periodStartedAt: number; periodEndedAt: number }>) => {
-      const { periodStartedAt, periodEndedAt } = params.value;
-      if (periodStartedAt && periodEndedAt) {
-        const diff = appDayjs(periodEndedAt).diff(appDayjs(periodStartedAt));
+    valueFormatter: (params: GridValueFormatterParams<{ startOfMeal: number; endOfMeal: number }>) => {
+      const { startOfMeal, endOfMeal } = params.value;
+      if (startOfMeal && endOfMeal) {
+        const diff = appDayjs(endOfMeal).diff(appDayjs(startOfMeal));
         const duration = appDayjs.duration(diff).format("HH:mm");
         return duration;
       }

@@ -130,7 +130,7 @@ export const SeatDetail: FC<SeatDetailProps> = ({ open, onClose, state, update }
     () =>
       state.periods.find((e) => {
         if (seatTab === SeatTab.CURRENT) {
-          return appDayjs().isAfter(e.startedAt) && appDayjs().isBefore(e.endedAt);
+          return appDayjs().isBetween(e.startedAt, e.endedAt);
         } else {
           if (period) {
             return e.id === period;
@@ -192,7 +192,7 @@ export const SeatDetail: FC<SeatDetailProps> = ({ open, onClose, state, update }
             },
             { label: "客到開始使用", onClick: () => handleButtonClick("start") }
           ]
-        : [{ label: "新增現場使用", onClick: () => handleButtonClick("create") }]
+        : [{ label: "新增預約", onClick: () => handleButtonClick("create") }]
       : info?.reservation
       ? [
           {
@@ -228,14 +228,6 @@ export const SeatDetail: FC<SeatDetailProps> = ({ open, onClose, state, update }
           {reservationStatusConfig(info?.status as string).name}
         </Typography>
       </Stack>
-      {/* <Stack direction="row" justifyContent="space-between" alignItems="center" sx={{ pt: 2 }}>
-        <Typography variant="h6" sx={{ pl: 3 }}>
-          最近的預約
-        </Typography>
-        <Typography variant="h4" sx={{ pr: 3 }}>
-          {formatFullDateWithTime(state.date)}
-        </Typography>
-      </Stack> */}
       <Divider sx={{ py: 1 }} />
 
       {/* tab */}
@@ -246,9 +238,7 @@ export const SeatDetail: FC<SeatDetailProps> = ({ open, onClose, state, update }
           {state.periods.map((e) => (
             <SelectTab
               key={e.id}
-              onClick={() => {
-                handlePeriodSelect(e.id);
-              }}
+              onClick={() => handlePeriodSelect(e.id)}
               className={e.id === period ? "Mui-selected" : appDayjs().isAfter(appDayjs(e.startedAt)) ? "disabled" : ""}
             >
               <Typography variant="body1" fontWeight={700}>
