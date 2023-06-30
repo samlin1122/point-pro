@@ -13,6 +13,7 @@ type OrderSliceState = {
   orders: Order[];
   currentOrder: ParentOrder | null;
   mobileOrderStatusTab: number;
+  cancelOrderId: string;
   isLoading: boolean;
 };
 
@@ -22,6 +23,7 @@ const initialState: OrderSliceState = {
   orders: [],
   currentOrder: null,
   mobileOrderStatusTab: 0,
+  cancelOrderId: "",
   isLoading: false
 };
 
@@ -87,13 +89,14 @@ export const postOrder = createAppAsyncThunk(
   }
 );
 
-export const deleteOrder = createAppAsyncThunk(
-  `${name}/deleteOrder`,
-  async (payload: { orderId: string }, { getState, dispatch, rejectWithValue }) => {
+export const cancelOrder = createAppAsyncThunk(
+  `${name}/cancelOrder`,
+  async (arg, { getState, dispatch, rejectWithValue }) => {
     try {
+      const orderId = getState()[name].cancelOrderId;
       const socket = getState().socket.socket;
-      const deleteOrder = await OrderApi.deleteOrderRequest(payload);
-      socket && socket.emit(SocketTopic.ORDER, deleteOrder);
+      const cancelOrder = await OrderApi.deleteOrderRequest({ orderId });
+      socket && socket.emit(SocketTopic.ORDER, cancelOrder);
       dispatch(getOrders({ status: getState()[name].status }));
     } catch (error) {
       if (error instanceof Error) {
@@ -132,6 +135,9 @@ export const orderSlice = createSlice({
     },
     setMobileOrderStatusTab: (state, action) => {
       state.mobileOrderStatusTab = action.payload;
+    },
+    setCancelOrder: (state, action) => {
+      state.cancelOrderId = action.payload;
     }
   },
   extraReducers: (builder) => {
@@ -160,13 +166,15 @@ export const orderSlice = createSlice({
         state.isLoading = false;
       })
       // delete order
-      .addCase(deleteOrder.pending, (state) => {
+      .addCase(cancelOrder.pending, (state) => {
         state.isLoading = true;
       })
-      .addCase(deleteOrder.fulfilled, (state) => {
+      .addCase(cancelOrder.fulfilled, (state) => {
+        state.cancelOrderId = initialState.cancelOrderId;
         state.isLoading = false;
       })
-      .addCase(deleteOrder.rejected, (state) => {
+      .addCase(cancelOrder.rejected, (state) => {
+        state.cancelOrderId = initialState.cancelOrderId;
         state.isLoading = false;
       })
       // patch order
@@ -182,4 +190,4 @@ export const orderSlice = createSlice({
   }
 });
 
-export const { setOrderStatus, setMobileOrderStatusTab } = orderSlice.actions;
+export const { setOrderStatus, setMobileOrderStatusTab, setCancelOrder } = orderSlice.actions;
