@@ -6,7 +6,7 @@ import { clearCart, openDialog } from "~/features/orders/slice";
 import appDayjs from "~/utils/dayjs.util";
 import { calculateCartItemPrice } from "~/utils/price.utils";
 import { OrderStatus } from "~/types/common";
-import { SocketTopic } from "~/hooks/useSocket";
+import { SocketTopic } from "./socket";
 
 type OrderSliceState = {
   status: OrderStatus;

@@ -126,19 +126,20 @@ export const PendingAndCancelOrderItem = (props: PendingAndCancelOrderItemProps)
   );
   const progress = (servedMeals / totalMeals) * 100;
 
+  const originServedAmount = orderMeals.map((meal) => meal.servedAmount).join("");
   const [tempServedAmount, setUpdatedServedAmount] = useState("");
   const [isServedAmountUpdated, setIsServedAmountUpdated] = useState(false);
 
   useEffect(() => {
-    const originServedAmount = orderMeals.map((meal) => meal.servedAmount).join("");
     setUpdatedServedAmount(originServedAmount);
-  }, [orderMeals]);
+    setIsServedAmountUpdated(false);
+  }, [originServedAmount]);
 
   const handleChangeServedAmount = (idx: number, value: number | string) => {
     let newServedAmount = tempServedAmount.split("");
     newServedAmount[idx] = `${value}`;
     setUpdatedServedAmount(newServedAmount.join(""));
-    setIsServedAmountUpdated(tempServedAmount !== newServedAmount.join(""));
+    setIsServedAmountUpdated(originServedAmount !== newServedAmount.join(""));
   };
 
   const handleCancelOrder = (orderId: string) => {
@@ -197,7 +198,7 @@ export const PendingAndCancelOrderItem = (props: PendingAndCancelOrderItemProps)
             <Typography>{id.slice(-5)}</Typography>
           </Column>
           <VerticalDivider />
-          <Typography sx={{ flex: "0 50%" }}>{appDayjs(createdAt).format("YYYY/MM/DD HH:mm:ss")}</Typography>
+          <Typography sx={{ flex: "0 50%" }}>{appDayjs(createdAt).format("YYYY/MM/DD HH:mm")}</Typography>
           {status === OrderStatus.PENDING && (
             <>
               <VerticalDivider />
@@ -348,7 +349,7 @@ export const UnpaidAndSuccessOrderItem = (props: UnpaidAndSuccessOrderItemProps)
                     </Column>
                     <VerticalDivider />
                     <Typography sx={{ minWidth: "13rem" }}>
-                      {appDayjs(order.createdAt).format("YYYY/MM/DD HH:mm:ss")}
+                      {appDayjs(order.createdAt).format("YYYY/MM/DD HH:mm")}
                     </Typography>
                     {status === OrderStatus.SUCCESS && (
                       <>
