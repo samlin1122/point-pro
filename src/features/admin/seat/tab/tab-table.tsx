@@ -33,20 +33,18 @@ export const TabTable: FC<TabTablePros> = ({ date }) => {
   const dispatch = useAppDispatch();
 
   useEffect(() => {
+    setSelectedPeriod(undefined);
     dispatchGetSeats();
     dispatchGetPeriodByDate();
-    if (date.isToday()) {
-      setSelectedPeriod(undefined);
-    }
   }, [date]);
 
   useEffect(() => {
-    console.log({ selectedPeriod });
-    dispatchGetSeats();
+    if (selectedPeriod) {
+      dispatchGetSeats(selectedPeriod);
+    }
   }, [selectedPeriod]);
 
   useEffect(() => {
-    console.log({ selectedSeat });
     if (selectedSeat) {
       dispatchGetSeatById();
     }
@@ -57,10 +55,35 @@ export const TabTable: FC<TabTablePros> = ({ date }) => {
     setSeatDetail(result);
   };
 
-  const dispatchGetSeats = async () => {
-    let payload = { date: date.toDate() ?? appDayjs().toDate(), periodId: selectedPeriod };
+  const dispatchGetSeats = async (periodId?: string) => {
+    let payload: { date: Date; periodId?: string } = { date: date.toDate() ?? appDayjs().toDate() };
+    if (periodId) {
+      payload.periodId = periodId;
+    }
+    console.log({ payload });
+
     let { result } = await dispatch(getSeats(payload)).unwrap();
     setSeats(formatSeatResponseToData(result));
+  };
+
+  const dispatchGetPeriodByDate = async () => {
+    let { result } = await dispatch(getPeriodByDate(date.toDate())).unwrap();
+    setPeriods(result[0].periods);
+    if (date.isToday()) {
+      let a = result[0].periods.find((e: PeriodInfo) => {
+        // console.log(appDayjs().isBetween(appDayjs(e.periodStartedAt), appDayjs(e.periodStartedAt).add(2, "hour")));
+        // console.log(
+        //   appDayjs(e.periodStartedAt).format("hh"),
+        //   appDayjs(e.periodStartedAt).add(2, "hour").format("hh"),
+        //   appDayjs().format("hh")
+        // );
+        return result[0].date === e.periodStartedAt;
+      });
+
+      setSelectedPeriod(a.id);
+    } else {
+      setSelectedPeriod(result[0].periods[0].id);
+    }
   };
 
   const formatSeatResponseToData = (res: []) => {
@@ -69,14 +92,6 @@ export const TabTable: FC<TabTablePros> = ({ date }) => {
       data[e.seatNo] = e;
     });
     return data;
-  };
-
-  const dispatchGetPeriodByDate = async () => {
-    let { result } = await dispatch(getPeriodByDate(date.toDate())).unwrap();
-    setPeriods(result?.periods);
-    if (!date.isToday()) {
-      setSelectedPeriod(result.periods[0]);
-    }
   };
 
   const handlePeriodClick = (periodId?: string) => {
@@ -120,7 +135,14 @@ export const TabTable: FC<TabTablePros> = ({ date }) => {
           ))}
         </Stack>
       ) : null}
-      {!!seatDteail && <SeatDetail open={!!seatDteail} onClose={handleSeatDetailClose} state={seatDteail} />}
+      {!!seatDteail && (
+        <SeatDetail
+          open={!!seatDteail}
+          onClose={handleSeatDetailClose}
+          state={seatDteail}
+          update={dispatchGetSeatById}
+        />
+      )}
     </Stack>
   );
 };

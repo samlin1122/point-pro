@@ -3,7 +3,13 @@ import { createSlice } from "@reduxjs/toolkit";
 import { ReservationApi } from "~/api";
 // Others
 import { createAppAsyncThunk } from "~/app/hook";
-import { ReservationsResponse, ReservationResponse, PostReservationPayload, Id } from "~/types/api";
+import {
+  ReservationsResponse,
+  ReservationResponse,
+  PostReservationPayload,
+  PatchReservationPayload,
+  Id
+} from "~/types/api";
 
 const name = "reservation";
 
@@ -12,6 +18,21 @@ export const getReservations = createAppAsyncThunk<ReservationsResponse, Date>(
   async (payload, { rejectWithValue }) => {
     try {
       return await ReservationApi.getReservations(payload);
+    } catch (error) {
+      if (error instanceof Error) {
+        return rejectWithValue({ message: error.message });
+      } else {
+        return rejectWithValue({ message: "unknown error" });
+      }
+    }
+  }
+);
+
+export const postReservation = createAppAsyncThunk<ReservationResponse, PostReservationPayload>(
+  `${name}/postReservation`,
+  async (payload, { rejectWithValue }) => {
+    try {
+      return await ReservationApi.postReservation(payload);
     } catch (error) {
       if (error instanceof Error) {
         return rejectWithValue({ message: error.message });
@@ -37,11 +58,11 @@ export const getReservationById = createAppAsyncThunk<ReservationResponse, Id>(
   }
 );
 
-export const postReservation = createAppAsyncThunk<ReservationResponse, PostReservationPayload>(
-  `${name}/postReservation`,
+export const patchReservationById = createAppAsyncThunk<ReservationResponse, PatchReservationPayload>(
+  `${name}/patchReservationById`,
   async (payload, { rejectWithValue }) => {
     try {
-      return await ReservationApi.postReservation(payload);
+      return await ReservationApi.patchReservationById(payload);
     } catch (error) {
       if (error instanceof Error) {
         return rejectWithValue({ message: error.message });

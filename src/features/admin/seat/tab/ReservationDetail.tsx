@@ -1,31 +1,35 @@
 import { useEffect, useReducer, useState } from "react";
 
 import { Stack } from "@mui/material";
+import { FieldContainer } from "~/components/layout";
+import { DrawerBase } from "~/components/drawer";
 
 import { useAppDispatch } from "~/app/hook";
 import { getPeriodByDate } from "~/app/slices/period";
-import { DrawerBase } from "~/components/drawer";
-import { FieldContainer } from "~/components/layout";
+import { patchReservationById, postReservation } from "~/app/slices/reservation";
 import { PeriodInfo } from "~/types";
+import { PatchReservation } from "~/types/api";
 import { genderList } from "~/utils/constants";
-import appDayjs, { formatTimeOnly } from "~/utils/dayjs.util";
 import mainReducer, {
   initialState,
   defaultSetting,
   editField,
   validator,
   validateCheck,
-  convertToPayload
+  convertToCreatePayload,
+  convertToPatchPayload
 } from "./reducers/reservation-detail";
+import appDayjs, { formatTimeOnly } from "~/utils/dayjs.util";
 
 interface ReservationDetail {
   open: boolean;
-  onClose: (update?: boolean) => void;
+  onClose: (refresh?: boolean) => void;
   isCreate: boolean;
   date: appDayjs.Dayjs;
+  info?: any;
 }
 
-const ReservationDetail = ({ open, onClose, isCreate, date }: ReservationDetail) => {
+const ReservationDetail = ({ open, onClose, isCreate, date, info }: ReservationDetail) => {
   const dispatch = useAppDispatch();
   const [periods, setPeriods] = useState<PeriodInfo[]>([]);
   const [state, reducerDispatch] = useReducer(mainReducer, initialState);
@@ -34,16 +38,17 @@ const ReservationDetail = ({ open, onClose, isCreate, date }: ReservationDetail)
     if (open) {
       dispatchGetPeriodByDate();
       if (isCreate) {
-        reducerDispatch(defaultSetting(null));
+        reducerDispatch(defaultSetting(info?.id));
       } else {
-        reducerDispatch(defaultSetting(null));
+        reducerDispatch(defaultSetting(info));
       }
     }
   }, [open]);
 
   const dispatchGetPeriodByDate = async () => {
     let { result } = await dispatch(getPeriodByDate(date?.toDate() ?? appDayjs().toDate())).unwrap();
-    setPeriods(result?.periods);
+    let data = result[0].periods.filter((e: PeriodInfo) => appDayjs().isBefore(appDayjs(e.periodStartedAt)));
+    setPeriods(data);
   };
 
   const fieldList = [
@@ -51,7 +56,8 @@ const ReservationDetail = ({ open, onClose, isCreate, date }: ReservationDetail)
       id: "period",
       label: "時段",
       type: "select",
-      list: periods.map((e: PeriodInfo) => ({ id: e.id, title: formatTimeOnly(e.periodStartedAt) }))
+      list: periods.map((e: PeriodInfo) => ({ id: e.id, title: formatTimeOnly(e.periodStartedAt) })),
+      disabled: !!info?.id
     },
     {
       id: "amount",
@@ -61,7 +67,7 @@ const ReservationDetail = ({ open, onClose, isCreate, date }: ReservationDetail)
         id: i + 1,
         title: i + 1
       })),
-      disabled: !state.period?.value
+      disabled: !state.period?.value || !!info?.reservation?.id
     },
     {
       id: "name",
@@ -95,12 +101,12 @@ const ReservationDetail = ({ open, onClose, isCreate, date }: ReservationDetail)
       switch (key) {
         case "create":
           if (validateCheck(state)) {
-            let payload = convertToPayload(
+            let payload = convertToCreatePayload(
               state,
               periods.find((e) => e.id === state.period.value)?.periodStartedAt as Date
             );
             console.log({ payload });
-            // await dispatch(postSpecialty(payload));
+            await dispatch(postReservation(payload));
             onClose(true);
           } else {
             reducerDispatch(validator());
@@ -108,12 +114,9 @@ const ReservationDetail = ({ open, onClose, isCreate, date }: ReservationDetail)
           break;
         case "save":
           if (validateCheck(state)) {
-            let payload = convertToPayload(
-              state,
-              periods.find((e) => e.id === state.period.value)?.periodStartedAt as Date
-            );
+            let payload: PatchReservation = convertToPatchPayload(state);
             console.log({ payload });
-            // await dispatch(patchSpecialtyById({ specialtyId: specialtyId as string, payload }));
+            await dispatch(patchReservationById({ reservationId: info.reservation.id, payload }));
             onClose(true);
           } else {
             reducerDispatch(validator());

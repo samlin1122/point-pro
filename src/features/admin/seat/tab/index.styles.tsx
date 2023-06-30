@@ -48,7 +48,7 @@ const TableInfo = ({ state }: TableInfoProps) => {
             {state.currentReservation.options?.name}
           </Typography>
           <Typography variant="body2" fontWeight={400} lineHeight={"24px"}>
-            {formatTimeOnly(state.date)}
+            {formatTimeOnly(state.period.startedAt)}
           </Typography>
           <Typography variant="body2" fontWeight={700} lineHeight={"24px"}>
             -
@@ -68,7 +68,7 @@ const TableInfo = ({ state }: TableInfoProps) => {
             {formatTimeOnly(state.currentReservation.startOfMeal)}
           </Typography>
           <Typography variant="body2" fontWeight={700} lineHeight={"24px"}>
-            {percentOfUsed(state.currentReservation.startOfMeal, state.currentReservation.endOfMeal)}
+            {/* {percentOfUsed(state.currentReservation.startOfMeal, state.currentReservation.endOfMeal)} */}
           </Typography>
         </Fragment>
       );
@@ -127,7 +127,7 @@ export const Periods = ({ date, periods, selected, handleClick }: PeriodsProps) 
       justifyContent="center"
       sx={{ p: 2, overflow: "auto", borderRight: (theme) => `1px solid ${theme.palette.divider}`, minWidth: 200 }}
     >
-      {date.isToday() && (
+      {/* {date.isToday() && (
         <ListItem onClick={() => handleClick()}>
           <ListItemButton
             sx={{
@@ -142,7 +142,7 @@ export const Periods = ({ date, periods, selected, handleClick }: PeriodsProps) 
             現在
           </ListItemButton>
         </ListItem>
-      )}
+      )} */}
       {periods?.map((e) => (
         <ListItem key={e.id} onClick={() => handleClick(e.id)}>
           <ListItemButton

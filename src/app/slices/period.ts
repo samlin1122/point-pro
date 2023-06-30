@@ -23,10 +23,7 @@ export const getPeriodByDate = createAppAsyncThunk(
   `${name}/getPeriodByDate`,
   async (payload: Date, { rejectWithValue }) => {
     try {
-      let data = await PeriodApi.getPeriodByDate(payload);
-      // need to remove
-      data.result = data.result.find((e: DatePeriodInfo) => appDayjs(e.date).isSame(payload ?? appDayjs(), "day"));
-      return data;
+      return await PeriodApi.getPeriodByDate(payload);
     } catch (error) {
       if (error instanceof Error) {
         return rejectWithValue({ message: error.message });

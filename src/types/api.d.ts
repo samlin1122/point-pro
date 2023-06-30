@@ -332,7 +332,15 @@ interface MealDetails {
   items?: MealDetails[];
 }
 
-type PostReservationResponse = ApiResponse<CreateReservation>;
+interface PatchReservation {
+  startOfMeal?: Date | null;
+  endOfMeal?: Date | null;
+  options?: { [key: string]: any };
+}
+interface PatchReservationPayload {
+  reservationId: string;
+  payload: PatchReservation;
+}
 
 type PeriodsResponse = ApiResponse<DatePeriodInfo>;
 

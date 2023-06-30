@@ -1,4 +1,4 @@
-import { FC, useState } from "react";
+import { FC, useMemo, useState } from "react";
 import { Stack, Typography, styled, Button, Box, Divider } from "@mui/material";
 import appDayjs, { formatTimeOnly } from "~/utils/dayjs.util";
 import { DrawerBase } from "~/components/drawer";
@@ -9,6 +9,8 @@ import UnDraw from "~/assets/images/undraw_login.svg";
 import { reservationStatusConfig } from "./index.styles";
 import ReservationDetail from "./ReservationDetail";
 import { genderListStringArray } from "~/utils/constants";
+import { useAppDispatch } from "~/app/hook";
+import { patchReservationById } from "~/app/slices/reservation";
 
 const enum SeatTab {
   CURRENT = "CURRENT",
@@ -19,6 +21,7 @@ type SeatDetailProps = {
   open: boolean;
   onClose: () => void;
   state: SeatDetails;
+  update: () => void;
 };
 
 type SeatProps = {
@@ -117,31 +120,48 @@ export const SeatInfo: FC<ReservationProps> = ({ info }) => {
   );
 };
 
-export const SeatDetail: FC<SeatDetailProps> = ({ open, onClose, state }) => {
+export const SeatDetail: FC<SeatDetailProps> = ({ open, onClose, state, update }) => {
   const [seatTab, setSeatTab] = useState(SeatTab.CURRENT);
   const [period, setPeriod] = useState<string>();
   const [editMode, setEditMode] = useState<string | undefined>();
+  const dispatch = useAppDispatch();
+
+  const info = useMemo(
+    () =>
+      state.periods.find((e) => {
+        if (seatTab === SeatTab.CURRENT) {
+          return appDayjs().isAfter(e.startedAt) && appDayjs().isBefore(e.endedAt);
+        } else {
+          if (period) {
+            return e.id === period;
+          } else {
+            setPeriod(e.id);
+            return true;
+          }
+        }
+      }),
+    [state, seatTab, period]
+  );
 
   const handlePeriodSelect = (periodId: string) => {
     setPeriod(periodId);
   };
-  const info = state.periods.find((e) => {
-    if (seatTab === SeatTab.CURRENT) {
-      return appDayjs().isAfter(e.startedAt) && appDayjs().isBefore(e.endedAt);
-    } else {
-      if (period) {
-        return e.id === period;
-      } else {
-        setPeriod(e.id);
-        return true;
-      }
-    }
-  });
 
-  const handleButtonClick = (key: string) => {
-    console.log(key);
+  const handleButtonClick = async (key: string) => {
+    console.log(key, { info });
     switch (key) {
       case "start":
+        try {
+          await dispatch(
+            patchReservationById({
+              reservationId: info?.reservation?.id as string,
+              payload: { startOfMeal: appDayjs().toDate() }
+            })
+          );
+          update();
+        } catch (error) {
+          console.log({ error });
+        }
         break;
       case "edit":
         setEditMode("edit");
@@ -152,6 +172,13 @@ export const SeatDetail: FC<SeatDetailProps> = ({ open, onClose, state }) => {
       default:
         break;
     }
+  };
+
+  const handleCloseDrawer = (refresh?: boolean) => {
+    if (refresh) {
+      update();
+    }
+    setEditMode(undefined);
   };
 
   const getButtonList = () => {
@@ -236,8 +263,9 @@ export const SeatDetail: FC<SeatDetailProps> = ({ open, onClose, state }) => {
       <ReservationDetail
         isCreate={editMode === "create"}
         open={!!editMode}
-        onClose={() => setEditMode(undefined)}
+        onClose={handleCloseDrawer}
         date={appDayjs(state.date)}
+        info={info}
       />
     </DrawerBase>
   );

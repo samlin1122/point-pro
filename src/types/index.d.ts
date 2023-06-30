@@ -183,6 +183,7 @@ export type SpecialtiesOnMeals = {
 type PeriodInfo = {
   id: string;
   periodStartedAt: Date;
+  periodEndedAt: Date;
   amount: number;
   available: number;
 };
@@ -220,6 +221,7 @@ type SeatInfo = {
   status: "RESERVED" | "AVAILABLE" | "OCCUPIED";
   date: Date;
   currentReservation: ReservationRecord;
+  period: any;
 };
 
 type SeatDetailsPeriod = Pick<Period, "id" | "startedAt" | "endedAt"> & {

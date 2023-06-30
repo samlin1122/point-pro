@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { Box, InputAdornment } from "@mui/material";
 import AddIcon from "@mui/icons-material/Add";
 import SearchIcon from "@mui/icons-material/Search";
@@ -6,8 +6,10 @@ import { ButtonBase } from "~/components/buttons";
 import { InputText } from "~/components/input";
 import { DesktopDatePicker, LocalizationProvider } from "@mui/x-date-pickers";
 import { AdapterDayjs } from "@mui/x-date-pickers/AdapterDayjs";
-import appDayjs from "~/utils/dayjs.util";
+import appDayjs, { formatDateOnly } from "~/utils/dayjs.util";
 import ReservationDetail from "./tab/ReservationDetail";
+import { useAppDispatch } from "~/app/hook";
+import { getPeriods } from "~/app/slices/period";
 
 interface ISeatSearchBarProps {
   view: number;
@@ -18,6 +20,22 @@ interface ISeatSearchBarProps {
 
 const SeatSearchBar = ({ view, date, handleDateChange, handleSearchChange }: ISeatSearchBarProps) => {
   const [open, setOpen] = useState<boolean>(false);
+  const [periods, setPeriods] = useState<string[]>([]);
+  const dispatch = useAppDispatch();
+
+  useEffect(() => {
+    diaptchGetPeriods();
+  }, []);
+
+  const diaptchGetPeriods = async () => {
+    let { result } = await dispatch(getPeriods()).unwrap();
+
+    setPeriods(result.map((e: any) => formatDateOnly(e.date)));
+  };
+
+  const handleCloseDrawer = () => {
+    setOpen(false);
+  };
   return (
     <Box
       sx={{
@@ -41,6 +59,7 @@ const SeatSearchBar = ({ view, date, handleDateChange, handleSearchChange }: ISe
           format="YYYY年MM月DD日 (星期dd)"
           onChange={handleDateChange}
           minDate={appDayjs()}
+          shouldDisableDate={(day) => !periods.includes(formatDateOnly(day))}
           sx={{
             "& .MuiOutlinedInput-root": {
               fontWeight: 900
@@ -80,7 +99,7 @@ const SeatSearchBar = ({ view, date, handleDateChange, handleSearchChange }: ISe
           新增預約
         </ButtonBase>
       </Box>
-      <ReservationDetail isCreate={true} open={open} onClose={() => setOpen(false)} date={date} />
+      <ReservationDetail isCreate={true} open={open} onClose={handleCloseDrawer} date={date} />
     </Box>
   );
 };

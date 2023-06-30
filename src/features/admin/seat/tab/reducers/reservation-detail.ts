@@ -24,22 +24,27 @@ const makeFieldsBase = (payload: ReservationProp): StateProps => {
     period: makeField(payload.period, "period", true, false)
   };
 };
-
-export const initialState = makeFieldsBase({
+const init = {
   amount: "",
   name: "",
   gender: "",
   phone: "",
   email: "",
   period: ""
-});
+};
+export const initialState = makeFieldsBase(init);
 
 const mainReducer = createSlice({
   name: "mainReducer",
   initialState,
   reducers: {
     defaultSetting(state, { payload }) {
-      return payload ? makeFieldsBase(payload) : initialState;
+      if (payload?.reservation) {
+        const { name, gender, phone, email, adults } = payload.reservation.options;
+        return makeFieldsBase({ amount: adults, name, gender, phone, email, period: payload.id });
+      } else {
+        return makeFieldsBase({ ...init, period: payload ?? "" });
+      }
     },
     editField(state, { payload }) {
       let { id, value } = payload;
@@ -71,9 +76,9 @@ export const validateCheck = (state: StateProps) => {
   });
 };
 
-export const convertToPayload = (state: StateProps, periodStartedAt: Date) => {
+export const convertToCreatePayload = (state: StateProps, periodStartedAt: Date) => {
   return {
-    type: "WalkInSeating",
+    type: "PhoneBooking",
     amount: state.amount.value,
     options: {
       name: state.name.value,
@@ -83,6 +88,17 @@ export const convertToPayload = (state: StateProps, periodStartedAt: Date) => {
       adults: state.amount.value
     },
     periodStartedAt: periodStartedAt
+  };
+};
+export const convertToPatchPayload = (state: StateProps) => {
+  return {
+    options: {
+      name: state.name.value,
+      gender: state.gender.value,
+      phone: state.phone.value,
+      email: state.email.value,
+      adults: state.amount.value
+    }
   };
 };
 
