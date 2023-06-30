@@ -1,5 +1,5 @@
 // Libs
-import { useCallback, useMemo, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import {
   Accordion,
   AccordionSummary,
@@ -11,10 +11,7 @@ import {
   Box,
   Select,
   MenuItem,
-  styled,
-  LinearProgressProps,
-  LinearProgress,
-  linearProgressClasses
+  styled
 } from "@mui/material";
 import AddIcon from "@mui/icons-material/Add";
 import RemoveIcon from "@mui/icons-material/Remove";
@@ -22,13 +19,14 @@ import RemoveIcon from "@mui/icons-material/Remove";
 import { Column, Row } from "~/components/layout";
 // Others
 import { useAppDispatch } from "~/app/hook";
-import { patchOrder } from "~/app/slices/order";
+import { patchOrder, setCancelOrder } from "~/app/slices/order";
 import { Order, OrderMeal, ParentOrder } from "~/features/orders/type";
 import appDayjs from "~/utils/dayjs.util";
 import { calculateOrderPrice, calculateParentOrderPrice } from "~/utils/price.utils";
 import theme from "~/theme";
 import { OrderStatus, OrderType } from "~/types/common";
 import { openPaymentDrawer } from "~/app/slices/payment";
+import LinearProgressWithLabel from "./LinearProgressWithLabel";
 
 function useAccordion() {
   const [expanded, setExpanded] = useState(false);
@@ -47,169 +45,107 @@ const VerticalDivider = styled("div")(({ theme }) => ({
   margin: "0 1rem"
 }));
 
-const LinearProgressWithLabel = (props: LinearProgressProps & { value: number }) => {
-  return (
-    <Box sx={{ display: "flex", alignItems: "center" }}>
-      <Box sx={{ width: "100%", mr: 1 }}>
-        <LinearProgress
-          variant="determinate"
-          value={props.value}
-          sx={{
-            height: "0.6875rem",
-            borderRadius: "0.5rem",
-            [`&.${linearProgressClasses.colorPrimary}`]: {
-              backgroundColor: theme.palette.common.black_20
-            },
-            [`& .${linearProgressClasses.bar}`]: {
-              borderRadius: "0.5rem"
-            }
-          }}
-        />
-      </Box>
-      <Box sx={{ minWidth: 35 }}>
-        <Typography variant="body2" color="text.secondary">{`${Math.round(props.value)}%`}</Typography>
-      </Box>
-    </Box>
-  );
-};
-
 interface orderMealItemProps {
   idx: number;
   orderMeal: OrderMeal;
   status: OrderStatus;
+  isShowServedAmount?: boolean;
   tempServedAmount?: string;
   handleChangeServedAmount?: (idx: number, value: number | string) => void;
 }
-
-function OrderMealItem(order: orderMealItemProps) {
-  const { tempServedAmount, handleChangeServedAmount, idx, orderMeal, status } = order;
+function OrderMealItem(props: orderMealItemProps) {
+  const { handleChangeServedAmount, tempServedAmount, orderMeal, isShowServedAmount, idx } = props;
   const { id, title, mealPrice, price, amount, specialties } = orderMeal;
 
-  const isPendingOrCancelOrder = status === OrderStatus.PENDING || status === OrderStatus.CANCEL;
-  const isShowServedAmount = isPendingOrCancelOrder && status !== OrderStatus.CANCEL;
-
   return (
-    <Row
-      key={id}
-      justifyContent={"space-between"}
-      width={"100%"}
-      gap={2}
+    <ListItem
       sx={{
+        borderBottom: `1px solid ${theme.palette.common.black_20}`,
         padding: ".5rem"
       }}
     >
-      <Typography sx={{ minWidth: "15rem" }}>{title}</Typography>
-      <Typography sx={{ minWidth: "5rem" }}>{mealPrice}</Typography>
-      <Typography sx={{ minWidth: "5rem" }}>x {amount}</Typography>
-      <List sx={{ margin: 0, padding: 0, flexGrow: 1 }}>
-        {specialties.map((specialty) => (
-          <ListItem key={specialty.id} sx={{ margin: 0, padding: 0, color: theme.palette.text.secondary }}>
-            [{specialty.title}]: {specialty.items.map((item) => item.title).join("、")}
-          </ListItem>
-        ))}
-      </List>
-      <Typography fontWeight={700} sx={{ minWidth: "6rem", textAlign: "right" }}>
-        {price}元
-      </Typography>
-      {isShowServedAmount && handleChangeServedAmount && tempServedAmount && (
-        <Box
-          sx={{
-            display: "flex",
-            alignItems: "center",
-            flexDirection: "column",
-            minWidth: "7rem",
-            gap: ".5rem"
-          }}
-        >
-          <Typography>已出餐數量</Typography>
-          <Select
-            value={tempServedAmount.split("")[idx]}
-            onChange={(e) => handleChangeServedAmount(idx, e.target.value)}
-            sx={{ width: "80%", height: "2rem" }}
+      <Row justifyContent="space-between" width="100%" gap={2} sx={{ padding: ".5rem" }}>
+        <Typography sx={{ minWidth: "15rem" }}>{title}</Typography>
+        <Typography sx={{ minWidth: "5rem" }}>{mealPrice}</Typography>
+        <Typography sx={{ minWidth: "5rem" }}>x {amount}</Typography>
+        <List sx={{ margin: 0, padding: 0, flexGrow: 1 }}>
+          {specialties.map((specialty) => (
+            <ListItem key={specialty.id} sx={{ margin: 0, padding: 0, color: theme.palette.text.secondary }}>
+              [{specialty.title}]: {specialty.items.map((item) => item.title).join("、")}
+            </ListItem>
+          ))}
+        </List>
+        <Typography fontWeight={700} sx={{ minWidth: "6rem", textAlign: "right" }}>
+          {price}元
+        </Typography>
+        {isShowServedAmount && handleChangeServedAmount && tempServedAmount && (
+          <Box
+            sx={{
+              display: "flex",
+              alignItems: "center",
+              flexDirection: "column",
+              minWidth: "7rem",
+              gap: ".5rem"
+            }}
           >
-            {Array.from({ length: orderMeal.amount + 1 }, (_, idx) => idx).map((amount) => (
-              <MenuItem key={amount} value={amount}>
-                {amount}
-              </MenuItem>
-            ))}
-          </Select>
-        </Box>
-      )}
-    </Row>
+            <Typography>已出餐數量</Typography>
+            <Select
+              value={tempServedAmount.split("")[idx]}
+              onChange={(e) => handleChangeServedAmount(idx, e.target.value)}
+              sx={{ width: "80%", height: "2rem" }}
+            >
+              {Array.from({ length: orderMeal.amount + 1 }, (_, idx) => idx).map((amount) => (
+                <MenuItem key={`${id}-${amount}`} value={amount}>
+                  {amount}
+                </MenuItem>
+              ))}
+            </Select>
+          </Box>
+        )}
+      </Row>
+    </ListItem>
   );
 }
 
-type OrderItemsDetailProps = {
-  status: OrderStatus;
-  orderMeals: OrderMeal[];
-  tempServedAmount?: string;
-  handleChangeServedAmount?: (idx: number, value: number | string) => void;
-};
-const OrderItemsDetail = (props: OrderItemsDetailProps) => {
-  const { status, orderMeals, tempServedAmount, handleChangeServedAmount } = props;
-
-  return (
-    <List>
-      {orderMeals.map((orderMeal, idx) => (
-        <ListItem
-          key={orderMeal.id}
-          sx={{
-            borderBottom: orderMeals[idx + 1] ? `1px solid ${theme.palette.common.black_20}` : "none",
-            padding: ".5rem"
-          }}
-        >
-          <OrderMealItem
-            idx={idx}
-            orderMeal={orderMeal}
-            status={status}
-            tempServedAmount={tempServedAmount}
-            handleChangeServedAmount={handleChangeServedAmount}
-          />
-        </ListItem>
-      ))}
-    </List>
-  );
-};
-
 type PendingAndCancelOrderItemProps = {
   order: Order;
-  setDeleteOrderId: React.Dispatch<React.SetStateAction<string>>;
 };
 export const PendingAndCancelOrderItem = (props: PendingAndCancelOrderItemProps) => {
   const dispatch = useAppDispatch();
   const { expanded, handleExpand } = useAccordion();
-  const { order, setDeleteOrderId } = props;
+  const { order } = props;
 
   const { id, status, type, orderMeals, createdAt, seats = [], paymentLogs = [] } = order;
-
-  const totalMeals = useMemo(() => orderMeals.reduce((acc, meal) => (acc += meal.amount), 0), [orderMeals]);
-  const servedMeals = useMemo(() => orderMeals.reduce((acc, meal) => (acc += meal.servedAmount), 0), [orderMeals]);
-  const progress = useMemo(() => (servedMeals / totalMeals) * 100, [servedMeals, totalMeals]);
-
-  const originServedAmount = useMemo(
-    () => order.orderMeals.map((meal) => meal.servedAmount).join(""),
-    [order.orderMeals]
-  );
-  const [tempServedAmount, setUpdatedServedAmount] = useState(originServedAmount);
-  const isUpdated = useMemo(() => originServedAmount !== tempServedAmount, [originServedAmount, tempServedAmount]);
-
-  const handleChangeServedAmount = useCallback(
-    (idx: number, value: number | string) => {
-      let newServedAmount = tempServedAmount.split("");
-      newServedAmount[idx] = `${value}`;
-      setUpdatedServedAmount(newServedAmount.join(""));
+  const [totalMeals, servedMeals] = orderMeals.reduce(
+    (acc, meal) => {
+      acc[0] = acc[0] + meal.amount;
+      acc[1] = acc[1] + meal.servedAmount;
+      return acc;
     },
-    [tempServedAmount]
+    [0, 0]
   );
+  const progress = (servedMeals / totalMeals) * 100;
 
-  const handleCancelOrder = useCallback(
-    (orderId: string) => {
-      setDeleteOrderId(orderId);
-    },
-    [setDeleteOrderId]
-  );
+  const [tempServedAmount, setUpdatedServedAmount] = useState("");
+  const [isServedAmountUpdated, setIsServedAmountUpdated] = useState(false);
 
-  const handleUpdateOrder = useCallback(() => {
+  useEffect(() => {
+    const originServedAmount = orderMeals.map((meal) => meal.servedAmount).join("");
+    setUpdatedServedAmount(originServedAmount);
+  }, [orderMeals]);
+
+  const handleChangeServedAmount = (idx: number, value: number | string) => {
+    let newServedAmount = tempServedAmount.split("");
+    newServedAmount[idx] = `${value}`;
+    setUpdatedServedAmount(newServedAmount.join(""));
+    setIsServedAmountUpdated(tempServedAmount !== newServedAmount.join(""));
+  };
+
+  const handleCancelOrder = (orderId: string) => {
+    dispatch(setCancelOrder(orderId));
+  };
+
+  const handleUpdateOrder = () => {
     dispatch(
       patchOrder({
         id,
@@ -222,7 +158,7 @@ export const PendingAndCancelOrderItem = (props: PendingAndCancelOrderItemProps)
         paymentLogs
       })
     );
-  }, [dispatch, id, status, type, order.orderMeals, tempServedAmount, paymentLogs]);
+  };
 
   return (
     <Accordion
@@ -274,12 +210,19 @@ export const PendingAndCancelOrderItem = (props: PendingAndCancelOrderItemProps)
       </AccordionSummary>
 
       <AccordionDetails sx={{ padding: "0 1rem .5rem" }}>
-        <OrderItemsDetail
-          status={status}
-          orderMeals={orderMeals}
-          tempServedAmount={tempServedAmount}
-          handleChangeServedAmount={handleChangeServedAmount}
-        />
+        <List>
+          {orderMeals.map((orderMeal, idx) => (
+            <OrderMealItem
+              idx={idx}
+              key={orderMeal.id}
+              status={status}
+              orderMeal={orderMeal}
+              isShowServedAmount={status === OrderStatus.PENDING}
+              tempServedAmount={tempServedAmount}
+              handleChangeServedAmount={handleChangeServedAmount}
+            />
+          ))}
+        </List>
         <Box sx={{ display: "flex" }}>
           {status === OrderStatus.PENDING && (
             <>
@@ -295,7 +238,7 @@ export const PendingAndCancelOrderItem = (props: PendingAndCancelOrderItemProps)
               )}
               <Button
                 variant="contained"
-                disabled={!isUpdated}
+                disabled={!isServedAmountUpdated}
                 onClick={handleUpdateOrder}
                 sx={{ fontSize: theme.typography.body1.fontSize, fontWeight: 700, marginLeft: "auto" }}
               >
@@ -423,7 +366,11 @@ export const UnpaidAndSuccessOrderItem = (props: UnpaidAndSuccessOrderItemProps)
                 </AccordionSummary>
               )}
               <AccordionDetails sx={{ bgcolor: theme.palette.secondary.contrastText }}>
-                <OrderItemsDetail status={status} orderMeals={order.orderMeals} />
+                <List>
+                  {order.orderMeals.map((orderMeal, idx) => (
+                    <OrderMealItem idx={idx} key={orderMeal.id} status={status} orderMeal={orderMeal} />
+                  ))}
+                </List>
               </AccordionDetails>
             </Accordion>
           </Box>
