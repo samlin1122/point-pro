@@ -4,15 +4,9 @@ import io from "socket.io-client";
 import { apiHost } from "~/api/http";
 import { useAppDispatch, useAppSelector } from "~/app/hook";
 import { getOrders } from "~/app/slices/order";
-import { addNotifications, resetSocket, setSocket } from "~/app/slices/socket";
+import { SocketTopic, addNotification, resetSocket, setSocket } from "~/app/slices/socket";
 import { closeDialog, getMenu } from "~/features/orders/slice";
 import { getToken } from "~/utils/token.utils";
-
-export enum SocketTopic {
-  MENU = "MENU",
-  ORDER = "ORDER",
-  RESERVATION = "RESERVATION"
-}
 
 export enum NameSpace {
   user = "user",
@@ -83,7 +77,7 @@ export const useSocket = (props: useSocketProps) => {
       }
 
       if (ns === NameSpace.admin) {
-        dispatch(addNotifications({ ...data, isRead: false, notiType: SocketTopic.MENU }));
+        dispatch(addNotification({ ...data, notiType: SocketTopic.MENU }));
         if (pathname.includes("/admin/menu")) {
           dispatch(getMenu());
           dispatch(closeDialog());
@@ -107,7 +101,7 @@ export const useSocket = (props: useSocketProps) => {
       }
 
       if (ns === NameSpace.admin) {
-        dispatch(addNotifications({ ...data, isRead: false, notiType: SocketTopic.ORDER }));
+        dispatch(addNotification({ ...data, notiType: SocketTopic.ORDER }));
 
         if (pathname.includes("/admin/orders")) {
           dispatch(getOrders({ status: orderStatus }));
@@ -128,7 +122,7 @@ export const useSocket = (props: useSocketProps) => {
       }
 
       if (ns === NameSpace.admin) {
-        dispatch(addNotifications({ ...data, isRead: false, notiType: SocketTopic.RESERVATION }));
+        dispatch(addNotification({ ...data, notiType: SocketTopic.RESERVATION }));
 
         if (pathname.includes("/admin/seat")) {
           // [TODO] get reservation api, etc.

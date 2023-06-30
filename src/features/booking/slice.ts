@@ -38,7 +38,7 @@ const initialState: ICustomerBookingSliceState = {
 
 export const getPeriods = createAppAsyncThunk(`${name}/getPeriods`, async (arg, { rejectWithValue }) => {
   try {
-    const periodsResp = await PeriodApi.getPeriods();
+    const periodsResp = await PeriodApi.getPeriods({ excludeTime: false });
     const periodInfos = periodsResp.result;
     const availableBookings: IAvailableBooking[] = periodInfos.map((info: DatePeriodInfo) => {
       return {

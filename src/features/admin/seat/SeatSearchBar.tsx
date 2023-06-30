@@ -28,7 +28,7 @@ const SeatSearchBar = ({ view, date, handleDateChange, handleSearchChange }: ISe
   }, []);
 
   const diaptchGetPeriods = async () => {
-    let { result } = await dispatch(getPeriods()).unwrap();
+    let { result } = await dispatch(getPeriods({})).unwrap();
 
     setPeriods(result.map((e: any) => formatDateOnly(e.date)));
   };

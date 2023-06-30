@@ -68,7 +68,7 @@ const TableInfo = ({ state }: TableInfoProps) => {
             {formatTimeOnly(state.currentReservation.startOfMeal)}
           </Typography>
           <Typography variant="body2" fontWeight={700} lineHeight={"24px"}>
-            {/* {percentOfUsed(state.currentReservation.startOfMeal, state.currentReservation.endOfMeal)} */}
+            {percentOfUsed(state.currentReservation.startOfMeal, state.period.endedAt)}
           </Typography>
         </Fragment>
       );
@@ -78,10 +78,9 @@ const TableInfo = ({ state }: TableInfoProps) => {
 };
 
 interface PeriodsProps {
-  date: appDayjs.Dayjs;
   periods: PeriodInfo[];
   selected: string | undefined;
-  handleClick: (id?: string) => void;
+  handleClick: (id: string) => void;
 }
 
 export const TableCircle = memo(({ state, handleClick }: TablePros) => {
@@ -120,44 +119,32 @@ export const TableNormal = memo(({ state, handleClick }: TablePros) => {
   );
 });
 
-export const Periods = ({ date, periods, selected, handleClick }: PeriodsProps) => {
+export const Periods = ({ periods, selected, handleClick }: PeriodsProps) => {
   return (
     <Stack
       alignItems="center"
       justifyContent="center"
       sx={{ p: 2, overflow: "auto", borderRight: (theme) => `1px solid ${theme.palette.divider}`, minWidth: 200 }}
     >
-      {/* {date.isToday() && (
-        <ListItem onClick={() => handleClick()}>
-          <ListItemButton
-            sx={{
-              justifyContent: "center",
-              borderRadius: "8px",
-              py: 2,
-              px: 3,
-              border: (theme) => `2px solid ${selected === undefined ? theme.palette.common.black : "none"}`,
-              bgcolor: (theme) => (selected === undefined ? theme.palette.primary.main : "none")
-            }}
-          >
-            現在
-          </ListItemButton>
-        </ListItem>
-      )} */}
       {periods?.map((e) => (
-        <ListItem key={e.id} onClick={() => handleClick(e.id)}>
-          <ListItemButton
-            sx={{
-              justifyContent: "center",
-              borderRadius: "8px",
-              py: 2,
-              px: 3,
-              border: (theme) => `2px solid ${selected === e.id ? theme.palette.common.black : "none"}`,
-              bgcolor: (theme) => (selected === e.id ? theme.palette.primary.main : "none")
-            }}
-          >
-            {formatTimeOnly(e.periodStartedAt)}
-          </ListItemButton>
-        </ListItem>
+        <Fragment key={e.id}>
+          {appDayjs().isBefore(e.periodEndedAt) ? (
+            <ListItem onClick={() => handleClick(e.id)}>
+              <ListItemButton
+                sx={{
+                  justifyContent: "center",
+                  borderRadius: "8px",
+                  py: 2,
+                  px: 3,
+                  border: (theme) => `2px solid ${selected === e.id ? theme.palette.common.black : "none"}`,
+                  bgcolor: (theme) => (selected === e.id ? theme.palette.primary.main : "none")
+                }}
+              >
+                {formatTimeOnly(e.periodStartedAt)}
+              </ListItemButton>
+            </ListItem>
+          ) : null}
+        </Fragment>
       ))}
     </Stack>
   );

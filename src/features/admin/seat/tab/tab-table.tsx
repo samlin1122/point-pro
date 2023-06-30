@@ -6,10 +6,11 @@ import { TableCircle, TableNormal, Periods } from "./index.styles";
 import { headerHeight } from "~/components/header";
 import { useAppDispatch } from "~/app/hook";
 import { getSeatById, getSeats } from "~/app/slices/seat";
-import { getPeriodByDate } from "~/app/slices/period";
+import { getPeriods } from "~/app/slices/period";
 import { PeriodInfo, SeatInfo, SeatDetails } from "~/types";
 import appDayjs from "~/utils/dayjs.util";
 import { SeatDetail } from "~/features/admin/seat/tab/SeatDetail";
+import { SeatsPayload } from "~/types/api";
 
 interface TabTablePros {
   date: appDayjs.Dayjs;
@@ -33,8 +34,7 @@ export const TabTable: FC<TabTablePros> = ({ date }) => {
   const dispatch = useAppDispatch();
 
   useEffect(() => {
-    setSelectedPeriod(undefined);
-    dispatchGetSeats();
+    // dispatchGetSeats();
     dispatchGetPeriodByDate();
   }, [date]);
 
@@ -51,36 +51,30 @@ export const TabTable: FC<TabTablePros> = ({ date }) => {
   }, [selectedSeat]);
 
   const dispatchGetSeatById = async () => {
-    let { result } = await dispatch(getSeatById(selectedSeat as string)).unwrap();
+    let { result } = await dispatch(getSeatById({ seatId: selectedSeat as string, date: date.toDate() })).unwrap();
     setSeatDetail(result);
   };
 
   const dispatchGetSeats = async (periodId?: string) => {
-    let payload: { date: Date; periodId?: string } = { date: date.toDate() ?? appDayjs().toDate() };
+    let payload: SeatsPayload = { date: date.toDate() ?? appDayjs().toDate() };
     if (periodId) {
       payload.periodId = periodId;
     }
-    console.log({ payload });
-
     let { result } = await dispatch(getSeats(payload)).unwrap();
     setSeats(formatSeatResponseToData(result));
   };
 
   const dispatchGetPeriodByDate = async () => {
-    let { result } = await dispatch(getPeriodByDate(date.toDate())).unwrap();
+    let { result } = await dispatch(getPeriods({ date: date.toDate() })).unwrap();
     setPeriods(result[0].periods);
     if (date.isToday()) {
-      let a = result[0].periods.find((e: PeriodInfo) => {
-        // console.log(appDayjs().isBetween(appDayjs(e.periodStartedAt), appDayjs(e.periodStartedAt).add(2, "hour")));
-        // console.log(
-        //   appDayjs(e.periodStartedAt).format("hh"),
-        //   appDayjs(e.periodStartedAt).add(2, "hour").format("hh"),
-        //   appDayjs().format("hh")
-        // );
-        return result[0].date === e.periodStartedAt;
-      });
-
-      setSelectedPeriod(a.id);
+      let defaultSelect = result[0].periods.find((e: PeriodInfo) =>
+        appDayjs().isBetween(e.periodStartedAt, e.periodEndedAt)
+      );
+      if (!defaultSelect) {
+        defaultSelect = result[0].periods.find((e: PeriodInfo) => result[0].date === e.periodStartedAt);
+      }
+      setSelectedPeriod(defaultSelect.id);
     } else {
       setSelectedPeriod(result[0].periods[0].id);
     }
@@ -94,12 +88,8 @@ export const TabTable: FC<TabTablePros> = ({ date }) => {
     return data;
   };
 
-  const handlePeriodClick = (periodId?: string) => {
-    if (periodId) {
-      setSelectedPeriod(periodId);
-    } else {
-      setSelectedPeriod(undefined);
-    }
+  const handlePeriodClick = (periodId: string) => {
+    setSelectedPeriod(periodId);
   };
 
   const handleSeatSelect = (seatId: string) => {
@@ -113,7 +103,7 @@ export const TabTable: FC<TabTablePros> = ({ date }) => {
 
   return (
     <Stack direction="row" sx={{ p: 0, height: `calc(100vh - ${headerHeight} - 50px - 72px)`, width: "100%" }}>
-      <Periods date={date} periods={periods} selected={selectedPeriod} handleClick={handlePeriodClick} />
+      <Periods periods={periods} selected={selectedPeriod} handleClick={handlePeriodClick} />
       {seats ? (
         <Stack sx={{ p: 3, width: "calc(100vw - 200px)", overflow: "auto" }}>
           <Stack direction="row" justifyContent="space-around">

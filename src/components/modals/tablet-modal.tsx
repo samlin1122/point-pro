@@ -1,9 +1,9 @@
-import { useAppDispatch } from "~/app/hook";
-import { clearCart, closeModal } from "~/features/orders/slice";
+import { useAppDispatch, useAppSelector } from "~/app/hook";
+import { clearCart } from "~/features/orders/slice";
 import ModalBase from "./modal-base";
 import { Box, Button, Card, CardActions, CardContent, CardHeader, Typography } from "@mui/material";
 import theme from "~/theme";
-import { deleteOrder, postOrder } from "~/app/slices/order";
+import { cancelOrder, postOrder, setCancelOrder } from "~/app/slices/order";
 
 interface ITabletModalLayout {
   children: React.ReactNode;
@@ -105,26 +105,20 @@ const SubmitOrderConfirm = (props: SubmitOrderConfirmProps) => {
   );
 };
 
-type CancelOrderConfirmProps = {
-  deleteOrderId: string;
-  setDeleteOrderId: React.Dispatch<React.SetStateAction<string>>;
-};
-const CancelOrderConfirm = (props: CancelOrderConfirmProps) => {
-  const { deleteOrderId, setDeleteOrderId } = props;
-
+const CancelOrderConfirm = () => {
   const dispatch = useAppDispatch();
+  const cancelOrderId = useAppSelector(({ order }) => order.cancelOrderId);
 
   const handleDeleteOrder = () => {
-    dispatch(deleteOrder({ orderId: deleteOrderId }));
-    setDeleteOrderId("");
+    dispatch(cancelOrder());
   };
 
   const handleCancel = () => {
-    setDeleteOrderId("");
+    dispatch(setCancelOrder(""));
   };
 
   return (
-    <TabletModalLayout open={!!deleteOrderId}>
+    <TabletModalLayout open={!!cancelOrderId}>
       <Box display="grid" sx={{ placeContent: "center" }} height={"100%"}>
         <Card>
           <CardHeader

@@ -246,7 +246,7 @@ export const BookerInfo = () => {
       </FormControl>
 
       <FormControl>
-        <RadioGroup row defaultValue={gender} onChange={handleChooseGender}>
+        <RadioGroup row value={gender} onChange={handleChooseGender}>
           <FormControlLabel value={0} control={<Radio />} label="先生" />
           <FormControlLabel value={1} control={<Radio />} label="小姐" />
           <FormControlLabel value={2} control={<Radio />} label="其他" />

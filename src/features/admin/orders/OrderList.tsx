@@ -1,5 +1,5 @@
 // Libs
-import { useEffect, useState } from "react";
+import { useEffect } from "react";
 import { Typography, Box } from "@mui/material";
 // Components
 import { Column } from "~/components/layout";
@@ -12,12 +12,8 @@ import { headerHeight } from "~/components/header";
 import { PendingAndCancelOrderItem, UnpaidAndSuccessOrderItem } from "./OrderItem";
 import { OrderStatus } from "~/types/common";
 
-type OrderListProps = {};
-
-const OrderList = (props: OrderListProps) => {
+const OrderList = () => {
   const dispatch = useAppDispatch();
-
-  const [deleteOrderId, setDeleteOrderId] = useState("");
 
   const tabStatus = useAppSelector(({ order }) => order.status);
   const orders = useAppSelector(({ order }) => order.orders);
@@ -70,9 +66,7 @@ const OrderList = (props: OrderListProps) => {
         >
           {isPendingOrCancelOrder
             ? // 準備中、已取消
-              orders.map((order) => (
-                <PendingAndCancelOrderItem key={order.id} order={order} setDeleteOrderId={setDeleteOrderId} />
-              ))
+              orders.map((order) => <PendingAndCancelOrderItem key={order.id} order={order} />)
             : // 未付款、已付款
               gatherOrders().map((order) => <UnpaidAndSuccessOrderItem key={order.id} parentOrder={order} />)}
         </Box>
@@ -90,7 +84,7 @@ const OrderList = (props: OrderListProps) => {
           </Typography>
         </Column>
       )}
-      <TabletModal.CancelOrderConfirm deleteOrderId={deleteOrderId} setDeleteOrderId={setDeleteOrderId} />
+      <TabletModal.CancelOrderConfirm />
     </>
   );
 };
