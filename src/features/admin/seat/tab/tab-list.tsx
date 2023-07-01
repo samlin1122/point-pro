@@ -13,8 +13,7 @@ import { headerHeight } from "~/components/header";
 import { ReservationInfo } from "~/types";
 import { useAppDispatch } from "~/app/hook";
 import { getReservations } from "~/app/slices/reservation";
-import { reservationStatusConfig } from "./index.styles";
-import { genderListStringArray } from "~/utils/constants";
+import { genderListStringArray, reservationStatusListObj } from "~/utils/constants";
 
 interface TabListProps {
   date: appDayjs.Dayjs;
@@ -32,11 +31,8 @@ const TabList = ({ date, search }: TabListProps) => {
   const dispatchGetReservation = async () => {
     const { result } = await dispatch(getReservations(date.toDate())).unwrap();
     const list = result?.map((e: ReservationInfo) => ({
-      id: e.id,
-      type: e.type,
+      ...e,
       ...e.options,
-      startOfMeal: e.startOfMeal,
-      endOfMeal: e.endOfMeal,
       seatNo: e.seats.map((seat) => seat.seatNo).join(", "),
       people: e.options
     })) as GridRowsProp;
@@ -80,7 +76,7 @@ const TabList = ({ date, search }: TabListProps) => {
 
 const columns: GridColDef[] = [
   {
-    field: "type",
+    field: "status",
     headerName: "狀態",
     minWidth: 120,
     flex: 0.5,
@@ -88,7 +84,7 @@ const columns: GridColDef[] = [
       return (
         <Avatar
           sx={{
-            bgcolor: reservationStatusConfig(params.value as string).color,
+            bgcolor: reservationStatusListObj[params.value as string].color,
             fontSize: "small.fontSize",
             height: "2rem",
             width: "4rem",
@@ -97,7 +93,7 @@ const columns: GridColDef[] = [
           }}
           variant="square"
         >
-          {reservationStatusConfig(params.value as string).name}
+          {reservationStatusListObj[params.value as string].title}
         </Avatar>
       );
     }

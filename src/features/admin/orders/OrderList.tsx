@@ -6,7 +6,7 @@ import { Column } from "~/components/layout";
 // Others
 import { useAppDispatch, useAppSelector } from "~/app/hook";
 import { getOrders } from "~/app/slices/order";
-import { ParentOrder } from "~/features/orders/type";
+import { GatherOrder, Order } from "~/features/orders/type";
 import { TabletModal } from "~/components/modals";
 import { headerHeight } from "~/components/header";
 import { PendingAndCancelOrderItem, UnpaidAndSuccessOrderItem } from "./OrderItem";
@@ -19,26 +19,24 @@ const OrderList = () => {
   const orders = useAppSelector(({ order }) => order.orders);
 
   const gatherOrders = () => {
-    let showNewOrders: ParentOrder[] = [];
+    let showNewOrders: GatherOrder[] = [];
 
     orders.forEach((order) => {
       const { id, status, type, seats = [], paymentLogs, reservationLogId } = order;
-      const parentOrder: ParentOrder = { id, status, type, seats, paymentLogs, orders: [order], reservationLogId };
+      const gatherOrder: GatherOrder = { id, status, type, seats, paymentLogs, orders: [order], reservationLogId };
 
-      if (seats !== undefined) {
+      if (reservationLogId) {
         // 內用單
-        const sameGroupOrderIndex = showNewOrders.findIndex(
-          (item) => item.seats?.join(",") === seats.join(",") && item.reservationLogId === reservationLogId
-        );
+        const sameGroupOrderIndex = showNewOrders.findIndex((item) => item.reservationLogId === reservationLogId);
 
         if (sameGroupOrderIndex === -1 && !showNewOrders[sameGroupOrderIndex]) {
-          showNewOrders.push(parentOrder);
+          showNewOrders.push(gatherOrder);
         } else {
-          (showNewOrders[sameGroupOrderIndex] as ParentOrder).orders.push(order);
+          (showNewOrders[sameGroupOrderIndex] as GatherOrder).orders.push(order);
         }
       } else {
         // 外帶單
-        showNewOrders.push(parentOrder);
+        showNewOrders.push(gatherOrder);
       }
     });
     return showNewOrders;
@@ -68,7 +66,7 @@ const OrderList = () => {
             ? // 準備中、已取消
               orders.map((order) => <PendingAndCancelOrderItem key={order.id} order={order} />)
             : // 未付款、已付款
-              gatherOrders().map((order) => <UnpaidAndSuccessOrderItem key={order.id} parentOrder={order} />)}
+              gatherOrders().map((order) => <UnpaidAndSuccessOrderItem key={order.id} gatherOrder={order} />)}
         </Box>
       ) : (
         <Column

@@ -5,7 +5,7 @@ import { FieldContainer } from "~/components/layout";
 import { DrawerBase } from "~/components/drawer";
 
 import { useAppDispatch } from "~/app/hook";
-import { getPeriods } from "~/app/slices/period";
+import { getPeriodByDate } from "~/app/slices/period";
 import { patchReservationById, postReservation } from "~/app/slices/reservation";
 import { PeriodInfo } from "~/types";
 import { PatchReservation } from "~/types/api";
@@ -48,10 +48,11 @@ const ReservationDetail = ({ open, onClose, isCreate, date, info }: ReservationD
   const dispatchGetPeriodByDate = async () => {
     let payload = {
       date: appDayjs(date).isToday() ? date?.toDate() ?? appDayjs().toDate() : appDayjs(date).startOf("day"),
-      excludeTime: false
+      excludeTime: false,
+      isOnlineBooking: false
     };
-    let { result } = await dispatch(getPeriods(payload)).unwrap();
-    setPeriods(result ? result[0].periods : []);
+    let { result } = await dispatch(getPeriodByDate(payload)).unwrap();
+    setPeriods(result?.[0]?.periods ?? []);
   };
 
   const amountList = () => {

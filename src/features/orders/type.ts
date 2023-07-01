@@ -93,7 +93,7 @@ export type Order = {
   reservationLogId?: string;
 };
 
-export type ParentOrder = {
+export type GatherOrder = {
   id: string;
   status: OrderStatus;
   type: OrderType;

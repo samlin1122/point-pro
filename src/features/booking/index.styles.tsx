@@ -118,7 +118,6 @@ export const PeopleAndTime = () => {
             onChange={handleChangeBookingDate}
             views={["day"]}
             disablePast
-            maxDate={appDayjs().add(30, "day")}
             shouldDisableDate={(day) => {
               const currentDate = day.toDate().toLocaleDateString("zh-tw");
 
@@ -176,12 +175,13 @@ export const PeopleAndTime = () => {
           ))}
         </Select>
       </FormControl>
-      <ButtonBase
+      {/* [TODO]: no api, temporarily hide */}
+      {/* <ButtonBase
         onClick={handleOpenBookingSearch}
         sx={{ textDecoration: "underline", fontWeight: 700, fontSize: "body1.fontSize", mt: "2rem" }}
       >
         我已經有預約了，查詢預訂資訊
-      </ButtonBase>
+      </ButtonBase> */}
     </>
   );
 };

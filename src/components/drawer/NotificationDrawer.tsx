@@ -127,7 +127,10 @@ const NotificationDrawer = (props: NotificationDrawerType) => {
               </Card>
             ))}
           </Box>
-          <Button sx={{ bgcolor: "primary.main", color: "common.black" }} onClick={handleReadAllNotifications}>
+          <Button
+            sx={{ bgcolor: "primary.main", color: "common.black", height: "4rem" }}
+            onClick={handleReadAllNotifications}
+          >
             已讀所有通知
           </Button>
         </>

@@ -1,4 +1,4 @@
-import { Menu, Order, ParentOrder, Specialty, UserInfo } from "~/features/orders/type";
+import { Menu, Order, GatherOrder, Specialty, UserInfo } from "~/features/orders/type";
 import {
   Member,
   IMeal,
@@ -201,7 +201,7 @@ type EcPayConfirmResponse = ApiResponse<EcPayConfirmPayload>;
 type PaymentSliceState = {
   isLoading: boolean;
   error: string | null;
-  paymentItem: ParentOrder | null;
+  paymentItem: GatherOrder | null;
   isOpenPaymentDrawer: boolean;
   linePayResponse: LinePayResponse;
   ecPayResponse: EcPayResponse;
