@@ -5,6 +5,7 @@ import SeatTabs from "./SeatTabs";
 import SeatSearchBar from "./SeatSearchBar";
 import { TabList, TabTable } from "./tab";
 import appDayjs from "~/utils/dayjs.util";
+import { DialogType } from "~/components/dialog";
 
 interface SeatContainerProps {}
 
@@ -35,6 +36,7 @@ const SeatContainer: FC<SeatContainerProps> = ({}) => {
       <TabPanel value={view} index={1}>
         <TabList date={date} search={search} />
       </TabPanel>
+      <DialogType.BookingQRCodeModal />
     </>
   );
 };

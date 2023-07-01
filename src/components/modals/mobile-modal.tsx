@@ -1,4 +1,5 @@
 // Libs
+import { useEffect } from "react";
 import { Box, Button, Typography } from "@mui/material";
 import MoneyIcon from "@mui/icons-material/Money";
 import CreditCardIcon from "@mui/icons-material/CreditCard";
@@ -10,7 +11,6 @@ import { closeModal, deleteCartItem, openModal } from "~/features/orders/slice";
 import linePay from "~/assets/images/line-pay.png";
 import { MobileModal } from "~/types/common";
 import { requestEcPay, requestLinePay } from "~/app/slices/payment";
-import { useEffect, useState } from "react";
 
 interface IMobileModalLayout {
   children: React.ReactNode;
@@ -116,7 +116,6 @@ const Payment = () => {
   const handlePaymentByLinePay = async () => {
     // [TODO]: jump to LINEPay
     const orderIds = orders.filter((order) => order.status === "UNPAID").map((order) => order.id);
-    console.log(orders);
     await dispatch(
       requestLinePay({
         orderId: orderIds,

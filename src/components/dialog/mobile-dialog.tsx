@@ -37,8 +37,10 @@ import { SpecialtyItem, Specialty, Order, DialogType } from "~/features/orders/t
 import { postOrder, setMobileOrderStatusTab } from "~/app/slices/order";
 import { MOBILE_ORDER_STATUS_TAB, ORDER_STATUS } from "~/utils/constants";
 import { calculateCartItemPrice, calculateCartPrice, calculateOrderPrice } from "~/utils/price.utils";
-import { MobileModal, OrderStatus, OrderType } from "~/types/common";
+import { CustomerBookingDialog, MobileModal, OrderStatus, OrderType } from "~/types/common";
 import { getToken } from "~/utils/token.utils";
+import { QRCodeSVG } from "qrcode.react";
+import { setDialog } from "~/features/booking/slice";
 
 const CustomizedSpecialties = () => {
   const dispatch = useAppDispatch();
@@ -512,4 +514,39 @@ const Orders = () => {
   );
 };
 
-export default { Customized, Cart, Orders };
+const BookingQRCodeModal = () => {
+  const dispatch = useAppDispatch();
+
+  const dialog = useAppSelector(({ customerReservation }) => customerReservation.dialog);
+  const token = useAppSelector(({ auth }) => auth.userToken);
+
+  const checkInQRCode =
+    (import.meta.env.DEV ? "http://" : "https://") + window.location.host + "/orders?token=" + token ?? "";
+
+  const handleClose = () => {
+    dispatch(setDialog(""));
+  };
+
+  return (
+    <MobileDialogLayout
+      title="客人桌邊點餐 QR Code"
+      titleSize="h2"
+      isOpen={dialog === CustomerBookingDialog.QRCODE}
+      onCloseDialog={handleClose}
+      actionButton={<Button onClick={handleClose}>關閉</Button>}
+    >
+      <Box
+        sx={{
+          display: "flex",
+          justifyContent: "center",
+          alignItems: "center",
+          m: "auto"
+        }}
+      >
+        <QRCodeSVG size={300} value={checkInQRCode}></QRCodeSVG>
+      </Box>
+    </MobileDialogLayout>
+  );
+};
+
+export default { Customized, Cart, Orders, BookingQRCodeModal };

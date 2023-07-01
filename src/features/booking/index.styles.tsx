@@ -24,8 +24,6 @@ import EventIcon from "@mui/icons-material/Event";
 import AccessibilityIcon from "@mui/icons-material/Accessibility";
 import PhoneIphoneIcon from "@mui/icons-material/PhoneIphone";
 import EmailIcon from "@mui/icons-material/Email";
-import QrCodeIcon from "@mui/icons-material/QrCode";
-import LocalPhoneIcon from "@mui/icons-material/LocalPhone";
 import DirectionsIcon from "@mui/icons-material/Directions";
 import InfoIcon from "@mui/icons-material/Info";
 import StickyNote2Icon from "@mui/icons-material/StickyNote2";
@@ -57,7 +55,6 @@ import {
   postReservation,
   resetUserInfo
 } from "./slice";
-import { QRCodeSVG } from "qrcode.react";
 import { emailRegex, phoneRegex } from "~/utils/regex.utils";
 import Loading from "~/components/loading";
 import { sendMail } from "~/app/slices/mailer";
@@ -368,7 +365,6 @@ export const ConfirmBookingInfo = (props: IConfirmBookingInfoProps) => {
   };
 
   useEffect(() => {
-    console.log("isReminder", isReminder);
     isReminder && handleSendMailBookingReminder();
   }, [name, gender, phone, email, remark, adults]);
 
@@ -719,50 +715,6 @@ export const BookingReminderModal = () => {
           All Rights Reserved
         </Typography>
       </Box>
-    </MobileDialogLayout>
-  );
-};
-
-export const BookingQRCodeModal = () => {
-  const dispatch = useAppDispatch();
-
-  const dialog = useAppSelector(({ customerReservation }) => customerReservation.dialog);
-  const token = useAppSelector(({ customerReservation }) => customerReservation.token);
-  const reservationLogId = useAppSelector(({ customerReservation }) => customerReservation.reservationParams.id);
-
-  const checkInQRCode =
-    (import.meta.env.DEV ? "http://" : "https://") + window.location.host + "/orders?token=" + token ?? "";
-
-  console.log(checkInQRCode);
-
-  const handleClose = () => {
-    dispatch(setDialog(CustomerBookingDialog.REMINDER));
-  };
-
-  return (
-    <MobileDialogLayout
-      title={
-        <>
-          <Box>請出示此畫面</Box>
-          <Box>以便店員為您帶位</Box>
-        </>
-      }
-      titleSize="h5"
-      isOpen={dialog === CustomerBookingDialog.QRCODE}
-      onCloseDialog={handleClose}
-      actionButton={<Button onClick={handleClose}>關閉</Button>}
-    >
-      <Box
-        sx={{
-          display: "flex",
-          justifyContent: "center",
-          alignItems: "center",
-          my: "5rem"
-        }}
-      >
-        <QRCodeSVG size={200} value={checkInQRCode}></QRCodeSVG>
-      </Box>
-      <ConfirmBookingTextField label="訂位編號" value={reservationLogId.slice(0, 12)} icon={<QrCodeIcon />} />
     </MobileDialogLayout>
   );
 };

@@ -143,6 +143,7 @@ const CancelOrderConfirm = () => {
     </TabletModalLayout>
   );
 };
+
 export default {
   ClearCartConfirm,
   SubmitOrderConfirm,
