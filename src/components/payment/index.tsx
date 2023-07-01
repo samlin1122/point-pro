@@ -40,7 +40,7 @@ const PaymentDrawer = () => {
   const [canPay, setCanPay] = useState<boolean>(false);
 
   const [selectPayment, setSelectPayment] = useState<string>("");
-  const [cash, setCash] = useState(0);
+  const [cash, setCash] = useState<number | string>(0);
 
   const totalPrice = paymentItem ? calculateParentOrderPrice(paymentItem) : 0;
 
@@ -93,7 +93,7 @@ const PaymentDrawer = () => {
       );
     }
     if (selectPayment === "cash") {
-      if (cash >= totalPrice) {
+      if (typeof cash === "number" && cash >= totalPrice) {
         await dispatch(requestCashPayment(id));
         handleRestPayment();
       }
@@ -123,6 +123,11 @@ const PaymentDrawer = () => {
             type="number"
             value={cash}
             onChange={handleCountCash}
+            onClick={(e) => {
+              if (cash === 0) {
+                setCash("");
+              }
+            }}
           />
         </FormControl>
         <Row justifyContent={"space-between"}>
@@ -130,7 +135,7 @@ const PaymentDrawer = () => {
             找錢
           </Typography>
           <Typography component="h3" variant="h6" fontWeight={900}>
-            ${cash - totalPrice > 0 ? cash - totalPrice : 0}
+            ${typeof cash === "number" && cash - totalPrice > 0 ? cash - totalPrice : 0}
           </Typography>
         </Row>
       </FormControl>

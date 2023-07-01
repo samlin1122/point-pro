@@ -9,6 +9,7 @@ import * as PaymentApi from "./PaymentApi";
 import * as SeatApi from "./SeatApi";
 import * as ReservationApi from "./ReservationApi";
 import * as PeriodApi from "./PeriodApi";
+import * as MailApi from "./MailerApi";
 
 export {
   AuthApi,
@@ -21,5 +22,6 @@ export {
   PaymentApi,
   SeatApi,
   ReservationApi,
-  PeriodApi
+  PeriodApi,
+  MailApi
 };

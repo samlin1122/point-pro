@@ -14,6 +14,8 @@ import theme from "~/theme";
 import { OrderMeal } from "~/types";
 import { getUserInfo } from "~/app/slices/auth";
 import { getToken } from "~/utils/token.utils";
+import { patchReservationById } from "~/app/slices/reservation";
+import appDayjs from "~/utils/dayjs.util";
 
 export const PaymentReturnContainer = () => {
   const [searchParams] = useSearchParams();
@@ -52,17 +54,24 @@ export const PaymentReturnContainer = () => {
     from === "ecPay" && handleConfirmEcPay();
   }, []);
 
+  useEffect(() => {
+    if (linePayConfirmResponse.message === "訂單已付款" || ecPayConfirmResponse.message === "訂單已付款") {
+      handleReturnMeal();
+    }
+  }, [linePayConfirmResponse, ecPayConfirmResponse]);
+
   return (
     <Column justifyContent={"space-between"} p={3} sx={{ height: "100%", minHeight: "90vh", userSelect: "none" }}>
       <Typography variant="h1" textAlign={"center"} fontWeight={900} marginBottom={1}>
         完成付款
       </Typography>
-      {linePayConfirmResponse.message === "success" && (
-        <PaymentReturnData
-          message={linePayConfirmResponse.message || ecPayConfirmResponse.message}
-          result={from === "linePay" ? linePayConfirmResponse.result : ecPayConfirmResponse.result}
-        />
-      )}
+      {linePayConfirmResponse.message === "success" ||
+        (ecPayConfirmResponse.message === "success" && (
+          <PaymentReturnData
+            message={linePayConfirmResponse.message || ecPayConfirmResponse.message}
+            result={from === "linePay" ? linePayConfirmResponse.result : ecPayConfirmResponse.result}
+          />
+        ))}
 
       <Button variant="contained" color="primary" onClick={handleReturnMeal}>
         返回繼續點餐
@@ -74,6 +83,7 @@ export const PaymentReturnContainer = () => {
 const PaymentReturnData = (props: { message: string; result: LinePayConfirmPayload | EcPayConfirmPayload }) => {
   const { result, message } = props;
   const deviceType = useDeviceType();
+  const dispatch = useAppDispatch();
 
   if (message !== "success") {
     return (
@@ -84,6 +94,17 @@ const PaymentReturnData = (props: { message: string; result: LinePayConfirmPaylo
       </Column>
     );
   }
+  useEffect(() => {
+    if (message === "success") {
+      const reservationId = result.paymentLogs[0].parentOrder.reservationLogId;
+      dispatch(
+        patchReservationById({
+          reservationId,
+          payload: { endOfMeal: appDayjs().toDate() }
+        })
+      );
+    }
+  }, [result]);
   return (
     <>
       <Column marginBottom={5}>

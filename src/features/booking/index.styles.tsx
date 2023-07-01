@@ -60,6 +60,8 @@ import {
 import { QRCodeSVG } from "qrcode.react";
 import { emailRegex, phoneRegex } from "~/utils/regex.utils";
 import Loading from "~/components/loading";
+import { sendMail } from "~/app/slices/mailer";
+import { IBookingInfo } from "~/types";
 
 const genderObj = {
   0: "先生",
@@ -336,11 +338,42 @@ interface IConfirmBookingInfoProps {
   isReminder?: boolean;
 }
 export const ConfirmBookingInfo = (props: IConfirmBookingInfoProps) => {
+  const dispatch = useAppDispatch();
   const { isReminder = false } = props;
   const reservedAt = useAppSelector(({ customerReservation }) => customerReservation.reservationParams.reservedAt);
   const { name, gender, phone, email, remark, adults } = useAppSelector(
     ({ customerReservation }) => customerReservation.reservationParams.user
   );
+
+  const handleSendMailBookingReminder = async () => {
+    const html = `<h1>港都熱炒</h1>
+    <h2>親愛的 ${name} ${gender !== 2 && (gender === 0 ? "先生" : gender === 1 ? "小姐" : null)}</h2>
+    <p>您的訂位已經成功囉, 感謝您選擇港都熱炒！</p>
+    <p>我們會竭誠為您提供美味佳餚和貼心的服務。請留意並保存以下資訊，並準時到達。 如需更改或取消，提前聯繫我們。</p>
+    <p>期待您的光臨用餐</p>
+    <h3>訂位資訊</h3>
+    <ul>
+    <li>姓名: ${name} ${gender === 0 ? "先生" : gender === 1 ? "小姐" : null}</li>
+    <li>電子信箱: ${email}</li>
+    <li>手機號碼: ${phone}</li>
+    <li>備註: ${remark}</li>
+    <li>人數: ${adults}</li>
+    <li>訂位時間: ${formatDateOnly(reservedAt)} ${formatTimeOnly(reservedAt)}</li>
+    </ul>
+    <h3>到店用餐時請告知店員預約姓名或手機號碼，以核對預約資訊</h3>
+    `;
+    const request = {
+      to: email,
+      subject: "成功訂位",
+      html
+    };
+    await dispatch(sendMail(request));
+  };
+
+  useEffect(() => {
+    console.log("isReminder", isReminder);
+    isReminder && handleSendMailBookingReminder();
+  }, [name, gender, phone, email, remark, adults]);
 
   return (
     <Box sx={{ paddingBottom: isReminder ? "" : "10rem" }}>
@@ -605,9 +638,7 @@ export const BookingReminderModal = () => {
 
   const dialog = useAppSelector(({ customerReservation }) => customerReservation.dialog);
   const isLoading = useAppSelector(({ customerReservation }) => customerReservation.isLoading);
-  const { name, gender, phone, email, remark, adults } = useAppSelector(
-    ({ customerReservation }) => customerReservation.reservationParams.user
-  );
+  const { name, gender } = useAppSelector(({ customerReservation }) => customerReservation.reservationParams.user);
 
   const handleClose = () => {
     dispatch(setStep(0));

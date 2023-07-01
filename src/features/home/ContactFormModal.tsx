@@ -1,26 +1,24 @@
-import { ChangeEvent, ReactElement, FC, Ref, useState, forwardRef } from "react";
+import { ReactElement, FC, Ref, forwardRef, useState, SyntheticEvent } from "react";
 import {
   Button,
   Checkbox,
   Dialog,
-  DialogActions,
   DialogContent,
   DialogTitle,
   FormControl,
   FormControlLabel,
   FormGroup,
   FormLabel,
-  InputLabel,
   MenuItem,
   Radio,
   RadioGroup,
-  SelectChangeEvent,
   TextField
 } from "@mui/material";
 import { Row } from "~/components/layout";
 import Slide from "@mui/material/Slide";
 import { TransitionProps } from "@mui/material/transitions";
 import { cityList, contactTimeList } from "~/utils/constants";
+import axios from "axios";
 
 const Transition = forwardRef(function Transition(
   props: TransitionProps & {
@@ -36,181 +34,207 @@ interface ContactFormModalProps {
 }
 
 interface InquiryContent {
-  [key: string]: boolean;
+  [key: string]: boolean | { [key: string]: boolean } | string[];
 }
 
-const initialFormState = {
-  vendorName: "",
-  businessStatus: "",
-  contactPerson: "",
-  phoneNumber: "",
-  city: "",
-  contactTime: "",
-  inquiryContent: {} as InquiryContent,
-  inquiryTime: "",
-  requirement: ""
-};
-
 const ContactFormModal: FC<ContactFormModalProps> = ({ open, onClose }) => {
-  const [formState, setFormState] = useState(initialFormState);
+  const [formData, setFormData] = useState<InquiryContent>({
+    quest: []
+  });
 
-  const handleChange = (event: ChangeEvent<HTMLInputElement | HTMLTextAreaElement> | SelectChangeEvent<string>) => {
-    setFormState({
-      ...formState,
-      [event.target.name]: event.target.value
-    });
-  };
-
-  const handleInquiryContentChange = (event: ChangeEvent<HTMLInputElement>) => {
-    const { name, checked } = event.target;
-    setFormState((prevState) => ({
-      ...prevState,
-      inquiryContent: {
-        ...prevState.inquiryContent,
-        [name]: checked
-      }
-    }));
-  };
-
-  const handleSubmit = () => {
+  const handleSubmit = (e: SyntheticEvent) => {
+    e.preventDefault();
     // 驗證和提交表單
-    console.log(formState);
-    onClose();
+    const corsUrl = "https://cors-proxy.fringe.zone/";
+    const googleUrl =
+      "https://docs.google.com/forms/u/0/d/e/1FAIpQLSeS2HdhAsUft11Yee4OF5LCWutl2MDY7ilUSHWuEqWsfeTPDQ/formResponse";
+
+    const data = new FormData();
+    data.set("entry.1962534612", JSON.stringify(formData.vendorName)); // 商家名稱
+    data.set("entry.1920691995_sentinel", JSON.stringify(formData.businessStatus));
+    data.set("entry.1802353228", JSON.stringify(formData.contactPerson));
+    data.set("entry.122567838", JSON.stringify(formData.phoneNumber));
+    data.set("entry.87711208", JSON.stringify(formData.city));
+    data.set("entry.1701296742", JSON.stringify(formData.contactTime));
+    data.set("entry.1937030945", JSON.stringify(formData.requirement));
+    data.set("entry.1711160904_sentinel", JSON.stringify(formData.quest));
+    axios
+      .post(`${corsUrl + googleUrl}`, data)
+      .then((res) => {
+        // onClose();
+      })
+      .catch((err) => {
+        console.log(err);
+      });
+  };
+
+  // get Data
+  const getData = (key: string) => {
+    return formData.hasOwnProperty(key) ? formData[key] : "";
+  };
+
+  // Set data
+  const setData = (key: string, value: any) => {
+    return setFormData({ ...formData, [key]: value });
+  };
+
+  const handleCheckBoxChange = (event: SyntheticEvent<HTMLInputElement>) => {
+    const target = event.target as HTMLInputElement;
+    if (target.checked) {
+      setData("quest", [...(formData.quest as string[]), target.name]);
+    } else {
+      setData(
+        "quest",
+        (formData.quest as string[]).filter((item) => item !== target.name)
+      );
+    }
   };
 
   return (
     <Dialog open={open} onClose={onClose} TransitionComponent={Transition} keepMounted>
       <DialogTitle>聯絡資訊</DialogTitle>
       <DialogContent>
-        <Row>
-          <TextField
-            required
-            name="vendorName"
-            label="商家姓名"
-            value={formState.vendorName}
-            onChange={handleChange}
-            fullWidth
-            margin="dense"
-            variant="standard"
-            sx={{ m: 1, width: "50ch" }}
-          />
-          <FormControl component="fieldset" sx={{ m: 1, width: "50ch" }} margin="dense">
-            <FormLabel component="legend">營業狀態</FormLabel>
-            <RadioGroup row name="businessStatus" value={formState.businessStatus} onChange={handleChange}>
-              <FormControlLabel value="已開業" control={<Radio />} label="已開業" />
-              <FormControlLabel value="籌備中" control={<Radio />} label="籌備中" />
-            </RadioGroup>
+        <form onSubmit={handleSubmit}>
+          <Row>
+            <TextField
+              required
+              // name="entry.1962534612"
+              name="vendorName"
+              label="商家姓名"
+              fullWidth
+              margin="dense"
+              variant="standard"
+              sx={{ m: 1, width: "50ch" }}
+              value={getData("vendorName")}
+              onChange={(e) => setData("vendorName", e.target.value)}
+            />
+            <FormControl component="fieldset" sx={{ m: 1, width: "50ch" }} margin="dense">
+              <FormLabel component="legend">營業狀態</FormLabel>
+              <RadioGroup
+                row
+                // name="entry.1920691995_sentinel"
+                name="businessStatus"
+                value={getData("businessStatus")}
+                onChange={(e) => setData("businessStatus", e.target.value)}
+              >
+                <FormControlLabel value="已開業" control={<Radio />} label="已開業" />
+                <FormControlLabel value="籌備中" control={<Radio />} label="籌備中" />
+              </RadioGroup>
+            </FormControl>
+          </Row>
+          <Row>
+            <TextField
+              required
+              // name="entry.1802353228"
+              name="contactPerson"
+              label="聯絡人"
+              margin="dense"
+              variant="standard"
+              sx={{ m: 1, width: "50ch" }}
+              value={getData("contactPerson")}
+              onChange={(e) => setData("contactPerson", e.target.value)}
+            />
+            <TextField
+              required
+              // name="entry.122567838"
+              name="phoneNumber"
+              label="連絡電話"
+              margin="dense"
+              variant="standard"
+              inputProps={{ inputMode: "numeric", pattern: "^[0-9]{10}$" }}
+              sx={{ m: 1, width: "50ch" }}
+              value={getData("phoneNumber")}
+              onChange={(e) => setData("phoneNumber", e.target.value)}
+            />
+          </Row>
+          <Row>
+            <TextField
+              label="所在城市"
+              required
+              select
+              // name="entry.87711208"
+              name="city"
+              variant="standard"
+              sx={{ m: 1, width: "50ch" }}
+              value={getData("city")}
+              onChange={(e) => setData("city", e.target.value)}
+            >
+              {cityList.map((city) => (
+                <MenuItem key={city} value={city}>
+                  {city}
+                </MenuItem>
+              ))}
+            </TextField>
+            <TextField
+              label="希望聯絡時間"
+              required
+              select
+              // name="entry.1701296742"
+              name="contactTime"
+              variant="standard"
+              sx={{ m: 1, width: "50ch" }}
+              value={getData("contactTime")}
+              onChange={(e) => setData("contactTime", e.target.value)}
+            >
+              {contactTimeList.map((time) => (
+                <MenuItem key={time} value={time}>
+                  {time}
+                </MenuItem>
+              ))}
+            </TextField>
+          </Row>
+          <FormControl fullWidth margin="dense" sx={{ m: 1 }}>
+            <FormLabel component="legend">詢問內容 (可複選)</FormLabel>
+            <FormGroup
+              sx={{
+                display: "flex",
+                flexDirection: "row",
+                flexWrap: "wrap"
+              }}
+            >
+              {[
+                "限量優惠方案",
+                "LINE 線上點餐系統",
+                "QRCode掃碼點餐",
+                "餐飲POS系統",
+                "連鎖總部系統",
+                "手機掃碼點餐APP",
+                "外送平台串接",
+                "API串接整合服務",
+                "Kiosk 點餐機服務",
+                "電子印章集點服務",
+                "其他（請填寫）"
+              ].map((content) => (
+                <FormControlLabel
+                  key={content}
+                  label={content}
+                  control={
+                    <Checkbox
+                      checked={(formData.quest as string[]).includes(content)}
+                      onChange={handleCheckBoxChange}
+                      name={content}
+                    />
+                  }
+                />
+              ))}
+            </FormGroup>
           </FormControl>
-        </Row>
-        <Row>
           <TextField
-            required
-            name="contactPerson"
-            label="聯絡人"
-            value={formState.contactPerson}
-            onChange={handleChange}
+            label="需求說明"
+            // name="entry.1937030945"
+            name="requirement"
+            fullWidth
+            multiline
+            rows={4}
             margin="dense"
-            variant="standard"
-            sx={{ m: 1, width: "50ch" }}
+            value={getData("requirement")}
+            onChange={(e) => setData("requirement", e.target.value)}
           />
-          <TextField
-            required
-            name="phoneNumber"
-            label="連絡電話"
-            value={formState.phoneNumber}
-            onChange={handleChange}
-            margin="dense"
-            variant="standard"
-            sx={{ m: 1, width: "50ch" }}
-          />
-        </Row>
-        <Row>
-          <TextField
-            label="所在城市"
-            required
-            select
-            name="city"
-            variant="standard"
-            value={formState.city}
-            onChange={handleChange}
-            sx={{ m: 1, width: "50ch" }}
-          >
-            {cityList.map((city) => (
-              <MenuItem key={city} value={city}>
-                {city}
-              </MenuItem>
-            ))}
-          </TextField>
-          <TextField
-            label="希望聯絡時間"
-            required
-            select
-            name="contactTime"
-            variant="standard"
-            value={formState.contactTime}
-            onChange={handleChange}
-            sx={{ m: 1, width: "50ch" }}
-          >
-            {contactTimeList.map((time) => (
-              <MenuItem key={time} value={time}>
-                {time}
-              </MenuItem>
-            ))}
-          </TextField>
-        </Row>
-        <FormControl fullWidth margin="dense" sx={{ m: 1 }}>
-          <FormLabel component="legend">詢問內容 (可複選)</FormLabel>
-          <FormGroup
-            sx={{
-              display: "flex",
-              flexDirection: "row",
-              flexWrap: "wrap"
-            }}
-          >
-            {[
-              "問題類型",
-              "限量優惠方案",
-              "LINE 線上點餐系統",
-              "QRCode掃碼點餐",
-              "餐飲POS系統",
-              "連鎖總部系統",
-              "手機掃碼點餐APP",
-              "外送平台串接",
-              "API串接整合服務",
-              "Kiosk 點餐機服務",
-              "電子印章集點服務",
-              "其他（請填寫）"
-            ].map((content) => (
-              <FormControlLabel
-                key={content}
-                control={
-                  <Checkbox
-                    checked={formState.inquiryContent[content] || false}
-                    onChange={handleInquiryContentChange}
-                    name={content}
-                  />
-                }
-                label={content}
-              />
-            ))}
-          </FormGroup>
-        </FormControl>
-        <TextField
-          name="requirement"
-          label="需求說明"
-          value={formState.requirement || ""}
-          onChange={handleChange}
-          fullWidth
-          multiline
-          rows={4}
-          margin="dense"
-        />
+          <Button type="submit" fullWidth variant="contained">
+            送出表單
+          </Button>
+        </form>
       </DialogContent>
-      <DialogActions>
-        <Button onClick={handleSubmit} fullWidth variant="contained">
-          送出表單
-        </Button>
-      </DialogActions>
     </Dialog>
   );
 };
