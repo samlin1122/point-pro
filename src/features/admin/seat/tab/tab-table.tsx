@@ -6,7 +6,7 @@ import { TableCircle, TableNormal, Periods } from "./index.styles";
 import { headerHeight } from "~/components/header";
 import { useAppDispatch } from "~/app/hook";
 import { getSeatById, getSeats } from "~/app/slices/seat";
-import { getPeriods } from "~/app/slices/period";
+import { getPeriodByDate } from "~/app/slices/period";
 import { PeriodInfo, SeatInfo, SeatDetails } from "~/types";
 import appDayjs from "~/utils/dayjs.util";
 import { SeatDetail } from "~/features/admin/seat/tab/SeatDetail";
@@ -65,14 +65,15 @@ export const TabTable: FC<TabTablePros> = ({ date }) => {
   };
 
   const dispatchGetPeriodByDate = async () => {
-    let { result } = await dispatch(getPeriods({ date: date.toDate() })).unwrap();
-    setPeriods(result[0].periods);
+    let { result } = await dispatch(getPeriodByDate({ date: date.toDate() })).unwrap();
+    let payload = result[0].periods.filter((e: PeriodInfo) => appDayjs().isBefore(e.periodEndedAt));
+    setPeriods(payload);
     if (date.isToday()) {
       let defaultSelect = result[0].periods.find((e: PeriodInfo) =>
         appDayjs().isBetween(e.periodStartedAt, e.periodEndedAt)
       );
       if (!defaultSelect) {
-        defaultSelect = result[0].periods.find((e: PeriodInfo) => result[0].date === e.periodStartedAt);
+        defaultSelect = payload[0];
       }
       setSelectedPeriod(defaultSelect.id);
     } else {

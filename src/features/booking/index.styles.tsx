@@ -118,7 +118,6 @@ export const PeopleAndTime = () => {
             onChange={handleChangeBookingDate}
             views={["day"]}
             disablePast
-            maxDate={appDayjs().add(30, "day")}
             shouldDisableDate={(day) => {
               const currentDate = day.toDate().toLocaleDateString("zh-tw");
 

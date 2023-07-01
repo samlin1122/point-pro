@@ -6,9 +6,8 @@ import TabsBase from "~/components/tabs";
 import theme from "~/theme";
 import { SeatDetailsPeriod, SeatDetails } from "~/types";
 import UnDraw from "~/assets/images/undraw_login.svg";
-import { reservationStatusConfig } from "./index.styles";
 import ReservationDetail from "./ReservationDetail";
-import { genderListStringArray } from "~/utils/constants";
+import { genderListStringArray, seatStatusListObj } from "~/utils/constants";
 import { useAppDispatch } from "~/app/hook";
 import { patchReservationById } from "~/app/slices/reservation";
 
@@ -88,7 +87,7 @@ export const SeatInfo: FC<ReservationProps> = ({ info }) => {
       label: "姓名",
       value: info?.reservation?.options.name + genderListStringArray[info?.reservation?.options.gender]
     },
-    { label: "總人數", value: info?.reservation?.options.adults + info?.reservation?.options.children },
+    { label: "總人數", value: info?.reservation?.options.adults ?? 0 + info?.reservation?.options.children ?? 0 },
     { label: "電話", value: info?.reservation?.options.phone },
     { label: "信箱", value: info?.reservation?.options.email },
     { label: "使用座位", value: info?.reservation?.seats.map((e) => e.seatNo).join(", ") }
@@ -190,7 +189,7 @@ export const SeatDetail: FC<SeatDetailProps> = ({ open, onClose, state, update }
               onClick: () => handleButtonClick("edit"),
               disabled: info.status === "INUSE"
             },
-            { label: "客到開始使用", onClick: () => handleButtonClick("start") }
+            { label: "客到開始使用", onClick: () => handleButtonClick("start"), disabled: info.status === "INUSE" }
           ]
         : [{ label: "新增預約", onClick: () => handleButtonClick("create") }]
       : info?.reservation
@@ -225,7 +224,7 @@ export const SeatDetail: FC<SeatDetailProps> = ({ open, onClose, state, update }
           座況
         </Typography>
         <Typography variant="h4" sx={{ pr: 3 }}>
-          {reservationStatusConfig(info?.status as string).name}
+          {info ? seatStatusListObj[info.status as string].title : seatStatusListObj.AVAILABLE.title}
         </Typography>
       </Stack>
       <Divider sx={{ py: 1 }} />

@@ -6,9 +6,9 @@ import { createAppAsyncThunk } from "~/app/hook";
 
 const name = "period";
 
-export const getPeriods = createAppAsyncThunk(`${name}/getPeriods`, async (payload: any, { rejectWithValue }) => {
+export const getPeriods = createAppAsyncThunk(`${name}/getPeriods`, async (payload, { rejectWithValue }) => {
   try {
-    return await PeriodApi.getPeriods(payload);
+    return await PeriodApi.getPeriods();
   } catch (error) {
     if (error instanceof Error) {
       return rejectWithValue({ message: error.message });
@@ -17,6 +17,21 @@ export const getPeriods = createAppAsyncThunk(`${name}/getPeriods`, async (paylo
     }
   }
 });
+
+export const getPeriodByDate = createAppAsyncThunk(
+  `${name}/getPeriodByDate`,
+  async (payload: any, { rejectWithValue }) => {
+    try {
+      return await PeriodApi.getPeriodByDate(payload);
+    } catch (error) {
+      if (error instanceof Error) {
+        return rejectWithValue({ message: error.message });
+      } else {
+        return rejectWithValue({ message: "unknown error" });
+      }
+    }
+  }
+);
 
 const initialState = {};
 

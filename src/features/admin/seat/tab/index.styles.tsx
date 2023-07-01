@@ -6,6 +6,7 @@ import { ReactComponent as NormalTable } from "~/assets/images/table-normal.svg"
 
 import { PeriodInfo, SeatInfo } from "~/types";
 import appDayjs, { formatTimeOnly, percentOfUsed } from "~/utils/dayjs.util";
+import { seatStatusListObj } from "~/utils/constants";
 
 interface TablePros {
   state: SeatInfo;
@@ -15,19 +16,6 @@ interface TablePros {
 interface TableInfoProps {
   state: SeatInfo;
 }
-
-export const reservationStatusConfig = (key: string) => {
-  switch (key) {
-    case "AVAILABLE":
-      return { name: "未使用", color: "#F2F2F2" };
-    case "RESERVED":
-      return { name: "已預訂", color: "#CFF561" };
-    case "OCCUPIED":
-      return { name: "使用中", color: "#FEE391" };
-    default:
-      return { name: "未使用", color: "#F2F2F2" };
-  }
-};
 
 const TableInfo = ({ state }: TableInfoProps) => {
   if (!state) return <Fragment />;
@@ -94,7 +82,7 @@ export const TableCircle = memo(({ state, handleClick }: TablePros) => {
       onClick={() => handleClick(state.id)}
     >
       <Box sx={{ position: "absolute", zIndex: -1 }}>
-        <CircleTable width={150} color={reservationStatusConfig(state?.status as string).color} />
+        <CircleTable width={150} color={seatStatusListObj[state.status as string].color} />
       </Box>
       <TableInfo state={state} />
     </Stack>
@@ -112,7 +100,7 @@ export const TableNormal = memo(({ state, handleClick }: TablePros) => {
       onClick={() => handleClick(state.id)}
     >
       <Box sx={{ position: "absolute", zIndex: -1 }}>
-        <NormalTable width={90} height={160} color={reservationStatusConfig(state?.status as string).color} />
+        <NormalTable width={90} height={160} color={seatStatusListObj[state.status as string].color} />
       </Box>
       <TableInfo state={state} />
     </Stack>
