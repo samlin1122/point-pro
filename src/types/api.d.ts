@@ -366,5 +366,5 @@ interface MailerRequestBody {
 }
 interface SeatByIdPayload {
   seatId: Id;
-  date: Date;
+  date: string;
 }
