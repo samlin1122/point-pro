@@ -47,9 +47,7 @@ const PaymentDrawer = () => {
   const totalPrice = paymentItem ? calculateGatherOrderPrice(paymentItem) : 0;
 
   const handleCompleteOrder = async () => {
-    if (orderStatus === "UNPAID") {
-      await handlePaymentRequest();
-    }
+    await handlePaymentRequest();
     socket &&
       socket.emit(SocketTopic.ORDER, {
         notiType: SocketTopic.ORDER,
@@ -101,7 +99,7 @@ const PaymentDrawer = () => {
       );
     }
     if (selectPayment === "cash") {
-      if (typeof cash === "number" && cash >= totalPrice) {
+      if (Number(cash) >= totalPrice) {
         await dispatch(requestCashPayment(id));
         handleRestPayment();
       }
