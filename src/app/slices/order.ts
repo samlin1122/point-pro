@@ -1,5 +1,5 @@
 import { createSlice } from "@reduxjs/toolkit";
-import { DialogType, Order, ParentOrder } from "~/features/orders/type";
+import { DialogType, Order, GatherOrder } from "~/features/orders/type";
 import { createAppAsyncThunk } from "../hook";
 import { OrderApi } from "~/api";
 import { clearCart, openDialog } from "~/features/orders/slice";
@@ -7,11 +7,12 @@ import appDayjs from "~/utils/dayjs.util";
 import { calculateCartItemPrice } from "~/utils/price.utils";
 import { OrderStatus } from "~/types/common";
 import { SocketTopic } from "./socket";
+import { openPaymentDrawer } from "./payment";
 
 type OrderSliceState = {
   status: OrderStatus;
   orders: Order[];
-  currentOrder: ParentOrder | null;
+  currentOrder: GatherOrder | null;
   mobileOrderStatusTab: number;
   cancelOrderId: string;
   isLoading: boolean;
@@ -68,17 +69,29 @@ export const postOrder = createAppAsyncThunk(
         };
       });
 
-      const order = await OrderApi.postOrderRequest({ orderMeals });
+      const response = await OrderApi.postOrderRequest({ orderMeals });
+      const { id, status, type, seats = [], paymentLogs, reservationLogId } = response.result;
+      const gatherOrder: GatherOrder = {
+        id,
+        status,
+        type,
+        seats,
+        paymentLogs,
+        orders: [response.result],
+        reservationLogId
+      };
+      console.log({ response, gatherOrder });
 
-      socket && socket.emit(SocketTopic.ORDER, order);
-      dispatch(clearCart());
       if (payload.isUser) {
         dispatch(getOrders({}));
         dispatch(setMobileOrderStatusTab(0));
         dispatch(openDialog({ type: DialogType.ORDER }));
+      } else {
+        // 後台外帶訂單先結帳
+        dispatch(openPaymentDrawer(gatherOrder));
       }
-
-      return order;
+      dispatch(clearCart());
+      socket && socket.emit(SocketTopic.ORDER, response);
     } catch (error) {
       if (error instanceof Error) {
         return rejectWithValue({ message: error.message });

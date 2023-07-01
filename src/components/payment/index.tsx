@@ -23,7 +23,7 @@ import { useAppDispatch, useAppSelector } from "~/app/hook";
 import { requestLinePay, requestCashPayment, closePaymentDrawer } from "~/app/slices/payment";
 import { OrderType } from "~/types/common";
 import { getOrders } from "~/app/slices/order";
-import { calculateParentOrderPrice } from "~/utils/price.utils";
+import { calculateGatherOrderPrice } from "~/utils/price.utils";
 import { CashPaymentDialog } from "./index.style";
 
 const { host } = location;
@@ -40,9 +40,11 @@ const PaymentDrawer = () => {
   const [canPay, setCanPay] = useState<boolean>(false);
 
   const [selectPayment, setSelectPayment] = useState<string>("");
-  const [cash, setCash] = useState(0);
+  const [cash, setCash] = useState("");
 
-  const totalPrice = paymentItem ? calculateParentOrderPrice(paymentItem) : 0;
+  const totalPrice = paymentItem ? calculateGatherOrderPrice(paymentItem) : 0;
+
+  console.log({ paymentItem });
 
   const handleCompleteOrder = async () => {
     if (orderStatus === "UNPAID") {
@@ -58,7 +60,7 @@ const PaymentDrawer = () => {
 
   const handleRestPayment = () => {
     setSelectPayment("");
-    setCash(0);
+    setCash("");
     setCanPay(false);
   };
 
@@ -93,47 +95,49 @@ const PaymentDrawer = () => {
       );
     }
     if (selectPayment === "cash") {
-      if (cash >= totalPrice) {
+      if (+cash >= totalPrice) {
         await dispatch(requestCashPayment(id));
         handleRestPayment();
       }
     }
   };
 
+  const handleClickPaymentWay = (paymentTarget: string) => {
+    setSelectPayment(selectPayment === paymentTarget ? "" : paymentTarget);
+  };
+
   const CashPaymentForm = () => {
     const handleCountCash = (e: ChangeEvent<HTMLInputElement>) => {
-      const value = Number(e.target.value.replace(/^0+(?!$)/, ""));
-      setCash(value);
-      if (Number(value) >= totalPrice) {
+      setCash(e.target.value);
+      if (Number(e.target.value) >= totalPrice) {
         setCanPay(true);
       } else {
         setCanPay(false);
       }
     };
     return (
-      <FormControl fullWidth>
-        <FormControl fullWidth sx={{ marginBottom: "1.5rem", userSelect: "none" }}>
-          <Typography component="label" variant="body1" htmlFor="cash" fontWeight={700} mb={1.5}>
-            結帳
+      <>
+        <FormControl fullWidth sx={{ marginBottom: "1rem", userSelect: "none" }}>
+          <Typography component="label" variant="body1" htmlFor="cash" fontWeight={700}>
+            現場收取金額
           </Typography>
           <Input
             id="cash"
             sx={{ width: "100%", backgroundColor: "common.black_20", padding: "0.75rem 1rem" }}
-            placeholder="請輸入現場收取的現金"
             type="number"
             value={cash}
             onChange={handleCountCash}
           />
         </FormControl>
         <Row justifyContent={"space-between"}>
-          <Typography component="h3" variant="body1" fontWeight={700}>
-            找錢
+          <Typography variant="body1" fontWeight={700}>
+            {+cash - totalPrice >= 0 ? "找錢" : "不足"}
           </Typography>
-          <Typography component="h3" variant="h6" fontWeight={900}>
-            ${cash - totalPrice > 0 ? cash - totalPrice : 0}
+          <Typography variant="h6" fontWeight={900}>
+            {Math.abs(+cash - totalPrice)}元
           </Typography>
         </Row>
-      </FormControl>
+      </>
     );
   };
 
@@ -155,99 +159,101 @@ const PaymentDrawer = () => {
   return (
     <>
       <DrawerBase
-        title="結帳"
+        title={type === OrderType.DineIn ? "內用結帳" : "外帶結帳"}
         open={isOpenPaymentDrawer}
         onClose={handleCloseDrawer}
         buttonList={paymentBtn()}
         sx={{ userSelect: "none" }}
+        width="400px"
       >
-        <Column p={3}>
-          <Row justifyContent="space-between">
-            <Typography variant="body1" fontWeight={700}>
-              類型
-            </Typography>
-            <Typography variant="h5" fontWeight={900}>
-              {type === OrderType.DineIn ? "內用" : "外帶"}
-            </Typography>
+        <Column p={2}>
+          <Row>
+            {type === OrderType.DineIn ? (
+              <>
+                <Typography variant="h6">桌號：</Typography>
+                <Typography variant="h6">{paymentItem?.seats.join(", ")}</Typography>
+              </>
+            ) : (
+              <>
+                <Typography variant="h6">訂單編號：</Typography>
+                <Typography variant="h6">{paymentItem?.id.slice(-5)}</Typography>
+              </>
+            )}
           </Row>
         </Column>
         <Divider />
         <Column p={3}>
-          {paymentFunction.map((payment, idx) =>
+          {paymentFunction.map((payment) =>
             payment.type === "button" ? (
-              <Button
-                key={payment.label}
-                variant="contained"
-                fullWidth
-                sx={{
-                  outline: `1px solid ${theme.palette.common.black_40}`,
-                  backgroundColor: selectPayment === payment.target ? "common.black" : "transparent",
-                  color: selectPayment === payment.target ? "white" : "common.black",
-                  fill: selectPayment === payment.target ? "white" : "common.black",
-                  borderRadius: 0,
-                  boxShadow: 0,
-                  "&:hover": {
-                    backgroundColor: "common.black_60",
+              <Row>
+                <Button
+                  key={payment.label}
+                  variant="contained"
+                  sx={{
+                    bgcolor: selectPayment === payment.target ? "common.black" : "common.black_60",
                     color: "white",
                     fill: "white",
-                    boxShadow: 0
-                  }
-                }}
-                onClick={() => setSelectPayment(payment.target)}
-              >
-                <Row justifyContent={"flex-start"} gap={3} width={"100%"} p={1}>
-                  {payment.icon}
-                  <Typography component="h3" variant="h6" fontWeight={900}>
-                    {payment.label}
-                  </Typography>
-                </Row>
-              </Button>
+                    borderRadius: 0,
+                    boxShadow: 0,
+                    width: "100%",
+                    "&:hover": {
+                      bgcolor: selectPayment === payment.target ? "common.black" : "common.black_60",
+                      color: "white",
+                      fill: "white"
+                    }
+                  }}
+                  onClick={() => handleClickPaymentWay(payment.target)}
+                >
+                  <Row justifyContent={"flex-start"} gap={3} width={"100%"} p={1}>
+                    {payment.icon}
+                    <Typography component="h3" variant="h6" fontWeight={900}>
+                      {payment.label}
+                    </Typography>
+                  </Row>
+                </Button>
+              </Row>
             ) : (
               payment.type !== "button" && (
-                <Accordion
-                  key={payment.label}
-                  square
-                  onClick={() => setSelectPayment(payment.target)}
-                  expanded={selectPayment === payment.target}
-                  sx={{
-                    width: "100%",
-                    boxShadow: 0,
-                    outline: `1px solid ${theme.palette.common.black_40}`
-                  }}
-                >
-                  <AccordionSummary
+                <Row>
+                  <Accordion
+                    key={payment.label}
+                    square
+                    expanded={selectPayment === payment.target}
                     sx={{
-                      color: selectPayment === payment.target ? "white" : "common.black",
-                      fill: selectPayment === payment.target ? "white" : "common.black",
-                      backgroundColor: selectPayment === payment.target ? "common.black" : "transparent",
-                      "&.Mui-expanded": {
-                        backgroundColor: selectPayment === payment.target ? "common.black" : "transparent",
-                        color: selectPayment === payment.target ? "white" : "common.black",
-                        fill: selectPayment === payment.target ? "white" : "common.black"
-                      },
-                      "& .MuiAccordionSummary-expandIconWrapper.Mui-expanded": {
-                        color: "white"
-                      },
-                      "&:hover": {
-                        backgroundColor: "common.black_60",
-                        color: "white"
-                      }
+                      width: "100%",
+                      boxShadow: 0
                     }}
-                    expandIcon={<ExpandMoreIcon />}
-                    aria-controls="panel1a-content"
-                    id="panel1a-header"
                   >
-                    <Row justifyContent={"flex-start"} gap={3} width={"100%"}>
-                      <Box>{payment.icon}</Box>
-                      <Typography component="h3" variant="h6" fontWeight={900}>
-                        {payment.label}
-                      </Typography>
-                    </Row>
-                  </AccordionSummary>
-                  {payment.content ? (
-                    <AccordionDetails sx={{ padding: "2.25rem 1.5rem" }}>{payment.content()}</AccordionDetails>
-                  ) : null}
-                </Accordion>
+                    <AccordionSummary
+                      sx={{
+                        bgcolor: selectPayment === payment.target ? "common.black" : "common.black_60",
+                        color: "white",
+                        fill: "white",
+                        borderBottom: "1px solid",
+                        "& .MuiAccordionSummary-expandIconWrapper": {
+                          color: "white"
+                        },
+                        "&:hover": {
+                          bgcolor: selectPayment === payment.target ? "common.black" : "common.black_60"
+                        }
+                      }}
+                      onClick={() => handleClickPaymentWay(payment.target)}
+                      expandIcon={<ExpandMoreIcon />}
+                      aria-controls="panel1a-content"
+                      id="panel1a-header"
+                    >
+                      <Row justifyContent={"flex-start"} gap={3} width={"100%"}>
+                        <Box>{payment.icon}</Box>
+                        <Typography component="h3" variant="h6" fontWeight={900}>
+                          {payment.label}
+                        </Typography>
+                      </Row>
+                    </AccordionSummary>
+                    {payment.content ? (
+                      <AccordionDetails sx={{ padding: "1rem" }}>{payment.content()}</AccordionDetails>
+                    ) : null}
+                  </Accordion>
+                </Row>
               )
             )
           )}
@@ -255,13 +261,14 @@ const PaymentDrawer = () => {
         <Row
           mt={"auto"}
           justifyContent={"space-between"}
-          p={3}
+          px={3}
+          py={2}
           sx={{ borderTop: `1px dashed ${theme.palette.common.black_40}` }}
         >
-          <Typography component="h4" variant="body1" fontWeight={700}>
+          <Typography variant="h6" fontWeight={700}>
             總金額
           </Typography>
-          <Typography component="h4" variant="h6" fontWeight={900}>
+          <Typography variant="h6" fontWeight={900}>
             {totalPrice}
           </Typography>
         </Row>

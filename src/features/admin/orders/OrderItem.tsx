@@ -20,9 +20,9 @@ import { Column, Row } from "~/components/layout";
 // Others
 import { useAppDispatch } from "~/app/hook";
 import { patchOrder, setCancelOrder } from "~/app/slices/order";
-import { Order, OrderMeal, ParentOrder } from "~/features/orders/type";
+import { Order, OrderMeal, GatherOrder } from "~/features/orders/type";
 import appDayjs from "~/utils/dayjs.util";
-import { calculateOrderPrice, calculateParentOrderPrice } from "~/utils/price.utils";
+import { calculateOrderPrice, calculateGatherOrderPrice } from "~/utils/price.utils";
 import theme from "~/theme";
 import { OrderStatus, OrderType } from "~/types/common";
 import { openPaymentDrawer } from "~/app/slices/payment";
@@ -60,7 +60,7 @@ function OrderMealItem(props: orderMealItemProps) {
   return (
     <ListItem
       sx={{
-        borderBottom: `1px solid ${theme.palette.common.black_20}`,
+        borderTop: idx > 0 ? `1px solid ${theme.palette.common.black_20}` : "none",
         padding: ".5rem"
       }}
     >
@@ -254,12 +254,12 @@ export const PendingAndCancelOrderItem = (props: PendingAndCancelOrderItemProps)
 };
 
 type UnpaidAndSuccessOrderItemProps = {
-  parentOrder: ParentOrder;
+  gatherOrder: GatherOrder;
 };
 export const UnpaidAndSuccessOrderItem = (props: UnpaidAndSuccessOrderItemProps) => {
-  const { parentOrder } = props;
-  const { id, type, status, seats = [], orders = [], paymentLogs } = parentOrder;
-  const totalPrice = calculateParentOrderPrice(parentOrder);
+  const { gatherOrder } = props;
+  const { id, type, status, seats = [], orders = [] } = gatherOrder;
+  const totalPrice = calculateGatherOrderPrice(gatherOrder);
 
   const dispatch = useAppDispatch();
   const { expanded, handleExpand } = useAccordion();
@@ -267,9 +267,9 @@ export const UnpaidAndSuccessOrderItem = (props: UnpaidAndSuccessOrderItemProps)
   const handlePayment = useCallback(
     (e: React.MouseEvent<HTMLButtonElement, MouseEvent>) => {
       e.stopPropagation();
-      dispatch(openPaymentDrawer(parentOrder));
+      dispatch(openPaymentDrawer(gatherOrder));
     },
-    [dispatch, parentOrder]
+    [dispatch, gatherOrder]
   );
 
   return (
