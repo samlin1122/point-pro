@@ -44,8 +44,6 @@ const PaymentDrawer = () => {
 
   const totalPrice = paymentItem ? calculateGatherOrderPrice(paymentItem) : 0;
 
-  console.log({ paymentItem });
-
   const handleCompleteOrder = async () => {
     if (orderStatus === "UNPAID") {
       await handlePaymentRequest();
@@ -185,9 +183,8 @@ const PaymentDrawer = () => {
         <Column p={3}>
           {paymentFunction.map((payment) =>
             payment.type === "button" ? (
-              <Row>
+              <Row key={payment.label}>
                 <Button
-                  key={payment.label}
                   variant="contained"
                   sx={{
                     bgcolor: selectPayment === payment.target ? "common.black" : "common.black_60",
@@ -214,9 +211,8 @@ const PaymentDrawer = () => {
               </Row>
             ) : (
               payment.type !== "button" && (
-                <Row>
+                <Row key={payment.label}>
                   <Accordion
-                    key={payment.label}
                     square
                     expanded={selectPayment === payment.target}
                     sx={{
