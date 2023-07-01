@@ -14,6 +14,7 @@ import { ReservationInfo } from "~/types";
 import { useAppDispatch } from "~/app/hook";
 import { getReservations } from "~/app/slices/reservation";
 import { genderListStringArray, reservationStatusListObj } from "~/utils/constants";
+import { people } from "./reducers/reservation-detail";
 
 interface TabListProps {
   date: appDayjs.Dayjs;
@@ -178,14 +179,7 @@ const columns: GridColDef[] = [
     headerName: "人數",
     minWidth: 110,
     flex: 0.3,
-    valueFormatter: (params: GridValueFormatterParams<{ adults: number; children: number }>) => {
-      try {
-        const { adults, children } = params.value;
-        return adults + children;
-      } catch (error) {
-        return "-";
-      }
-    }
+    valueFormatter: (params: GridValueFormatterParams<{ adults: number; children: number }>) => people(params.value)
   },
   { field: "remark", headerName: "備註", minWidth: 100, flex: 0.5 }
 ];

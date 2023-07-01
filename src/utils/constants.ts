@@ -153,9 +153,9 @@ export const seatStatusListObj = seatStatusList.reduce(
 );
 
 export const reservationStatusList = [
-  { id: "NOT_ATTENDED", title: "未入席" },
-  { id: "IN_USE", title: "使用中" },
-  { id: "COMPLETED", title: "已完成" }
+  { id: "NOT_ATTENDED", title: "未入席", color: "#CFF561" },
+  { id: "IN_USE", title: "使用中", color: "#FEE391" },
+  { id: "COMPLETED", title: "已完成", color: "#D1D1D1" }
 ];
 
 export const reservationStatusListObj = reservationStatusList.reduce(

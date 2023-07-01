@@ -58,7 +58,7 @@ const SeatSearchBar = ({ view, date, handleDateChange, handleSearchChange }: ISe
           value={date}
           format="YYYY年MM月DD日 (星期dd)"
           onChange={handleDateChange}
-          minDate={appDayjs()}
+          disablePast
           shouldDisableDate={(day) => !periods.includes(formatDateOnly(day))}
           sx={{
             "& .MuiOutlinedInput-root": {

@@ -32,14 +32,20 @@ const TableInfo = ({ state }: TableInfoProps) => {
           <Typography variant="body2" fontWeight={700} lineHeight={"24px"}>
             {state.seatNo}
           </Typography>
-          <Typography variant="body1" fontWeight={900} lineHeight={"28.8px"}>
+          <Typography
+            variant="body1"
+            fontWeight={900}
+            lineHeight={"28.8px"}
+            textAlign="center"
+            textOverflow="ellipsis"
+            whiteSpace="nowrap"
+            overflow="hidden"
+            maxWidth="100%"
+          >
             {state.currentReservation.options?.name}
           </Typography>
           <Typography variant="body2" fontWeight={400} lineHeight={"24px"}>
             {formatTimeOnly(state.period.startedAt)}
-          </Typography>
-          <Typography variant="body2" fontWeight={700} lineHeight={"24px"}>
-            -
           </Typography>
         </Fragment>
       );
@@ -125,7 +131,10 @@ export const Periods = ({ periods, selected, handleClick }: PeriodsProps) => {
                   py: 2,
                   px: 3,
                   border: (theme) => `2px solid ${selected === e.id ? theme.palette.common.black : "none"}`,
-                  bgcolor: (theme) => (selected === e.id ? theme.palette.primary.main : "none")
+                  bgcolor: (theme) => (selected === e.id ? theme.palette.primary.main : "none"),
+                  "&:hover": {
+                    bgcolor: (theme) => (selected === e.id ? theme.palette.primary.main : "none")
+                  }
                 }}
               >
                 {formatTimeOnly(e.periodStartedAt)}

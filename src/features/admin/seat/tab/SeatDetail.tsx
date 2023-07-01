@@ -1,15 +1,20 @@
 import { FC, useMemo, useState } from "react";
+
 import { Stack, Typography, styled, Button, Box, Divider } from "@mui/material";
-import appDayjs, { formatTimeOnly } from "~/utils/dayjs.util";
 import { DrawerBase } from "~/components/drawer";
 import TabsBase from "~/components/tabs";
 import theme from "~/theme";
-import { SeatDetailsPeriod, SeatDetails } from "~/types";
 import UnDraw from "~/assets/images/undraw_login.svg";
 import ReservationDetail from "./ReservationDetail";
+
+import { SeatDetailsPeriod, SeatDetails } from "~/types";
 import { genderListStringArray, seatStatusListObj } from "~/utils/constants";
+import appDayjs, { formatTimeOnly } from "~/utils/dayjs.util";
+
 import { useAppDispatch } from "~/app/hook";
 import { patchReservationById } from "~/app/slices/reservation";
+
+import { people } from "./reducers/reservation-detail";
 
 const enum SeatTab {
   CURRENT = "CURRENT",
@@ -81,13 +86,16 @@ export const SeatStatusTabs: FC<SeatProps> = ({ seatTab, setSeatTab }) => {
 };
 
 export const SeatInfo: FC<ReservationProps> = ({ info }) => {
-  const config = [
+  const infoList = [
     { label: "訂位編號", value: info?.id.slice(0, 12) },
     {
       label: "姓名",
       value: info?.reservation?.options.name + genderListStringArray[info?.reservation?.options.gender]
     },
-    { label: "總人數", value: info?.reservation?.options.adults ?? 0 + info?.reservation?.options.children ?? 0 },
+    {
+      label: "總人數",
+      value: people(info?.reservation?.options)
+    },
     { label: "電話", value: info?.reservation?.options.phone },
     { label: "信箱", value: info?.reservation?.options.email },
     { label: "使用座位", value: info?.reservation?.seats.map((e) => e.seatNo).join(", ") }
@@ -96,7 +104,7 @@ export const SeatInfo: FC<ReservationProps> = ({ info }) => {
     <Stack height="inherit" gap={2} sx={{ px: 4, py: 2 }}>
       {info?.reservation ? (
         <>
-          {config.map((e) => (
+          {infoList.map((e) => (
             <Stack key={e.label} direction="row" justifyContent="space-between" alignItems="center">
               <Typography variant="body1" whiteSpace="nowrap">
                 {e.label}
