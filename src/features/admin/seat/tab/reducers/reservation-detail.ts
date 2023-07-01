@@ -106,6 +106,7 @@ export const convertToCreatePayload = (state: StateProps, periodStartedAt: Date)
     periodStartedAt: periodStartedAt
   };
 };
+
 export const convertToPatchPayload = (state: StateProps) => {
   return {
     options: {
@@ -116,6 +117,16 @@ export const convertToPatchPayload = (state: StateProps) => {
       adults: state.amount.value
     }
   };
+};
+
+export const people = (data: any) => {
+  try {
+    const { adults, children } = data;
+    let total = adults ?? 0 + children ?? 0;
+    return `${total} 位`;
+  } catch (error) {
+    return "-";
+  }
 };
 
 export const { defaultSetting, editField, validator } = mainReducer.actions;

@@ -11,7 +11,8 @@ import {
   Divider,
   ListItemText,
   ListItemButton,
-  FormControlLabel
+  FormControlLabel,
+  Typography
 } from "@mui/material";
 import Select, { SelectChangeEvent } from "@mui/material/Select";
 import SwitchBase from "~/components/switch";
@@ -104,9 +105,22 @@ export const MealListContainer: FC<RouterProps> = ({ navigate }) => {
                 onClick={() => handleMealClick(meal.id)}
               >
                 <ListItem>
-                  <ListItemText sx={{ width: "40%" }} primary={meal.title} />
+                  <ListItemText
+                    sx={{ width: "40%" }}
+                    primary={
+                      <Typography variant="h5" fontWeight={600}>
+                        {meal.title}
+                      </Typography>
+                    }
+                  />
                   {appDayjs().isBefore(appDayjs(meal.publishedAt)) ? (
-                    <ListItemText primary={formatFullDate(meal.publishedAt)} />
+                    <ListItemText
+                      primary={
+                        <Typography variant="h6" color="primary" fontWeight={600}>{`將於 ${formatFullDate(
+                          meal.publishedAt
+                        )} 上架`}</Typography>
+                      }
+                    />
                   ) : null}
                   <FormControlLabel
                     onClick={(eve) => eve.stopPropagation()}
@@ -117,7 +131,11 @@ export const MealListContainer: FC<RouterProps> = ({ navigate }) => {
                         checked={appDayjs().isAfter(appDayjs(meal.publishedAt))}
                       />
                     }
-                    label={appDayjs().isAfter(appDayjs(meal.publishedAt)) ? "上架中" : "未上架"}
+                    label={
+                      <Typography variant="h6" fontWeight={600}>
+                        {appDayjs().isAfter(appDayjs(meal.publishedAt)) ? "上架中" : "未上架"}
+                      </Typography>
+                    }
                   />
                 </ListItem>
               </ListItemButton>
