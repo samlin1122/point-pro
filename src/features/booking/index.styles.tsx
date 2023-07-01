@@ -643,15 +643,16 @@ export const BookingReminderModal = () => {
     dispatch(setDialog(""));
   };
 
-  const handleQRCode = () => {
-    dispatch(setDialog(CustomerBookingDialog.QRCODE));
-  };
+  // [TODO]: temprarily remove
+  // const handleQRCode = () => {
+  //   dispatch(setDialog(CustomerBookingDialog.QRCODE));
+  // };
 
-  const handlePhoneCall = () => {
-    const link = document.createElement("a");
-    link.setAttribute("href", "tel:+886-988376229");
-    link.click();
-  };
+  // const handlePhoneCall = () => {
+  //   const link = document.createElement("a");
+  //   link.setAttribute("href", "tel:+886-988376229");
+  //   link.click();
+  // };
 
   if (isLoading) {
     return <Loading open={true} />;
@@ -691,7 +692,8 @@ export const BookingReminderModal = () => {
         </Typography>
         <br />
         <ConfirmBookingInfo isReminder />
-        <Box
+        {/* [TODO]: temprarily remove */}
+        {/* <Box
           sx={{
             display: "flex",
             justifyContent: "center",
@@ -702,7 +704,7 @@ export const BookingReminderModal = () => {
         >
           <ActionIcon icon={<QrCodeIcon />} title="QR Code" onClick={handleQRCode} />
           <ActionIcon icon={<LocalPhoneIcon />} title="撥打電話" onClick={handlePhoneCall} />
-        </Box>
+        </Box> */}
         <ConfirmBookingTextField label="位置" value="台北市中山區民生東路一段52號" icon={<DirectionsIcon />} />
         <ConfirmBookingTextField
           label="溫馨提醒"
