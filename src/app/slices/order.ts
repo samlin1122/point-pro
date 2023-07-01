@@ -80,7 +80,6 @@ export const postOrder = createAppAsyncThunk(
         orders: [response.result],
         reservationLogId
       };
-      console.log({ response, gatherOrder });
 
       if (payload.isUser) {
         dispatch(getOrders({}));

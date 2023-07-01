@@ -55,7 +55,16 @@ const TableInfo = ({ state }: TableInfoProps) => {
           <Typography variant="body2" fontWeight={700} lineHeight={"24px"}>
             {state.seatNo}
           </Typography>
-          <Typography variant="body1" fontWeight={900} lineHeight={"28.8px"}>
+          <Typography
+            variant="body1"
+            fontWeight={900}
+            lineHeight={"28.8px"}
+            textAlign="center"
+            textOverflow="ellipsis"
+            whiteSpace="nowrap"
+            overflow="hidden"
+            maxWidth="100%"
+          >
             {state.currentReservation.options?.name}
           </Typography>
           <Typography variant="body2" fontWeight={400} lineHeight={"24px"}>

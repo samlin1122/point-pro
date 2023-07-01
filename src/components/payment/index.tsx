@@ -25,6 +25,7 @@ import { OrderType } from "~/types/common";
 import { getOrders } from "~/app/slices/order";
 import { calculateGatherOrderPrice } from "~/utils/price.utils";
 import { CashPaymentDialog } from "./index.style";
+import { NotificationsOrderMessage, SocketTopic } from "~/app/slices/socket";
 
 const { host } = location;
 
@@ -38,6 +39,7 @@ const PaymentDrawer = () => {
   const isOpenPaymentDrawer = useAppSelector(({ payment }) => payment.isOpenPaymentDrawer);
   const cashPaymentResponse = useAppSelector(({ payment }) => payment.cashPaymentResponse);
   const [canPay, setCanPay] = useState<boolean>(false);
+  const socket = useAppSelector(({ socket }) => socket.socket);
 
   const [selectPayment, setSelectPayment] = useState<string>("");
   const [cash, setCash] = useState("");
@@ -48,6 +50,12 @@ const PaymentDrawer = () => {
     if (orderStatus === "UNPAID") {
       await handlePaymentRequest();
     }
+    socket &&
+      socket.emit(SocketTopic.ORDER, {
+        notiType: SocketTopic.ORDER,
+        message: NotificationsOrderMessage.PAY_ORDER,
+        result: paymentItem?.orders[0]
+      });
     dispatch(getOrders({ status }));
     dispatch(closePaymentDrawer());
   };

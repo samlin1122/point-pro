@@ -4,7 +4,7 @@ import { Stack } from "@mui/material";
 import { FieldContainer } from "~/components/layout";
 import { DrawerBase } from "~/components/drawer";
 
-import { useAppDispatch } from "~/app/hook";
+import { useAppDispatch, useAppSelector } from "~/app/hook";
 import { getPeriodByDate } from "~/app/slices/period";
 import { patchReservationById, postReservation } from "~/app/slices/reservation";
 import { PeriodInfo } from "~/types";
@@ -20,6 +20,7 @@ import mainReducer, {
   convertToPatchPayload
 } from "./reducers/reservation-detail";
 import appDayjs, { formatTimeOnly } from "~/utils/dayjs.util";
+import { NotificationReservationMssage } from "~/app/slices/socket";
 
 interface ReservationDetail {
   open: boolean;
@@ -44,6 +45,16 @@ const ReservationDetail = ({ open, onClose, isCreate, date, info }: ReservationD
       }
     }
   }, [open]);
+
+  // [TODO] Socket
+  const notifications = useAppSelector(({ socket }) => socket.notifications);
+  useEffect(() => {
+    if (open) {
+      if (notifications.length > 0 && notifications[0].message === NotificationReservationMssage.CREATE_RESERVATION) {
+        dispatchGetPeriodByDate();
+      }
+    }
+  }, [open, isCreate, notifications]);
 
   const dispatchGetPeriodByDate = async () => {
     let payload = {

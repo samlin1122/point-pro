@@ -258,7 +258,7 @@ type UnpaidAndSuccessOrderItemProps = {
 };
 export const UnpaidAndSuccessOrderItem = (props: UnpaidAndSuccessOrderItemProps) => {
   const { gatherOrder } = props;
-  const { id, type, status, seats = [], orders = [] } = gatherOrder;
+  const { id, type, status, seats = [], orders = [], paymentLogs = [] } = gatherOrder;
   const totalPrice = calculateGatherOrderPrice(gatherOrder);
 
   const dispatch = useAppDispatch();
@@ -310,6 +310,14 @@ export const UnpaidAndSuccessOrderItem = (props: UnpaidAndSuccessOrderItemProps)
                 <Typography>訂單編號</Typography>
                 <Typography>{id.slice(-5)}</Typography>
               </Column>
+              {status === OrderStatus.SUCCESS && (
+                <>
+                  <VerticalDivider />
+                  <Column sx={{ minWidth: "13rem" }}>
+                    <Typography fontWeight={700}>付款方式：{paymentLogs?.[0].gateway ?? null}</Typography>
+                  </Column>
+                </>
+              )}
             </>
           )}
           <VerticalDivider />

@@ -61,7 +61,7 @@ import { QRCodeSVG } from "qrcode.react";
 import { emailRegex, phoneRegex } from "~/utils/regex.utils";
 import Loading from "~/components/loading";
 
-const genderObj = {
+export const genderObj = {
   0: "先生",
   1: "小姐",
   2: ""

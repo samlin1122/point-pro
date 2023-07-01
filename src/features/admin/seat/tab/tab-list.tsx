@@ -11,10 +11,11 @@ import {
 import appDayjs, { formatTimeOnly } from "~/utils/dayjs.util";
 import { headerHeight } from "~/components/header";
 import { ReservationInfo } from "~/types";
-import { useAppDispatch } from "~/app/hook";
+import { useAppDispatch, useAppSelector } from "~/app/hook";
 import { getReservations } from "~/app/slices/reservation";
 import { genderListStringArray, reservationStatusListObj } from "~/utils/constants";
 import { people } from "./reducers/reservation-detail";
+import { NotificationReservationMssage } from "~/app/slices/socket";
 
 interface TabListProps {
   date: appDayjs.Dayjs;
@@ -28,6 +29,14 @@ const TabList = ({ date, search }: TabListProps) => {
   useEffect(() => {
     dispatchGetReservation();
   }, [date]);
+
+  // [TODO] Socket
+  const notifications = useAppSelector(({ socket }) => socket.notifications);
+  useEffect(() => {
+    if (notifications.length > 0 && notifications[0].message === NotificationReservationMssage.CREATE_RESERVATION) {
+      dispatchGetReservation();
+    }
+  }, [notifications]);
 
   const dispatchGetReservation = async () => {
     const { result } = await dispatch(getReservations(date.toDate())).unwrap();
