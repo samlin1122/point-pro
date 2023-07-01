@@ -11,6 +11,8 @@ import theme from "~/theme";
 import { CashPaymentResponse, MealDetails, OrderMealWithMeal, PaymentLogsResponse } from "~/types/api";
 import { useAppDispatch } from "~/app/hook";
 import { clearCashPaymentResponse } from "~/app/slices/payment";
+import { patchReservationById } from "~/app/slices/reservation";
+import appDayjs from "~/utils/dayjs.util";
 
 export const CashPaymentDialog = ({ result }: CashPaymentResponse) => {
   const dispatch = useAppDispatch();
@@ -21,6 +23,13 @@ export const CashPaymentDialog = ({ result }: CashPaymentResponse) => {
     if (result.paymentLogs) {
       setPaymentLogs(result.paymentLogs);
       setShowMobileDialog(true);
+      const reservationId = result.paymentLogs[0].order.reservationLogId;
+      dispatch(
+        patchReservationById({
+          reservationId,
+          payload: { endOfMeal: appDayjs().toDate() }
+        })
+      );
     }
   }, [result]);
 

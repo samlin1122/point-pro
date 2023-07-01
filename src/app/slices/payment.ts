@@ -168,7 +168,7 @@ export const paymentSlice = createSlice({
       state.ecPayResponse = payload;
     });
     builder.addCase(confirmEcPay.fulfilled, (state, { payload }) => {
-      state.ecPayResponse = payload;
+      state.ecPayConfirmResponse = payload;
     });
     builder.addCase(cancelEcPay.fulfilled, (state, { payload }) => {
       state.ecPayResponse = payload;

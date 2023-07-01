@@ -42,14 +42,12 @@ const PaymentDrawer = () => {
   const socket = useAppSelector(({ socket }) => socket.socket);
 
   const [selectPayment, setSelectPayment] = useState<string>("");
-  const [cash, setCash] = useState("");
+  const [cash, setCash] = useState<number | string>(0);
 
   const totalPrice = paymentItem ? calculateGatherOrderPrice(paymentItem) : 0;
 
   const handleCompleteOrder = async () => {
-    if (orderStatus === "UNPAID") {
-      await handlePaymentRequest();
-    }
+    await handlePaymentRequest();
     socket &&
       socket.emit(SocketTopic.ORDER, {
         notiType: SocketTopic.ORDER,
@@ -101,7 +99,7 @@ const PaymentDrawer = () => {
       );
     }
     if (selectPayment === "cash") {
-      if (+cash >= totalPrice) {
+      if (Number(cash) >= totalPrice) {
         await dispatch(requestCashPayment(id));
         handleRestPayment();
       }
@@ -133,6 +131,11 @@ const PaymentDrawer = () => {
             type="number"
             value={cash}
             onChange={handleCountCash}
+            onClick={(e) => {
+              if (cash === 0) {
+                setCash("");
+              }
+            }}
           />
         </FormControl>
         <Row justifyContent={"space-between"}>

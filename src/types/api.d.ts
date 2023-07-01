@@ -354,6 +354,16 @@ interface SeatsPayload {
   date?: Date;
   periodId?: Id;
 }
+
+interface MailerRequestBody {
+  from?: string;
+  to: string | string[];
+  cc?: string | string[];
+  bcc?: string | string[];
+  subject: string;
+  text?: string;
+  html: string;
+}
 interface SeatByIdPayload {
   seatId: Id;
   date: Date;

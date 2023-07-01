@@ -27,8 +27,11 @@ export const MenuContainer = () => {
           <CartList />
         </Grid>
       </Grid>
-      <PaymentDrawer />
-    </>
+      <Grid item xs={4} sx={{ borderLeft: `1px solid ${theme.palette.common.black_40}` }}>
+        <CartList />
+        <PaymentDrawer />
+      </Grid>
+  </>
   );
 };
 

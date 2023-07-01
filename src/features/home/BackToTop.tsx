@@ -59,7 +59,7 @@ const BackToTopButton: FC<BackToTopButtonProps> = ({ position }) => {
         transform: `scale(${buttonScale})`,
         opacity: buttonOpacity,
         transition: ".3s",
-        zIndex: (theme) => theme.zIndex.tooltip
+        zIndex: 999
       }}
     >
       <ArrowUpwardIcon fontSize="large" />
