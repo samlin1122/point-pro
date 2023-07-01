@@ -1,7 +1,7 @@
 import { Socket } from "socket.io-client";
 import { createSlice } from "@reduxjs/toolkit";
-import { OrderStatus, OrderType } from "~/types/common";
-import { OrderMeal } from "~/features/orders/type";
+import { Gender, OrderStatus, OrderType } from "~/types/common";
+import { BookingType, OrderMeal } from "~/features/orders/type";
 import { IBookingInfo } from "~/types";
 
 const name = "socket";
@@ -16,13 +16,19 @@ export enum SocketTopic {
 export enum NotificationsOrderMessage {
   CREATE_ORDER = "CREATE_ORDER",
   UPDATE_ORDER = "UPDATE_ORDER",
-  CANCEL_ORDER = "CANCEL_ORDER"
+  CANCEL_ORDER = "CANCEL_ORDER",
+  PAY_ORDER = "PAY_ORDER"
 }
 
 export enum NotificationsMenuMessage {
   CREATE_MEAL = "CREATE_MEAL",
   UPDATE_MEAL = "UPDATE_MEAL",
   DELETE_MEAL = "DELETE_MEAL"
+}
+
+export enum NotificationReservationMssage {
+  CREATE_RESERVATION = "CREATE_RESERVATION",
+  UPDATE_RESERVATION = "UPDATE_RESERVATION"
 }
 
 type OrderNotification = {
@@ -38,6 +44,7 @@ type OrderNotification = {
     updatedAt: string | null;
     orderMeals: OrderMeal[];
     paymentLogs: [];
+    seats?: string[];
     reservationsLogs: {
       id: string;
       options: Omit<IBookingInfo, "id" | "reservedAt">;
@@ -72,8 +79,30 @@ type MenuNotification = {
 
 type ReservationNotification = {
   notiType: SocketTopic.RESERVATION;
-  message: any;
-  result: any;
+  message: NotificationReservationMssage;
+  result: {
+    id: string;
+    reservedAt: string;
+    type: BookingType;
+    options: {
+      name: string;
+      gender: Gender;
+      type: BookingType;
+      phone: string;
+      email: string;
+      remark: string;
+      adults: number;
+      children?: number;
+    };
+    periodStartedAt: string;
+    periodEndedAt: string;
+    seats: {
+      id: string;
+      seatNo: string;
+      amount: number;
+    }[];
+    token?: string;
+  };
 };
 
 type SocketSliceState = {

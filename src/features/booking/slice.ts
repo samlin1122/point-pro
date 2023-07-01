@@ -8,6 +8,7 @@ import { IAvailableBooking, IBookingInfo, ICustomerBookingSliceState } from "~/t
 import { BookingType, CustomerBookingDialog, Gender } from "~/types/common";
 import { ReservationApi, PeriodApi } from "~/api";
 import { DatePeriodInfo, PeriodInfo } from "~/types";
+import { SocketTopic } from "~/app/slices/socket";
 
 const name = "customerReservation";
 const initialState: ICustomerBookingSliceState = {
@@ -67,15 +68,18 @@ export const postReservation = createAppAsyncThunk(
   async (arg, { getState, rejectWithValue }) => {
     try {
       const reservationParams = getState().customerReservation.reservationParams;
+      const socket = getState().socket.socket;
 
-      const { result } = await ReservationApi.postReservation({
+      const response = await ReservationApi.postReservation({
         type: "OnlineBooking",
         amount: reservationParams.user.adults + reservationParams.user.children,
         options: reservationParams.user,
         periodStartedAt: new Date(reservationParams.reservedAt)
       });
 
-      return result;
+      socket && socket.emit(SocketTopic.RESERVATION, response);
+
+      return response.result;
     } catch (error) {
       if (error instanceof Error) {
         return rejectWithValue({ message: error.message });

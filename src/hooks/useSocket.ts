@@ -9,8 +9,9 @@ import { closeDialog, getMenu } from "~/features/orders/slice";
 import { getToken } from "~/utils/token.utils";
 
 export enum NameSpace {
-  user = "user",
-  admin = "admin"
+  main = "/",
+  user = "/user",
+  admin = "/admin"
 }
 
 type useSocketProps = {
@@ -27,7 +28,7 @@ export const useSocket = (props: useSocketProps) => {
 
   // Socket Instance
   const { current: socket } = useRef(
-    io(`${apiHost}/${ns}`, {
+    io(`${apiHost}${ns}`, {
       transports: ["polling", "websocket"],
       autoConnect: false,
       auth: {
@@ -66,7 +67,7 @@ export const useSocket = (props: useSocketProps) => {
       socket.off("disconnect");
       socket.io.off("reconnect");
     };
-  }, [socket]);
+  }, [socket, ns]);
 
   // MENU listener
   useEffect(() => {
@@ -117,16 +118,8 @@ export const useSocket = (props: useSocketProps) => {
   // RESERVATION listener
   useEffect(() => {
     socket.on(SocketTopic.RESERVATION, (data) => {
-      if (ns === NameSpace.user) {
-        // [TODO] update available date, etc.
-      }
-
       if (ns === NameSpace.admin) {
         dispatch(addNotification({ ...data, notiType: SocketTopic.RESERVATION }));
-
-        if (pathname.includes("/admin/seat")) {
-          // [TODO] get reservation api, etc.
-        }
       }
     });
 
