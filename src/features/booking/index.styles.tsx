@@ -344,13 +344,13 @@ export const ConfirmBookingInfo = (props: IConfirmBookingInfoProps) => {
 
   const handleSendMailBookingReminder = async () => {
     const html = `<h1>港都熱炒</h1>
-    <h2>親愛的 ${name} ${gender !== 2 && (gender === 0 ? "先生" : gender === 1 ? "小姐" : null)}</h2>
+    <h2>親愛的 ${name} ${gender === 0 ? "先生" : gender === 1 ? "小姐" : ""}</h2>
     <p>您的訂位已經成功囉, 感謝您選擇港都熱炒！</p>
     <p>我們會竭誠為您提供美味佳餚和貼心的服務。請留意並保存以下資訊，並準時到達。 如需更改或取消，提前聯繫我們。</p>
     <p>期待您的光臨用餐</p>
     <h3>訂位資訊</h3>
     <ul>
-    <li>姓名: ${name} ${gender === 0 ? "先生" : gender === 1 ? "小姐" : null}</li>
+    <li>姓名: ${name} ${gender === 0 ? "先生" : gender === 1 ? "小姐" : ""}</li>
     <li>電子信箱: ${email}</li>
     <li>手機號碼: ${phone}</li>
     <li>備註: ${remark}</li>

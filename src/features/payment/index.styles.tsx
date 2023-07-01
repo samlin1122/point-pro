@@ -74,7 +74,7 @@ export const PaymentReturnContainer = () => {
         ))}
 
       <Button variant="contained" color="primary" onClick={handleReturnMeal}>
-        返回繼續點餐
+        {userRole?.role === "USER" ? "返回繼續點餐" : "返回訂單頁面"}
       </Button>
     </Column>
   );
@@ -96,13 +96,14 @@ const PaymentReturnData = (props: { message: string; result: LinePayConfirmPaylo
   }
   useEffect(() => {
     if (message === "success") {
-      const reservationId = result.paymentLogs[0].parentOrder.reservationLogId;
-      dispatch(
-        patchReservationById({
-          reservationId,
-          payload: { endOfMeal: appDayjs().toDate() }
-        })
-      );
+      const reservationId = result?.paymentLogs[0]?.parentOrder?.reservationLogId;
+      reservationId &&
+        dispatch(
+          patchReservationById({
+            reservationId,
+            payload: { endOfMeal: appDayjs().toDate() }
+          })
+        );
     }
   }, [result]);
   return (
@@ -248,11 +249,11 @@ export const PaymentCancel = () => {
   const [searchParams] = useSearchParams();
 
   const navigate = useNavigate();
-  const isAuthenticated = useAppSelector(({ auth }) => auth.isAuthenticated);
+  const userRole = useAppSelector(({ auth }) => auth.userRole);
 
   const handleReturnMeal = () => {
     const token = getToken();
-    isAuthenticated ? navigate("/admin/orders") : navigate(`/orders?token=${token}`);
+    userRole?.role === "USER" ? navigate(`/orders?token=${token}`) : navigate("/admin/orders");
   };
   return (
     <Column justifyContent={"space-between"} p={3} sx={{ height: "100%", minHeight: "90vh", userSelect: "none" }}>
@@ -260,7 +261,7 @@ export const PaymentCancel = () => {
         取消付款
       </Typography>
       <Button variant="contained" color="primary" onClick={handleReturnMeal}>
-        返回繼續點餐
+        {userRole?.role === "USER" ? "返回繼續點餐" : "返回訂單頁面"}
       </Button>
     </Column>
   );
