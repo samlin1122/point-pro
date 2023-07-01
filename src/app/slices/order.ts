@@ -1,18 +1,20 @@
 import { createSlice } from "@reduxjs/toolkit";
-import { DialogType, Order, ParentOrder } from "~/features/orders/type";
+import { DialogType, Order, GatherOrder } from "~/features/orders/type";
 import { createAppAsyncThunk } from "../hook";
 import { OrderApi } from "~/api";
 import { clearCart, openDialog } from "~/features/orders/slice";
 import appDayjs from "~/utils/dayjs.util";
 import { calculateCartItemPrice } from "~/utils/price.utils";
 import { OrderStatus } from "~/types/common";
-import { SocketTopic } from "~/hooks/useSocket";
+import { SocketTopic } from "./socket";
+import { openPaymentDrawer } from "./payment";
 
 type OrderSliceState = {
   status: OrderStatus;
   orders: Order[];
-  currentOrder: ParentOrder | null;
+  currentOrder: GatherOrder | null;
   mobileOrderStatusTab: number;
+  cancelOrderId: string;
   isLoading: boolean;
 };
 
@@ -22,6 +24,7 @@ const initialState: OrderSliceState = {
   orders: [],
   currentOrder: null,
   mobileOrderStatusTab: 0,
+  cancelOrderId: "",
   isLoading: false
 };
 
@@ -66,17 +69,28 @@ export const postOrder = createAppAsyncThunk(
         };
       });
 
-      const order = await OrderApi.postOrderRequest({ orderMeals });
+      const response = await OrderApi.postOrderRequest({ orderMeals });
+      const { id, status, type, seats = [], paymentLogs, reservationLogId } = response.result;
+      const gatherOrder: GatherOrder = {
+        id,
+        status,
+        type,
+        seats,
+        paymentLogs,
+        orders: [response.result],
+        reservationLogId
+      };
 
-      socket && socket.emit(SocketTopic.ORDER, order);
-      dispatch(clearCart());
       if (payload.isUser) {
         dispatch(getOrders({}));
         dispatch(setMobileOrderStatusTab(0));
         dispatch(openDialog({ type: DialogType.ORDER }));
+      } else {
+        // 後台外帶訂單先結帳
+        dispatch(openPaymentDrawer(gatherOrder));
       }
-
-      return order;
+      dispatch(clearCart());
+      socket && socket.emit(SocketTopic.ORDER, response);
     } catch (error) {
       if (error instanceof Error) {
         return rejectWithValue({ message: error.message });
@@ -87,13 +101,14 @@ export const postOrder = createAppAsyncThunk(
   }
 );
 
-export const deleteOrder = createAppAsyncThunk(
-  `${name}/deleteOrder`,
-  async (payload: { orderId: string }, { getState, dispatch, rejectWithValue }) => {
+export const cancelOrder = createAppAsyncThunk(
+  `${name}/cancelOrder`,
+  async (arg, { getState, dispatch, rejectWithValue }) => {
     try {
+      const orderId = getState()[name].cancelOrderId;
       const socket = getState().socket.socket;
-      const deleteOrder = await OrderApi.deleteOrderRequest(payload);
-      socket && socket.emit(SocketTopic.ORDER, deleteOrder);
+      const cancelOrder = await OrderApi.deleteOrderRequest({ orderId });
+      socket && socket.emit(SocketTopic.ORDER, cancelOrder);
       dispatch(getOrders({ status: getState()[name].status }));
     } catch (error) {
       if (error instanceof Error) {
@@ -132,6 +147,9 @@ export const orderSlice = createSlice({
     },
     setMobileOrderStatusTab: (state, action) => {
       state.mobileOrderStatusTab = action.payload;
+    },
+    setCancelOrder: (state, action) => {
+      state.cancelOrderId = action.payload;
     }
   },
   extraReducers: (builder) => {
@@ -160,13 +178,15 @@ export const orderSlice = createSlice({
         state.isLoading = false;
       })
       // delete order
-      .addCase(deleteOrder.pending, (state) => {
+      .addCase(cancelOrder.pending, (state) => {
         state.isLoading = true;
       })
-      .addCase(deleteOrder.fulfilled, (state) => {
+      .addCase(cancelOrder.fulfilled, (state) => {
+        state.cancelOrderId = initialState.cancelOrderId;
         state.isLoading = false;
       })
-      .addCase(deleteOrder.rejected, (state) => {
+      .addCase(cancelOrder.rejected, (state) => {
+        state.cancelOrderId = initialState.cancelOrderId;
         state.isLoading = false;
       })
       // patch order
@@ -182,4 +202,4 @@ export const orderSlice = createSlice({
   }
 });
 
-export const { setOrderStatus, setMobileOrderStatusTab } = orderSlice.actions;
+export const { setOrderStatus, setMobileOrderStatusTab, setCancelOrder } = orderSlice.actions;

@@ -29,8 +29,8 @@ const SeatSearchBar = ({ view, date, handleDateChange, handleSearchChange }: ISe
 
   const diaptchGetPeriods = async () => {
     let { result } = await dispatch(getPeriods()).unwrap();
-
-    setPeriods(result.map((e: any) => formatDateOnly(e.date)));
+    let availableDay = [...new Set(result.map((item: any) => formatDateOnly(item.periodStartedAt)))];
+    setPeriods(availableDay as string[]);
   };
 
   const handleCloseDrawer = () => {
@@ -58,7 +58,7 @@ const SeatSearchBar = ({ view, date, handleDateChange, handleSearchChange }: ISe
           value={date}
           format="YYYY年MM月DD日 (星期dd)"
           onChange={handleDateChange}
-          minDate={appDayjs()}
+          disablePast
           shouldDisableDate={(day) => !periods.includes(formatDateOnly(day))}
           sx={{
             "& .MuiOutlinedInput-root": {

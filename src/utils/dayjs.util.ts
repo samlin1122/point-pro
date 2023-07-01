@@ -52,5 +52,5 @@ export const formatTimeOnly = (date: any) => {
 export const percentOfUsed = (start: any, end: any) => {
   let startAt = appDayjs(start),
     endAt = appDayjs(end);
-  return `${Math.round(startAt.diff() / startAt.diff(endAt))}%`;
+  return start && end ? `${Math.round(startAt.diff() / startAt.diff(endAt))}%` : "";
 };

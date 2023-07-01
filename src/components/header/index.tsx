@@ -31,7 +31,6 @@ const Header: FC<RouterProps> = ({ location, navigate }) => {
   const specialties = useAppSelector(Specialties);
 
   const notifications = useAppSelector(({ socket }) => socket.notifications);
-  const badgeNumber = notifications.filter((noti) => noti.isRead === false).length;
 
   useEffect(() => {
     if (isEmpty(categories)) {
@@ -146,7 +145,7 @@ const Header: FC<RouterProps> = ({ location, navigate }) => {
             }}
           >
             <IconButton color="inherit" onClick={() => setIsNotificationOpen(true)}>
-              <Badge badgeContent={badgeNumber} color="error">
+              <Badge badgeContent={notifications.length} color="error">
                 <NotificationsNone sx={{ width: "30px", height: "30px" }} />
               </Badge>
             </IconButton>

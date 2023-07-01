@@ -4,19 +4,14 @@ import io from "socket.io-client";
 import { apiHost } from "~/api/http";
 import { useAppDispatch, useAppSelector } from "~/app/hook";
 import { getOrders } from "~/app/slices/order";
-import { addNotifications, resetSocket, setSocket } from "~/app/slices/socket";
+import { SocketTopic, addNotification, resetSocket, setSocket } from "~/app/slices/socket";
 import { closeDialog, getMenu } from "~/features/orders/slice";
 import { getToken } from "~/utils/token.utils";
 
-export enum SocketTopic {
-  MENU = "MENU",
-  ORDER = "ORDER",
-  RESERVATION = "RESERVATION"
-}
-
 export enum NameSpace {
-  user = "user",
-  admin = "admin"
+  main = "/",
+  user = "/user",
+  admin = "/admin"
 }
 
 type useSocketProps = {
@@ -33,7 +28,7 @@ export const useSocket = (props: useSocketProps) => {
 
   // Socket Instance
   const { current: socket } = useRef(
-    io(`${apiHost}/${ns}`, {
+    io(`${apiHost}${ns}`, {
       transports: ["polling", "websocket"],
       autoConnect: false,
       auth: {
@@ -72,7 +67,7 @@ export const useSocket = (props: useSocketProps) => {
       socket.off("disconnect");
       socket.io.off("reconnect");
     };
-  }, [socket]);
+  }, [socket, ns]);
 
   // MENU listener
   useEffect(() => {
@@ -83,7 +78,7 @@ export const useSocket = (props: useSocketProps) => {
       }
 
       if (ns === NameSpace.admin) {
-        dispatch(addNotifications({ ...data, isRead: false, notiType: SocketTopic.MENU }));
+        dispatch(addNotification({ ...data, notiType: SocketTopic.MENU }));
         if (pathname.includes("/admin/menu")) {
           dispatch(getMenu());
           dispatch(closeDialog());
@@ -107,7 +102,7 @@ export const useSocket = (props: useSocketProps) => {
       }
 
       if (ns === NameSpace.admin) {
-        dispatch(addNotifications({ ...data, isRead: false, notiType: SocketTopic.ORDER }));
+        dispatch(addNotification({ ...data, notiType: SocketTopic.ORDER }));
 
         if (pathname.includes("/admin/orders")) {
           dispatch(getOrders({ status: orderStatus }));
@@ -123,16 +118,8 @@ export const useSocket = (props: useSocketProps) => {
   // RESERVATION listener
   useEffect(() => {
     socket.on(SocketTopic.RESERVATION, (data) => {
-      if (ns === NameSpace.user) {
-        // [TODO] update available date, etc.
-      }
-
       if (ns === NameSpace.admin) {
-        dispatch(addNotifications({ ...data, isRead: false, notiType: SocketTopic.RESERVATION }));
-
-        if (pathname.includes("/admin/seat")) {
-          // [TODO] get reservation api, etc.
-        }
+        dispatch(addNotification({ ...data, notiType: SocketTopic.RESERVATION }));
       }
     });
 

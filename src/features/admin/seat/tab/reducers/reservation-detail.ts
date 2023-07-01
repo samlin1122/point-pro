@@ -1,6 +1,7 @@
 import { createSlice } from "@reduxjs/toolkit";
 import { forEach, every } from "lodash";
 import { MakeFieldResponse, makeField } from "~/utils/makeField";
+import { emailRegex, phoneRegex } from "~/utils/regex.utils";
 
 interface StateProps {
   [key: string]: MakeFieldResponse;
@@ -55,7 +56,13 @@ const mainReducer = createSlice({
     validator(state) {
       forEach(state, (data, key) => {
         if (data.isRequired) {
-          state[key].invalid = data.value == "";
+          if (key === "phone") {
+            state[key].invalid = !phoneRegex.test(data.value);
+          } else {
+            state[key].invalid = data.value == "";
+          }
+        } else if (key === "email" && data.value) {
+          state[key].invalid = !emailRegex.test(data.value);
         }
         if (state[key].invalid) {
           console.log("invalid : ", key);
@@ -67,11 +74,20 @@ const mainReducer = createSlice({
 
 export const validateCheck = (state: StateProps) => {
   return every(state, ({ value, fieldPath, isRequired }) => {
-    if (!(isRequired && value === "")) {
-      return true;
+    if (isRequired) {
+      if (value === "") {
+        return false;
+      } else {
+        if (fieldPath === "phone") {
+          return phoneRegex.test(value);
+        } else {
+          return true;
+        }
+      }
+    } else if (fieldPath === "email" && value) {
+      return emailRegex.test(value);
     } else {
-      console.log(fieldPath, value);
-      return false;
+      return true;
     }
   });
 };
@@ -90,6 +106,7 @@ export const convertToCreatePayload = (state: StateProps, periodStartedAt: Date)
     periodStartedAt: periodStartedAt
   };
 };
+
 export const convertToPatchPayload = (state: StateProps) => {
   return {
     options: {
@@ -100,6 +117,16 @@ export const convertToPatchPayload = (state: StateProps) => {
       adults: state.amount.value
     }
   };
+};
+
+export const people = (data: any) => {
+  try {
+    const { adults, children } = data;
+    let total = adults ?? 0 + children ?? 0;
+    return `${total} 位`;
+  } catch (error) {
+    return "-";
+  }
 };
 
 export const { defaultSetting, editField, validator } = mainReducer.actions;

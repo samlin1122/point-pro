@@ -140,3 +140,25 @@ export const cityList = [
 ];
 
 export const contactTimeList = ["9:00~11:30", "13:00~18:00", "18:00之後"];
+
+export const seatStatusList = [
+  { id: "AVAILABLE", title: "未使用", color: "#F2F2F2" },
+  { id: "RESERVED", title: "已預訂", color: "#CFF561" },
+  { id: "OCCUPIED", title: "使用中", color: "#FEE391" }
+];
+
+export const seatStatusListObj = seatStatusList.reduce(
+  (obj: { [key: string]: any }, currnt) => ({ ...obj, [currnt.id]: currnt }),
+  {}
+);
+
+export const reservationStatusList = [
+  { id: "NOT_ATTENDED", title: "未入席", color: "#CFF561" },
+  { id: "IN_USE", title: "使用中", color: "#FEE391" },
+  { id: "COMPLETED", title: "已完成", color: "#D1D1D1" }
+];
+
+export const reservationStatusListObj = reservationStatusList.reduce(
+  (obj: { [key: string]: any }, currnt) => ({ ...obj, [currnt.id]: currnt }),
+  {}
+);

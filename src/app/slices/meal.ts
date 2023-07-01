@@ -3,8 +3,8 @@ import { createSlice } from "@reduxjs/toolkit";
 import { MealApi } from "~/api";
 // Others
 import { createAppAsyncThunk } from "~/app/hook";
-import { SocketTopic } from "~/hooks/useSocket";
 import { MealsResponse, MealResponse, PostMealPayload, PatchMealByIdPayload, Id } from "~/types/api";
+import { SocketTopic } from "./socket";
 
 const name = "meal";
 

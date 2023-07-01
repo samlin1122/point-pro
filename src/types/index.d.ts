@@ -213,6 +213,7 @@ export type ReservationInfo = {
   startOfMeal: Date | null;
   endOfMeal: Date | null;
   seats: PartialSeat[];
+  status: string;
 };
 
 type SeatInfo = {

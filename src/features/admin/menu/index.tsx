@@ -16,17 +16,22 @@ export const MenuContainer = () => {
   }, []);
 
   return (
-    <Grid container sx={{ height: `calc(100vh - ${headerHeight})`, userSelect: "none" }} bgcolor={"background.paper"}>
-      <Grid item xs={8} sx={{ overflow: "hidden" }}>
-        <MenuTabs />
-        <MealList />
-        <MealDrawer />
+    <>
+      <Grid container sx={{ height: `calc(100vh - ${headerHeight})`, userSelect: "none" }} bgcolor={"background.paper"}>
+        <Grid item xs={8} sx={{ overflow: "hidden" }}>
+          <MenuTabs />
+          <MealList />
+          <MealDrawer />
+        </Grid>
+        <Grid item xs={4} sx={{ borderLeft: `1px solid ${theme.palette.common.black_40}` }}>
+          <CartList />
+        </Grid>
       </Grid>
       <Grid item xs={4} sx={{ borderLeft: `1px solid ${theme.palette.common.black_40}` }}>
         <CartList />
         <PaymentDrawer />
       </Grid>
-    </Grid>
+  </>
   );
 };
 

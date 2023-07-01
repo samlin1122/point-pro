@@ -11,10 +11,11 @@ import {
 import appDayjs, { formatTimeOnly } from "~/utils/dayjs.util";
 import { headerHeight } from "~/components/header";
 import { ReservationInfo } from "~/types";
-import { useAppDispatch } from "~/app/hook";
+import { useAppDispatch, useAppSelector } from "~/app/hook";
 import { getReservations } from "~/app/slices/reservation";
-import { reservationStatusConfig } from "./index.styles";
-import { genderListStringArray } from "~/utils/constants";
+import { genderListStringArray, reservationStatusListObj } from "~/utils/constants";
+import { people } from "./reducers/reservation-detail";
+import { NotificationReservationMssage } from "~/app/slices/socket";
 
 interface TabListProps {
   date: appDayjs.Dayjs;
@@ -29,20 +30,24 @@ const TabList = ({ date, search }: TabListProps) => {
     dispatchGetReservation();
   }, [date]);
 
+  // [TODO] Socket
+  const notifications = useAppSelector(({ socket }) => socket.notifications);
+  useEffect(() => {
+    if (notifications.length > 0 && notifications[0].message === NotificationReservationMssage.CREATE_RESERVATION) {
+      dispatchGetReservation();
+    }
+  }, [notifications]);
+
   const dispatchGetReservation = async () => {
     const { result } = await dispatch(getReservations(date.toDate())).unwrap();
     const list = result?.map((e: ReservationInfo) => ({
-      id: e.id,
-      type: e.type,
+      ...e,
       ...e.options,
-      periodStartedAt: e.periodStartedAt,
-      periodEndedAt: e.periodEndedAt,
       seatNo: e.seats.map((seat) => seat.seatNo).join(", "),
       people: e.options
     })) as GridRowsProp;
 
     setReservations(list);
-    console.log({ result });
   };
   const phoneRegex = new RegExp(search, "i");
   return (
@@ -81,7 +86,7 @@ const TabList = ({ date, search }: TabListProps) => {
 
 const columns: GridColDef[] = [
   {
-    field: "type",
+    field: "status",
     headerName: "狀態",
     minWidth: 120,
     flex: 0.5,
@@ -89,7 +94,7 @@ const columns: GridColDef[] = [
       return (
         <Avatar
           sx={{
-            bgcolor: reservationStatusConfig(params.value as string).color,
+            bgcolor: reservationStatusListObj[params.value as string].color,
             fontSize: "small.fontSize",
             height: "2rem",
             width: "4rem",
@@ -98,7 +103,7 @@ const columns: GridColDef[] = [
           }}
           variant="square"
         >
-          {reservationStatusConfig(params.value as string).name}
+          {reservationStatusListObj[params.value as string].title}
         </Avatar>
       );
     }
@@ -121,7 +126,7 @@ const columns: GridColDef[] = [
   },
   { field: "phone", headerName: "電話號碼", minWidth: 120, flex: 0.5 },
   {
-    field: "periodStartedAt",
+    field: "startOfMeal",
     headerName: "開始時間",
     minWidth: 100,
     flex: 0.5,
@@ -130,7 +135,7 @@ const columns: GridColDef[] = [
     }
   },
   {
-    field: "periodEndedAt",
+    field: "endOfMeal",
     headerName: "結束時間",
     minWidth: 100,
     flex: 0.5,
@@ -145,14 +150,14 @@ const columns: GridColDef[] = [
     flex: 0.5,
     valueGetter: (params: GridValueGetterParams) => {
       return {
-        periodStartedAt: params.row.periodStartedAt,
-        periodEndedAt: params.row.periodEndedAt
+        startOfMeal: params.row.startOfMeal,
+        endOfMeal: params.row.endOfMeal
       };
     },
-    valueFormatter: (params: GridValueFormatterParams<{ periodStartedAt: number; periodEndedAt: number }>) => {
-      const { periodStartedAt, periodEndedAt } = params.value;
-      if (periodStartedAt && periodEndedAt) {
-        const diff = appDayjs(periodEndedAt).diff(appDayjs(periodStartedAt));
+    valueFormatter: (params: GridValueFormatterParams<{ startOfMeal: number; endOfMeal: number }>) => {
+      const { startOfMeal, endOfMeal } = params.value;
+      if (startOfMeal && endOfMeal) {
+        const diff = appDayjs(endOfMeal).diff(appDayjs(startOfMeal));
         const duration = appDayjs.duration(diff).format("HH:mm");
         return duration;
       }
@@ -183,14 +188,7 @@ const columns: GridColDef[] = [
     headerName: "人數",
     minWidth: 110,
     flex: 0.3,
-    valueFormatter: (params: GridValueFormatterParams<{ adults: number; children: number }>) => {
-      try {
-        const { adults, children } = params.value;
-        return adults + children;
-      } catch (error) {
-        return "-";
-      }
-    }
+    valueFormatter: (params: GridValueFormatterParams<{ adults: number; children: number }>) => people(params.value)
   },
   { field: "remark", headerName: "備註", minWidth: 100, flex: 0.5 }
 ];

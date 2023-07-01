@@ -8,6 +8,7 @@ import { IAvailableBooking, IBookingInfo, ICustomerBookingSliceState } from "~/t
 import { BookingType, CustomerBookingDialog, Gender } from "~/types/common";
 import { ReservationApi, PeriodApi } from "~/api";
 import { DatePeriodInfo, PeriodInfo } from "~/types";
+import { SocketTopic } from "~/app/slices/socket";
 
 const name = "customerReservation";
 const initialState: ICustomerBookingSliceState = {
@@ -36,9 +37,9 @@ const initialState: ICustomerBookingSliceState = {
   isLoading: false
 };
 
-export const getPeriods = createAppAsyncThunk(`${name}/getPeriods`, async (arg, { rejectWithValue }) => {
+export const getPeriodByDate = createAppAsyncThunk(`${name}/getPeriodByDate`, async (arg, { rejectWithValue }) => {
   try {
-    const periodsResp = await PeriodApi.getPeriods();
+    const periodsResp = await PeriodApi.getPeriodByDate({ excludeTime: false });
     const periodInfos = periodsResp.result;
     const availableBookings: IAvailableBooking[] = periodInfos.map((info: DatePeriodInfo) => {
       return {
@@ -67,15 +68,18 @@ export const postReservation = createAppAsyncThunk(
   async (arg, { getState, rejectWithValue }) => {
     try {
       const reservationParams = getState().customerReservation.reservationParams;
+      const socket = getState().socket.socket;
 
-      const { result } = await ReservationApi.postReservation({
+      const response = await ReservationApi.postReservation({
         type: "OnlineBooking",
         amount: reservationParams.user.adults + reservationParams.user.children,
         options: reservationParams.user,
         periodStartedAt: new Date(reservationParams.reservedAt)
       });
 
-      return result;
+      socket && socket.emit(SocketTopic.RESERVATION, response);
+
+      return response.result;
     } catch (error) {
       if (error instanceof Error) {
         return rejectWithValue({ message: error.message });
@@ -170,10 +174,10 @@ export const customerBookingSlice = createSlice({
   },
   extraReducers: (builder) => {
     builder
-      .addCase(getPeriods.pending, (state, action) => {
+      .addCase(getPeriodByDate.pending, (state, action) => {
         state.isLoading = true;
       })
-      .addCase(getPeriods.fulfilled, (state, action) => {
+      .addCase(getPeriodByDate.fulfilled, (state, action) => {
         state.availableBookings = action.payload.availableBookings;
         customerBookingSlice.caseReducers.setDate(state, {
           payload: state.availableBookings[0].date ?? initialState.choosedDate,
@@ -194,7 +198,7 @@ export const customerBookingSlice = createSlice({
       .addCase(postReservation.rejected, (state, action) => {
         state.isLoading = false;
       })
-      .addCase(getPeriods.rejected, (state) => {
+      .addCase(getPeriodByDate.rejected, (state) => {
         state.isLoading = false;
       })
       .addCase(getBookingRecord.pending, (state) => {

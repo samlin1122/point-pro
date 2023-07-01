@@ -4,7 +4,7 @@ import { Stack } from "@mui/material";
 import { FieldContainer } from "~/components/layout";
 import { DrawerBase } from "~/components/drawer";
 
-import { useAppDispatch } from "~/app/hook";
+import { useAppDispatch, useAppSelector } from "~/app/hook";
 import { getPeriodByDate } from "~/app/slices/period";
 import { patchReservationById, postReservation } from "~/app/slices/reservation";
 import { PeriodInfo } from "~/types";
@@ -20,6 +20,7 @@ import mainReducer, {
   convertToPatchPayload
 } from "./reducers/reservation-detail";
 import appDayjs, { formatTimeOnly } from "~/utils/dayjs.util";
+import { NotificationReservationMssage } from "~/app/slices/socket";
 
 interface ReservationDetail {
   open: boolean;
@@ -45,10 +46,43 @@ const ReservationDetail = ({ open, onClose, isCreate, date, info }: ReservationD
     }
   }, [open]);
 
+  // [TODO] Socket
+  const notifications = useAppSelector(({ socket }) => socket.notifications);
+  useEffect(() => {
+    if (open) {
+      if (notifications.length > 0 && notifications[0].message === NotificationReservationMssage.CREATE_RESERVATION) {
+        dispatchGetPeriodByDate();
+      }
+    }
+  }, [open, isCreate, notifications]);
+
   const dispatchGetPeriodByDate = async () => {
-    let { result } = await dispatch(getPeriodByDate(date?.toDate() ?? appDayjs().toDate())).unwrap();
-    let data = result[0].periods.filter((e: PeriodInfo) => appDayjs().isBefore(appDayjs(e.periodStartedAt)));
-    setPeriods(data);
+    let payload = {
+      date: appDayjs(date).isToday() ? date?.toDate() ?? appDayjs().toDate() : appDayjs(date).startOf("day"),
+      excludeTime: false,
+      isOnlineBooking: false
+    };
+    let { result } = await dispatch(getPeriodByDate(payload)).unwrap();
+    setPeriods(result?.[0]?.periods ?? []);
+  };
+
+  const amountList = () => {
+    let available = periods.find((e) => e.id === state.period?.value)?.available || 0;
+    return available > 10
+      ? [
+          { id: 1, title: 1 },
+          { id: 2, title: 2 },
+          { id: 3, title: 3 },
+          { id: 4, title: 4 },
+          { id: 7, title: 7 },
+          { id: 8, title: 8 },
+          { id: 9, title: 9 },
+          { id: 10, title: 10 }
+        ]
+      : Array.from({ length: periods.find((e) => e.id === state.period?.value)?.available ?? 0 }, (_, i) => ({
+          id: i + 1,
+          title: i + 1
+        }));
   };
 
   const fieldList = [
@@ -63,10 +97,7 @@ const ReservationDetail = ({ open, onClose, isCreate, date, info }: ReservationD
       id: "amount",
       label: "人數",
       type: "select",
-      list: Array.from({ length: periods.find((e) => e.id === state.period?.value)?.available ?? 1 }, (_, i) => ({
-        id: i + 1,
-        title: i + 1
-      })),
+      list: amountList(),
       disabled: !state.period?.value || !!info?.reservation?.id
     },
     {

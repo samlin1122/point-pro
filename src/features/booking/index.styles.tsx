@@ -63,7 +63,7 @@ import Loading from "~/components/loading";
 import { sendMail } from "~/app/slices/mailer";
 import { IBookingInfo } from "~/types";
 
-const genderObj = {
+export const genderObj = {
   0: "先生",
   1: "小姐",
   2: ""
@@ -120,7 +120,6 @@ export const PeopleAndTime = () => {
             onChange={handleChangeBookingDate}
             views={["day"]}
             disablePast
-            maxDate={appDayjs().add(30, "day")}
             shouldDisableDate={(day) => {
               const currentDate = day.toDate().toLocaleDateString("zh-tw");
 
@@ -178,12 +177,13 @@ export const PeopleAndTime = () => {
           ))}
         </Select>
       </FormControl>
-      <ButtonBase
+      {/* [TODO]: no api, temporarily hide */}
+      {/* <ButtonBase
         onClick={handleOpenBookingSearch}
         sx={{ textDecoration: "underline", fontWeight: 700, fontSize: "body1.fontSize", mt: "2rem" }}
       >
         我已經有預約了，查詢預訂資訊
-      </ButtonBase>
+      </ButtonBase> */}
     </>
   );
 };
@@ -248,7 +248,7 @@ export const BookerInfo = () => {
       </FormControl>
 
       <FormControl>
-        <RadioGroup row defaultValue={gender} onChange={handleChooseGender}>
+        <RadioGroup row value={gender} onChange={handleChooseGender}>
           <FormControlLabel value={0} control={<Radio />} label="先生" />
           <FormControlLabel value={1} control={<Radio />} label="小姐" />
           <FormControlLabel value={2} control={<Radio />} label="其他" />

@@ -1,16 +1,20 @@
-import { FC, useMemo, useState } from "react";
+import { FC, useEffect, useMemo, useState } from "react";
+
 import { Stack, Typography, styled, Button, Box, Divider } from "@mui/material";
-import appDayjs, { formatTimeOnly } from "~/utils/dayjs.util";
 import { DrawerBase } from "~/components/drawer";
 import TabsBase from "~/components/tabs";
 import theme from "~/theme";
-import { SeatDetailsPeriod, SeatDetails } from "~/types";
 import UnDraw from "~/assets/images/undraw_login.svg";
-import { reservationStatusConfig } from "./index.styles";
 import ReservationDetail from "./ReservationDetail";
-import { genderListStringArray } from "~/utils/constants";
+
+import { SeatDetailsPeriod, SeatDetails } from "~/types";
+import { genderListStringArray, seatStatusListObj } from "~/utils/constants";
+import appDayjs, { formatTimeOnly } from "~/utils/dayjs.util";
+
 import { useAppDispatch } from "~/app/hook";
 import { patchReservationById } from "~/app/slices/reservation";
+
+import { people } from "./reducers/reservation-detail";
 
 const enum SeatTab {
   CURRENT = "CURRENT",
@@ -22,6 +26,7 @@ type SeatDetailProps = {
   onClose: () => void;
   state: SeatDetails;
   update: () => void;
+  selectedPeriod: string | undefined;
 };
 
 type SeatProps = {
@@ -82,13 +87,16 @@ export const SeatStatusTabs: FC<SeatProps> = ({ seatTab, setSeatTab }) => {
 };
 
 export const SeatInfo: FC<ReservationProps> = ({ info }) => {
-  const config = [
+  const infoList = [
     { label: "訂位編號", value: info?.id.slice(0, 12) },
     {
       label: "姓名",
       value: info?.reservation?.options.name + genderListStringArray[info?.reservation?.options.gender]
     },
-    { label: "總人數", value: info?.reservation?.options.adults + info?.reservation?.options.children },
+    {
+      label: "總人數",
+      value: people(info?.reservation?.options)
+    },
     { label: "電話", value: info?.reservation?.options.phone },
     { label: "信箱", value: info?.reservation?.options.email },
     { label: "使用座位", value: info?.reservation?.seats.map((e) => e.seatNo).join(", ") }
@@ -97,7 +105,7 @@ export const SeatInfo: FC<ReservationProps> = ({ info }) => {
     <Stack height="inherit" gap={2} sx={{ px: 4, py: 2 }}>
       {info?.reservation ? (
         <>
-          {config.map((e) => (
+          {infoList.map((e) => (
             <Stack key={e.label} direction="row" justifyContent="space-between" alignItems="center">
               <Typography variant="body1" whiteSpace="nowrap">
                 {e.label}
@@ -120,9 +128,9 @@ export const SeatInfo: FC<ReservationProps> = ({ info }) => {
   );
 };
 
-export const SeatDetail: FC<SeatDetailProps> = ({ open, onClose, state, update }) => {
+export const SeatDetail: FC<SeatDetailProps> = ({ open, onClose, state, update, selectedPeriod }) => {
   const [seatTab, setSeatTab] = useState(SeatTab.CURRENT);
-  const [period, setPeriod] = useState<string>();
+  const [period, setPeriod] = useState<string | undefined>(selectedPeriod);
   const [editMode, setEditMode] = useState<string | undefined>();
   const dispatch = useAppDispatch();
 
@@ -130,13 +138,13 @@ export const SeatDetail: FC<SeatDetailProps> = ({ open, onClose, state, update }
     () =>
       state.periods.find((e) => {
         if (seatTab === SeatTab.CURRENT) {
-          return appDayjs().isAfter(e.startedAt) && appDayjs().isBefore(e.endedAt);
+          return appDayjs().isBetween(e.startedAt, e.endedAt);
         } else {
-          if (period) {
-            return e.id === period;
-          } else {
-            setPeriod(e.id);
+          if (e.id === period) {
+            // setPeriod(e.id);
             return true;
+          } else {
+            return false;
           }
         }
       }),
@@ -183,22 +191,26 @@ export const SeatDetail: FC<SeatDetailProps> = ({ open, onClose, state, update }
 
   const getButtonList = () => {
     return seatTab === SeatTab.CURRENT
-      ? info
+      ? info?.reservation
         ? [
             {
               label: "編輯",
               onClick: () => handleButtonClick("edit"),
-              disabled: info.status === "INUSE"
+              disabled: info.reservation.status === "IN_USE"
             },
-            { label: "客到開始使用", onClick: () => handleButtonClick("start") }
+            {
+              label: "客到開始使用",
+              onClick: () => handleButtonClick("start"),
+              disabled: info.reservation.status === "IN_USE"
+            }
           ]
-        : [{ label: "新增現場使用", onClick: () => handleButtonClick("create") }]
+        : [{ label: "新增預約", onClick: () => handleButtonClick("create") }]
       : info?.reservation
       ? [
           {
             label: "編輯",
             onClick: () => handleButtonClick("edit"),
-            disabled: appDayjs().isAfter(info.startedAt)
+            disabled: appDayjs().isAfter(info.reservation.startOfMeal)
           }
         ]
       : [
@@ -209,6 +221,7 @@ export const SeatDetail: FC<SeatDetailProps> = ({ open, onClose, state, update }
           }
         ];
   };
+  console.log({ info });
 
   return (
     <DrawerBase title="座位概況" open={open} onClose={onClose} buttonList={getButtonList()}>
@@ -225,17 +238,9 @@ export const SeatDetail: FC<SeatDetailProps> = ({ open, onClose, state, update }
           座況
         </Typography>
         <Typography variant="h4" sx={{ pr: 3 }}>
-          {reservationStatusConfig(info?.status as string).name}
+          {info ? seatStatusListObj[info.status as string].title : seatStatusListObj.AVAILABLE.title}
         </Typography>
       </Stack>
-      {/* <Stack direction="row" justifyContent="space-between" alignItems="center" sx={{ pt: 2 }}>
-        <Typography variant="h6" sx={{ pl: 3 }}>
-          最近的預約
-        </Typography>
-        <Typography variant="h4" sx={{ pr: 3 }}>
-          {formatFullDateWithTime(state.date)}
-        </Typography>
-      </Stack> */}
       <Divider sx={{ py: 1 }} />
 
       {/* tab */}
@@ -246,9 +251,7 @@ export const SeatDetail: FC<SeatDetailProps> = ({ open, onClose, state, update }
           {state.periods.map((e) => (
             <SelectTab
               key={e.id}
-              onClick={() => {
-                handlePeriodSelect(e.id);
-              }}
+              onClick={() => handlePeriodSelect(e.id)}
               className={e.id === period ? "Mui-selected" : appDayjs().isAfter(appDayjs(e.startedAt)) ? "disabled" : ""}
             >
               <Typography variant="body1" fontWeight={700}>

@@ -3,8 +3,6 @@ import { createSlice } from "@reduxjs/toolkit";
 import { PeriodApi } from "~/api";
 // Others
 import { createAppAsyncThunk } from "~/app/hook";
-import { DatePeriodInfo } from "~/types";
-import appDayjs from "~/utils/dayjs.util";
 
 const name = "period";
 
@@ -19,9 +17,10 @@ export const getPeriods = createAppAsyncThunk(`${name}/getPeriods`, async (paylo
     }
   }
 });
+
 export const getPeriodByDate = createAppAsyncThunk(
   `${name}/getPeriodByDate`,
-  async (payload: Date, { rejectWithValue }) => {
+  async (payload: any, { rejectWithValue }) => {
     try {
       return await PeriodApi.getPeriodByDate(payload);
     } catch (error) {

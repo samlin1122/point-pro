@@ -15,17 +15,20 @@ import {
 } from "./index.styles";
 // Others
 import { useAppDispatch, useAppSelector } from "~/app/hook";
-import { getPeriods } from "./slice";
+import { getPeriodByDate } from "./slice";
+import { NameSpace, useSocket } from "~/hooks/useSocket";
 
 const stepTitle = ["人數及時間", "訂位人資訊", "請確認輸入資訊"];
 
 const Booking = () => {
   const dispatch = useAppDispatch();
 
+  useSocket({ ns: NameSpace.main });
+
   const step = useAppSelector(({ customerReservation }) => customerReservation.step);
 
   useEffect(() => {
-    dispatch(getPeriods());
+    dispatch(getPeriodByDate());
   }, []);
 
   return (
