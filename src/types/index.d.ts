@@ -10,6 +10,7 @@ import {
   SpecialtyType,
   SeatStatus
 } from "./common";
+import appDayjs from "~/utils/dayjs.util";
 
 export type IBasicKey = Record<"id" | "title", string>;
 
@@ -101,7 +102,7 @@ export interface MealDetail {
 
 export interface IBookingInfo {
   id: string;
-  reservedAt: Timestamp;
+  reservedAt: string;
   name: string;
   gender: Gender;
   type: BookingType;
@@ -113,10 +114,9 @@ export interface IBookingInfo {
 }
 
 export interface IAvailableBookingPeriod {
-  startedAt: Timestamp;
-  endAt: Timestamp;
-  bookedAmount: number;
-  peopleAmount: number;
+  periodStartedAt: any;
+  periodEndedAt: any;
+  available: number;
 }
 
 export interface IAvailableBooking {
@@ -133,9 +133,9 @@ export interface ICreateBookingParams {
 export interface ICustomerBookingSliceState {
   step: number;
   token?: string;
-  availableBookings: IAvailableBooking[];
-  choosedDate: Timestamp;
-  availablePeriod: IAvailableBookingPeriod[];
+  availableBookings: string[];
+  choosedDate: appDayjs.Dayjs;
+  availablePeriods: IAvailableBookingPeriod[];
   reservationParams: ICreateBookingParams;
   reservationPhone: string;
   dialog: CustomerBookingDialog;

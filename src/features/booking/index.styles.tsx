@@ -61,7 +61,7 @@ import { QRCodeSVG } from "qrcode.react";
 import { emailRegex, phoneRegex } from "~/utils/regex.utils";
 import Loading from "~/components/loading";
 import { sendMail } from "~/app/slices/mailer";
-import { IBookingInfo } from "~/types";
+import { getPeriodByDate } from "./slice";
 
 export const genderObj = {
   0: "先生",
@@ -73,36 +73,37 @@ export const PeopleAndTime = () => {
   const dispatch = useAppDispatch();
 
   const availableBookings = useAppSelector(({ customerReservation }) => customerReservation.availableBookings);
-  const availablePeriod = useAppSelector(({ customerReservation }) => customerReservation.availablePeriod);
+  const availablePeriods = useAppSelector(({ customerReservation }) => customerReservation.availablePeriods);
   const choosedDate = useAppSelector(({ customerReservation }) => customerReservation.choosedDate);
   const reservedAt = useAppSelector(({ customerReservation }) => customerReservation.reservationParams.reservedAt);
   const adults = useAppSelector(({ customerReservation }) => customerReservation.reservationParams.user.adults);
 
   const isLoading = useAppSelector(({ customerReservation }) => customerReservation.isLoading);
 
-  const availableDateStrings = availableBookings.map(
-    (availableBooking) => new Date(availableBooking.date).toLocaleString("zh-tw").split(" ")[0]
-  );
-  const choosedPeriodInfo = availablePeriod.find((availablePeriod) => availablePeriod.startedAt === reservedAt);
+  const choosedPeriodInfo = availablePeriods.find((e) => e.periodStartedAt === reservedAt);
   const adultOptionList =
-    choosedPeriodInfo?.peopleAmount && choosedPeriodInfo?.peopleAmount > 10
+    choosedPeriodInfo && choosedPeriodInfo.available > 10
       ? [1, 2, 3, 4, 7, 8, 9, 10]
-      : Array.from({ length: choosedPeriodInfo?.peopleAmount ?? 1 }, (_, i) => i + 1);
+      : Array.from({ length: choosedPeriodInfo?.available ?? 0 }, (_, i) => i + 1);
 
-  const handleOpenBookingSearch = () => {
-    dispatch(setDialog(CustomerBookingDialog.RECORD_QUERY));
-  };
+  useEffect(() => {
+    dispatch(getPeriodByDate());
+  }, [choosedDate]);
+
+  // const handleOpenBookingSearch = () => {
+  //   dispatch(setDialog(CustomerBookingDialog.RECORD_QUERY));
+  // };
 
   const handleChangeAdultsAmount = (e: SelectChangeEvent<`${number}`>) => {
     dispatch(setAdultsAmount(+e.target.value));
   };
 
   const handleChangeBookingDate = (value: appDayjs.Dayjs | null) => {
-    dispatch(setDate(value?.startOf("day").valueOf() ?? appDayjs().startOf("day").valueOf()));
+    dispatch(setDate(value ?? appDayjs()));
   };
 
-  const handleChangeReservedPeriod = (e: SelectChangeEvent<`${number}`>) => {
-    dispatch(setReservedAt(+e.target.value));
+  const handleChangeReservedPeriod = (e: SelectChangeEvent<any>) => {
+    dispatch(setReservedAt(e.target.value));
   };
 
   if (isLoading) {
@@ -115,16 +116,13 @@ export const PeopleAndTime = () => {
         <FormLabel sx={{ fontWeight: 700, color: "common.black" }}>用餐日期</FormLabel>
         <LocalizationProvider dateAdapter={AdapterDayjs}>
           <DatePicker
-            defaultValue={appDayjs(choosedDate)}
+            defaultValue={appDayjs().add(2, "day")}
+            value={appDayjs(choosedDate)}
             format="MM月DD日 星期dd"
             onChange={handleChangeBookingDate}
             views={["day"]}
             disablePast
-            shouldDisableDate={(day) => {
-              const currentDate = day.toDate().toLocaleDateString("zh-tw");
-
-              return !availableDateStrings.includes(currentDate);
-            }}
+            shouldDisableDate={(day) => !availableBookings.includes(formatDateOnly(day))}
             slots={{
               actionBar: (props: PickersActionBarProps) => (
                 <DialogActions className={props.className} sx={{ padding: ".5rem" }}>
@@ -158,10 +156,9 @@ export const PeopleAndTime = () => {
       <FormControl margin="normal" fullWidth>
         <FormLabel sx={{ fontWeight: 700, color: "common.black" }}>用餐時段</FormLabel>
         <Select onChange={handleChangeReservedPeriod} value={`${reservedAt}`}>
-          {!reservedAt && <MenuItem value="0"></MenuItem>}
-          {availablePeriod.map((option) => (
-            <MenuItem value={`${option.startedAt}`} key={option.startedAt}>
-              {formatTimeOnly(option.startedAt)}
+          {availablePeriods.map((option) => (
+            <MenuItem value={`${option.periodStartedAt}`} key={option.periodStartedAt}>
+              {formatTimeOnly(option.periodStartedAt)}
             </MenuItem>
           ))}
         </Select>

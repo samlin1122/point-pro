@@ -8,7 +8,7 @@ import { useAppDispatch } from "~/app/hook";
 import { getSeatById, getSeats } from "~/app/slices/seat";
 import { getPeriodByDate } from "~/app/slices/period";
 import { PeriodInfo, SeatInfo, SeatDetails } from "~/types";
-import appDayjs from "~/utils/dayjs.util";
+import appDayjs, { convertToDatePayload } from "~/utils/dayjs.util";
 import { SeatDetail } from "~/features/admin/seat/tab/SeatDetail";
 import { SeatsPayload } from "~/types/api";
 
@@ -56,7 +56,7 @@ export const TabTable: FC<TabTablePros> = ({ date }) => {
   };
 
   const dispatchGetSeats = async (periodId?: string) => {
-    let payload: SeatsPayload = { date: date.toDate() ?? appDayjs().toDate() };
+    let payload: SeatsPayload = { date: convertToDatePayload(date) };
     if (periodId) {
       payload.periodId = periodId;
     }
@@ -65,7 +65,7 @@ export const TabTable: FC<TabTablePros> = ({ date }) => {
   };
 
   const dispatchGetPeriodByDate = async () => {
-    let { result } = await dispatch(getPeriodByDate({ date: date.toDate() })).unwrap();
+    let { result } = await dispatch(getPeriodByDate({ date: convertToDatePayload(date) })).unwrap();
     let payload = result[0].periods.filter((e: PeriodInfo) => appDayjs().isBefore(e.periodEndedAt));
     setPeriods(payload);
     if (date.isToday()) {

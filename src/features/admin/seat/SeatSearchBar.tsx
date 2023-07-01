@@ -29,8 +29,8 @@ const SeatSearchBar = ({ view, date, handleDateChange, handleSearchChange }: ISe
 
   const diaptchGetPeriods = async () => {
     let { result } = await dispatch(getPeriods()).unwrap();
-    let availableDay = [...new Set(result.map((item: any) => formatDateOnly(item.periodStartedAt)))];
-    setPeriods(availableDay as string[]);
+    let availableDays = [...new Set(result.map((item: any) => formatDateOnly(item.periodStartedAt)))];
+    setPeriods(availableDays as string[]);
   };
 
   const handleCloseDrawer = () => {

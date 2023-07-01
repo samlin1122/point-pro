@@ -19,7 +19,7 @@ import mainReducer, {
   convertToCreatePayload,
   convertToPatchPayload
 } from "./reducers/reservation-detail";
-import appDayjs, { formatTimeOnly } from "~/utils/dayjs.util";
+import appDayjs, { convertToDatePayload, formatTimeOnly } from "~/utils/dayjs.util";
 import { NotificationReservationMssage } from "~/app/slices/socket";
 
 interface ReservationDetail {
@@ -58,7 +58,7 @@ const ReservationDetail = ({ open, onClose, isCreate, date, info }: ReservationD
 
   const dispatchGetPeriodByDate = async () => {
     let payload = {
-      date: appDayjs(date).isToday() ? date?.toDate() ?? appDayjs().toDate() : appDayjs(date).startOf("day"),
+      date: convertToDatePayload(date),
       excludeTime: false,
       isOnlineBooking: false
     };
