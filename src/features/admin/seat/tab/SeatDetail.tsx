@@ -1,4 +1,4 @@
-import { FC, useMemo, useState } from "react";
+import { FC, useEffect, useMemo, useState } from "react";
 
 import { Stack, Typography, styled, Button, Box, Divider } from "@mui/material";
 import { DrawerBase } from "~/components/drawer";
@@ -26,6 +26,7 @@ type SeatDetailProps = {
   onClose: () => void;
   state: SeatDetails;
   update: () => void;
+  selectedPeriod: string | undefined;
 };
 
 type SeatProps = {
@@ -127,9 +128,9 @@ export const SeatInfo: FC<ReservationProps> = ({ info }) => {
   );
 };
 
-export const SeatDetail: FC<SeatDetailProps> = ({ open, onClose, state, update }) => {
+export const SeatDetail: FC<SeatDetailProps> = ({ open, onClose, state, update, selectedPeriod }) => {
   const [seatTab, setSeatTab] = useState(SeatTab.CURRENT);
-  const [period, setPeriod] = useState<string>();
+  const [period, setPeriod] = useState<string | undefined>(selectedPeriod);
   const [editMode, setEditMode] = useState<string | undefined>();
   const dispatch = useAppDispatch();
 
@@ -139,11 +140,11 @@ export const SeatDetail: FC<SeatDetailProps> = ({ open, onClose, state, update }
         if (seatTab === SeatTab.CURRENT) {
           return appDayjs().isBetween(e.startedAt, e.endedAt);
         } else {
-          if (period) {
-            return e.id === period;
-          } else {
-            setPeriod(e.id);
+          if (e.id === period) {
+            // setPeriod(e.id);
             return true;
+          } else {
+            return false;
           }
         }
       }),
@@ -190,14 +191,18 @@ export const SeatDetail: FC<SeatDetailProps> = ({ open, onClose, state, update }
 
   const getButtonList = () => {
     return seatTab === SeatTab.CURRENT
-      ? info
+      ? info?.reservation
         ? [
             {
               label: "編輯",
               onClick: () => handleButtonClick("edit"),
-              disabled: info.status === "INUSE"
+              disabled: info.reservation.status === "IN_USE"
             },
-            { label: "客到開始使用", onClick: () => handleButtonClick("start"), disabled: info.status === "INUSE" }
+            {
+              label: "客到開始使用",
+              onClick: () => handleButtonClick("start"),
+              disabled: info.reservation.status === "IN_USE"
+            }
           ]
         : [{ label: "新增預約", onClick: () => handleButtonClick("create") }]
       : info?.reservation
@@ -205,7 +210,7 @@ export const SeatDetail: FC<SeatDetailProps> = ({ open, onClose, state, update }
           {
             label: "編輯",
             onClick: () => handleButtonClick("edit"),
-            disabled: appDayjs().isAfter(info.startedAt)
+            disabled: appDayjs().isAfter(info.reservation.startOfMeal)
           }
         ]
       : [
@@ -216,6 +221,7 @@ export const SeatDetail: FC<SeatDetailProps> = ({ open, onClose, state, update }
           }
         ];
   };
+  console.log({ info });
 
   return (
     <DrawerBase title="座位概況" open={open} onClose={onClose} buttonList={getButtonList()}>

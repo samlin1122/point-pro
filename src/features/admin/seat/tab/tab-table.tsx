@@ -132,6 +132,7 @@ export const TabTable: FC<TabTablePros> = ({ date }) => {
           onClose={handleSeatDetailClose}
           state={seatDteail}
           update={dispatchGetSeatById}
+          selectedPeriod={selectedPeriod}
         />
       )}
     </Stack>
