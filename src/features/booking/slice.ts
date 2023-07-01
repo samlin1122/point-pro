@@ -2,12 +2,11 @@
 import { createSlice, PayloadAction } from "@reduxjs/toolkit";
 
 // Others
-import appDayjs from "~/utils/dayjs.util";
+import appDayjs, { formatDateOnly, convertToDatePayload } from "~/utils/dayjs.util";
 import { createAppAsyncThunk } from "~/app/hook";
-import { IAvailableBooking, IBookingInfo, ICustomerBookingSliceState } from "~/types";
+import { IBookingInfo, ICustomerBookingSliceState } from "~/types";
 import { BookingType, CustomerBookingDialog, Gender } from "~/types/common";
 import { ReservationApi, PeriodApi } from "~/api";
-import { DatePeriodInfo, PeriodInfo } from "~/types";
 import { SocketTopic } from "~/app/slices/socket";
 
 const name = "customerReservation";
@@ -15,11 +14,11 @@ const initialState: ICustomerBookingSliceState = {
   step: 0,
   availableBookings: [],
   token: "",
-  choosedDate: appDayjs().startOf("day").valueOf(),
-  availablePeriod: [],
+  choosedDate: appDayjs(),
+  availablePeriods: [],
   reservationParams: {
     id: "",
-    reservedAt: 0,
+    reservedAt: "",
     user: {
       name: "",
       gender: Gender.other,
@@ -37,23 +36,11 @@ const initialState: ICustomerBookingSliceState = {
   isLoading: false
 };
 
-export const getPeriodByDate = createAppAsyncThunk(`${name}/getPeriodByDate`, async (arg, { rejectWithValue }) => {
+export const getPeriods = createAppAsyncThunk(`${name}/getPeriods`, async (arg, { rejectWithValue }) => {
   try {
-    const periodsResp = await PeriodApi.getPeriodByDate({ excludeTime: false });
-    const periodInfos = periodsResp.result;
-    const availableBookings: IAvailableBooking[] = periodInfos.map((info: DatePeriodInfo) => {
-      return {
-        date: new Date(info.date).valueOf(),
-        availablePeriods: info.periods.map((period: PeriodInfo) => ({
-          startedAt: new Date(period.periodStartedAt).valueOf(),
-          endedAt: appDayjs(period.periodStartedAt).add(2, "hour").toDate().valueOf(),
-          bookedAmount: period.amount - period.available,
-          peopleAmount: period.available
-        }))
-      };
-    });
-
-    return { availableBookings: availableBookings.sort((a, b) => a.date - b.date) };
+    const { result } = await PeriodApi.getPeriods();
+    const availableBookings = [...new Set(result.map((item: any) => formatDateOnly(item.periodStartedAt)))] as string[];
+    return { availableBookings };
   } catch (error) {
     if (error instanceof Error) {
       return rejectWithValue({ message: error.message });
@@ -62,6 +49,27 @@ export const getPeriodByDate = createAppAsyncThunk(`${name}/getPeriodByDate`, as
     }
   }
 });
+
+export const getPeriodByDate = createAppAsyncThunk(
+  `${name}/getPeriodByDate`,
+  async (arg, { getState, rejectWithValue }) => {
+    try {
+      const choosedDate = getState().customerReservation.choosedDate;
+      const { result } = await PeriodApi.getPeriodByDate({
+        date: convertToDatePayload(choosedDate),
+        excludeTime: false
+      });
+      const availablePeriods = result[0]?.periods ?? [];
+      return { availablePeriods };
+    } catch (error) {
+      if (error instanceof Error) {
+        return rejectWithValue({ message: error.message });
+      } else {
+        return rejectWithValue({ message: "unknown error" });
+      }
+    }
+  }
+);
 
 export const postReservation = createAppAsyncThunk(
   `${name}/postReservation`,
@@ -122,19 +130,8 @@ export const customerBookingSlice = createSlice({
     },
     setDate: (state, action: PayloadAction<ICustomerBookingSliceState["choosedDate"]>) => {
       state.choosedDate = action.payload;
-
-      const availableBooking = state.availableBookings.find(
-        (availableBooking) =>
-          appDayjs(availableBooking.date).startOf("date").valueOf() ===
-          appDayjs(action.payload).startOf("date").valueOf()
-      );
-
-      state.availablePeriod =
-        (availableBooking?.availablePeriods &&
-          availableBooking?.availablePeriods.filter((availablePeriod) => availablePeriod.peopleAmount > 0)) ??
-        [];
       state.reservationParams.reservedAt =
-        state.availablePeriod[0]?.startedAt ?? initialState.reservationParams.reservedAt;
+        state.availablePeriods[0]?.periodStartedAt ?? initialState.reservationParams.reservedAt;
       state.reservationParams.user.adults = initialState.reservationParams.user.adults;
     },
     setReservedAt: (state, action: PayloadAction<IBookingInfo["reservedAt"]>) => {
@@ -174,15 +171,18 @@ export const customerBookingSlice = createSlice({
   },
   extraReducers: (builder) => {
     builder
+      .addCase(getPeriods.pending, (state, action) => {
+        state.isLoading = true;
+      })
+      .addCase(getPeriods.fulfilled, (state, action) => {
+        state.availableBookings = action.payload.availableBookings;
+        state.isLoading = false;
+      })
       .addCase(getPeriodByDate.pending, (state, action) => {
         state.isLoading = true;
       })
       .addCase(getPeriodByDate.fulfilled, (state, action) => {
-        state.availableBookings = action.payload.availableBookings;
-        customerBookingSlice.caseReducers.setDate(state, {
-          payload: state.availableBookings[0].date ?? initialState.choosedDate,
-          type: ""
-        });
+        state.availablePeriods = action.payload.availablePeriods;
         state.isLoading = false;
       })
       .addCase(postReservation.fulfilled, (state, action) => {
@@ -196,6 +196,9 @@ export const customerBookingSlice = createSlice({
         state.isLoading = true;
       })
       .addCase(postReservation.rejected, (state, action) => {
+        state.isLoading = false;
+      })
+      .addCase(getPeriods.rejected, (state) => {
         state.isLoading = false;
       })
       .addCase(getPeriodByDate.rejected, (state) => {

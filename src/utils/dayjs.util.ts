@@ -34,7 +34,9 @@ export const dateForm = {
   dateWithTime: "MM/DD HH:mm",
   dateOnly: "MM/DD",
   yearOnly: "YYYY",
-  timeOnly: "HH:mm"
+  timeOnly: "HH:mm",
+  fullDatePayload: "YYYY-MM-DDT00:00:00",
+  fullDateWithTimePayload: "YYYY-MM-DDTHH:mm:ss"
 };
 
 export const formatFullDateWithTime = (date: any) => {
@@ -53,4 +55,10 @@ export const percentOfUsed = (start: any, end: any) => {
   let startAt = appDayjs(start),
     endAt = appDayjs(end);
   return start && end ? `${Math.round((startAt.diff() / startAt.diff(endAt)) * 100)}%` : "";
+};
+export const convertToDatePayload = (date: any) => {
+  let payload = date ?? appDayjs();
+  return appDayjs(payload).isToday()
+    ? appDayjs(payload).format(dateForm.fullDateWithTimePayload)
+    : appDayjs(payload).format(dateForm.fullDatePayload);
 };

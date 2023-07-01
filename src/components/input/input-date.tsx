@@ -8,7 +8,6 @@ export default function InputDate(props: DatePickerProps<appDayjs.Dayjs>) {
   return (
     <LocalizationProvider dateAdapter={AdapterDayjs}>
       <DatePicker
-        disablePast
         defaultValue={appDayjs()}
         slots={{
           actionBar: (props: PickersActionBarProps) => (
