@@ -1,5 +1,5 @@
 // Libs
-import { useEffect } from "react";
+import { useEffect, useRef } from "react";
 import { useNavigate, useSearchParams } from "react-router-dom";
 import { Box, Button, List, ListItem, Typography } from "@mui/material";
 // Components
@@ -16,6 +16,8 @@ import { getUserInfo } from "~/app/slices/auth";
 import { getToken } from "~/utils/token.utils";
 import { patchReservationById } from "~/app/slices/reservation";
 import appDayjs from "~/utils/dayjs.util";
+import { getOrders } from "~/app/slices/order";
+import { NotificationsOrderMessage, SocketTopic } from "~/app/slices/socket";
 
 export const PaymentReturnContainer = () => {
   const [searchParams] = useSearchParams();
@@ -23,6 +25,10 @@ export const PaymentReturnContainer = () => {
   const linePayConfirmResponse = useAppSelector(({ payment }) => payment.linePayConfirmResponse);
   const ecPayConfirmResponse = useAppSelector(({ payment }) => payment.ecPayConfirmResponse);
   const userRole = useAppSelector(({ auth }) => auth.userRole);
+
+  const socket = useAppSelector(({ socket }) => socket.socket);
+  const socketRef = useRef(socket);
+  socketRef.current = socket;
 
   const transactionId = searchParams.get("transactionId");
   const orderId = searchParams.get("orderId");
@@ -34,17 +40,36 @@ export const PaymentReturnContainer = () => {
     userRole?.role === "USER" ? navigate(`/booking`) : navigate("/admin/orders");
   };
 
+  const updateSocketOrder = () => {
+    setTimeout(async () => {
+      if (socketRef.current) {
+        const { orders } = await dispatch(getOrders({})).unwrap();
+        socketRef.current.emit(SocketTopic.ORDER, {
+          notiType: SocketTopic.ORDER,
+          message: NotificationsOrderMessage.PAY_ORDER,
+          result: orders[0]
+        });
+      } else {
+        updateSocketOrder();
+      }
+    }, 1000);
+  };
+
   useEffect(() => {
     const handleConfirmLinePay = async () => {
       if (transactionId && orderId) {
         await dispatch(confirmLinePay({ transactionId, orderId }));
+        updateSocketOrder();
       }
     };
+
     const handleConfirmEcPay = async () => {
       if (transactionId && orderId) {
         await dispatch(confirmEcPay({ transactionId, orderId }));
+        updateSocketOrder();
       }
     };
+
     const handleGetUserInfo = async () => {
       await dispatch(getUserInfo());
     };
