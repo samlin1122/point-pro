@@ -105,7 +105,7 @@ export const SeatInfo: FC<ReservationProps> = ({ info }) => {
     { label: "使用座位", value: info?.reservation?.seats.map((e) => e.seatNo).join(", ") }
   ];
   return (
-    <Stack height="inherit" gap={2} sx={{ px: 4, py: 2 }}>
+    <Stack height="inherit" gap={2} sx={{ px: 4, pb: 2 }}>
       {info?.reservation ? (
         <>
           {infoList.map((e) => (
@@ -122,9 +122,7 @@ export const SeatInfo: FC<ReservationProps> = ({ info }) => {
       ) : (
         <Stack alignItems="center" justifyContent="center" height="100%">
           <Box component="img" src={UnDraw} width={200} height={120} />
-          <Typography variant="h6" sx={{ pr: 2 }}>
-            等待客人上門中
-          </Typography>
+          <Typography variant="h6">等待客人上門中</Typography>
         </Stack>
       )}
     </Stack>
@@ -252,7 +250,14 @@ export const SeatDetail: FC<SeatDetailProps> = ({ open, onClose, state, update, 
       <SeatStatusTabs seatTab={seatTab} setSeatTab={setSeatTab} />
       {/* period seletor */}
       {seatTab === SeatTab.TODAY ? (
-        <Stack direction="row" alignItems="center" gap={2} px={3} pt={2}>
+        <Stack
+          direction="row"
+          alignItems="center"
+          gap={2}
+          px={3}
+          py={2}
+          sx={{ overflowY: "auto", height: "inherit", maxHeight: "77px" }}
+        >
           {state.periods.map((e) => (
             <SelectTab
               key={e.id}

@@ -31,8 +31,7 @@ export const PaymentReturnContainer = () => {
   const navigate = useNavigate();
 
   const handleReturnMeal = () => {
-    const token = getToken();
-    userRole?.role === "USER" ? navigate(`/orders?token=${token}`) : navigate("/admin/orders");
+    userRole?.role === "USER" ? navigate(`/booking`) : navigate("/admin/orders");
   };
 
   useEffect(() => {
@@ -74,7 +73,7 @@ export const PaymentReturnContainer = () => {
         ))}
 
       <Button variant="contained" color="primary" onClick={handleReturnMeal}>
-        {userRole?.role === "USER" ? "返回繼續點餐" : "返回訂單頁面"}
+        {userRole?.role === "USER" ? "預定下次用餐" : "返回訂單頁面"}
       </Button>
     </Column>
   );
@@ -246,8 +245,6 @@ const PaymentReturnData = (props: { message: string; result: LinePayConfirmPaylo
 };
 
 export const PaymentCancel = () => {
-  const [searchParams] = useSearchParams();
-
   const navigate = useNavigate();
   const userRole = useAppSelector(({ auth }) => auth.userRole);
 
