@@ -15,6 +15,9 @@ import { useAppDispatch } from "~/app/hook";
 import { patchReservationById } from "~/app/slices/reservation";
 
 import { people } from "./reducers/reservation-detail";
+import { setDialog } from "~/features/booking/slice";
+import { CustomerBookingDialog } from "~/types/common";
+import { getUserTokenByReservationLogId } from "~/app/slices/auth";
 
 const enum SeatTab {
   CURRENT = "CURRENT",
@@ -166,6 +169,8 @@ export const SeatDetail: FC<SeatDetailProps> = ({ open, onClose, state, update, 
               payload: { startOfMeal: appDayjs().toDate() }
             })
           );
+          await dispatch(getUserTokenByReservationLogId({ reservationLogId: info?.reservation?.id as string }));
+          dispatch(setDialog(CustomerBookingDialog.QRCODE));
           update();
         } catch (error) {
           console.log({ error });

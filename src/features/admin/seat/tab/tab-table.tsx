@@ -51,7 +51,9 @@ export const TabTable: FC<TabTablePros> = ({ date }) => {
   }, [selectedSeat]);
 
   const dispatchGetSeatById = async () => {
-    let { result } = await dispatch(getSeatById({ seatId: selectedSeat as string, date: date.toDate() })).unwrap();
+    let { result } = await dispatch(
+      getSeatById({ seatId: selectedSeat as string, date: convertToDatePayload(date) })
+    ).unwrap();
     setSeatDetail(result);
   };
 

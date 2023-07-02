@@ -1,4 +1,4 @@
-import { ChangeEvent, FC, useState } from "react";
+import { ChangeEvent, FC, useEffect, useState } from "react";
 import { Box, Container, Grid, Typography } from "@mui/material";
 import ArrowForwardIcon from "@mui/icons-material/ArrowForward";
 import { useDeviceType } from "./slice";
@@ -24,8 +24,7 @@ const SubscribeSectionDialog = (props: SubscribeSectionDialogProps) => {
   const { open, handleClose, children, email } = props;
   const dispatch = useAppDispatch();
 
-  const handleCloseModal = (val: boolean, email: string) => {
-    handleClose(val);
+  const handleCloseModal = async (val: boolean) => {
     const html = `
     <h1>親愛的客戶，您好</h1>
     <p>感謝您訂閱「PointPro」的電子報！我們非常高興能夠與您建立聯繫並分享最新的產品和行業資訊。在這封信中，我們想向您介紹一些我們的服務以及您可以期待的好處。</p>
@@ -48,11 +47,13 @@ const SubscribeSectionDialog = (props: SubscribeSectionDialogProps) => {
       subject: "歡迎訂閱「PointPro」電子報！",
       html
     };
-    dispatch(sendMail(request));
+    console.log(request);
+    await dispatch(sendMail(request));
+    handleClose(val);
   };
 
   return (
-    <ModalBase open={open} onClose={() => handleCloseModal(false, email)}>
+    <ModalBase open={open} onClose={() => handleCloseModal(true)}>
       <Box
         sx={{
           display: "flex",
@@ -71,7 +72,7 @@ const SubscribeSectionDialog = (props: SubscribeSectionDialogProps) => {
         }}
       >
         {children}
-        <ButtonBase variant={"contained"} color={"primary"} fullWidth onClick={() => handleCloseModal(false, email)}>
+        <ButtonBase variant={"contained"} color={"primary"} fullWidth onClick={() => handleCloseModal(true)}>
           確認
         </ButtonBase>
       </Box>
@@ -104,15 +105,21 @@ const SubscribedSection: FC = () => {
     if (email.length === 0) setIsFocused(false);
   };
   const handleButtonClick = () => {
+    handleEmailAddressLocalStore(email);
     setOpen(true);
-    setEmail("");
+  };
+
+  const handleCloseModal = (val: boolean) => {
+    val && setOpen(false);
+    val && setEmail("");
+    val && setErrorMessages("");
   };
 
   const handleInputChange = (e: ChangeEvent<HTMLInputElement>) => {
     const emailRegex = /^[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,}$/i;
-    handleEmailAddressLocalStore(e.target.value);
     if (e.target.value.length > 0) {
       setIsFocused(true);
+      setEmail(e.target.value);
       if (emailRegex.test(email)) {
         setButtonDisabled(false);
         setErrorMessages("");
@@ -184,7 +191,7 @@ const SubscribedSection: FC = () => {
             </Grid>
           </Box>
         </SubscribeSectionStyledCard>
-        <SubscribeSectionDialog open={open} handleClose={setOpen} email={email}>
+        <SubscribeSectionDialog open={open} handleClose={handleCloseModal} email={email}>
           <Box p={3}>
             <Typography variant={"h4"} component={"h2"} fontWeight={"900"} mb={3}>
               感謝您的訂閱
@@ -200,5 +207,3 @@ const SubscribedSection: FC = () => {
 };
 
 export default SubscribedSection;
-
-

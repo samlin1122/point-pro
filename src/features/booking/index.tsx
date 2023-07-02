@@ -5,7 +5,6 @@ import { Box, Typography } from "@mui/material";
 import { Header } from "../orders/index.styles";
 import {
   BookerInfo,
-  BookingQRCodeModal,
   BookingRecordQueryModal,
   BookingReminderModal,
   BookingStep,
@@ -53,7 +52,7 @@ const Booking = () => {
       {/* 已為您安排訂位 */}
       <BookingReminderModal />
       {/* 請出示此畫面 QR Code */}
-      <BookingQRCodeModal />
+      {/* <BookingQRCodeModal /> */}
     </>
   );
 };

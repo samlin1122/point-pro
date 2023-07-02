@@ -24,8 +24,6 @@ import EventIcon from "@mui/icons-material/Event";
 import AccessibilityIcon from "@mui/icons-material/Accessibility";
 import PhoneIphoneIcon from "@mui/icons-material/PhoneIphone";
 import EmailIcon from "@mui/icons-material/Email";
-import QrCodeIcon from "@mui/icons-material/QrCode";
-import LocalPhoneIcon from "@mui/icons-material/LocalPhone";
 import DirectionsIcon from "@mui/icons-material/Directions";
 import InfoIcon from "@mui/icons-material/Info";
 import StickyNote2Icon from "@mui/icons-material/StickyNote2";
@@ -57,7 +55,6 @@ import {
   postReservation,
   resetUserInfo
 } from "./slice";
-import { QRCodeSVG } from "qrcode.react";
 import { emailRegex, phoneRegex } from "~/utils/regex.utils";
 import Loading from "~/components/loading";
 import { sendMail } from "~/app/slices/mailer";
@@ -344,13 +341,13 @@ export const ConfirmBookingInfo = (props: IConfirmBookingInfoProps) => {
 
   const handleSendMailBookingReminder = async () => {
     const html = `<h1>港都熱炒</h1>
-    <h2>親愛的 ${name} ${gender !== 2 && (gender === 0 ? "先生" : gender === 1 ? "小姐" : null)}</h2>
+    <h2>親愛的 ${name} ${gender === 0 ? "先生" : gender === 1 ? "小姐" : ""}</h2>
     <p>您的訂位已經成功囉, 感謝您選擇港都熱炒！</p>
     <p>我們會竭誠為您提供美味佳餚和貼心的服務。請留意並保存以下資訊，並準時到達。 如需更改或取消，提前聯繫我們。</p>
     <p>期待您的光臨用餐</p>
     <h3>訂位資訊</h3>
     <ul>
-    <li>姓名: ${name} ${gender === 0 ? "先生" : gender === 1 ? "小姐" : null}</li>
+    <li>姓名: ${name} ${gender === 0 ? "先生" : gender === 1 ? "小姐" : ""}</li>
     <li>電子信箱: ${email}</li>
     <li>手機號碼: ${phone}</li>
     <li>備註: ${remark}</li>
@@ -368,7 +365,6 @@ export const ConfirmBookingInfo = (props: IConfirmBookingInfoProps) => {
   };
 
   useEffect(() => {
-    console.log("isReminder", isReminder);
     isReminder && handleSendMailBookingReminder();
   }, [name, gender, phone, email, remark, adults]);
 
@@ -643,15 +639,16 @@ export const BookingReminderModal = () => {
     dispatch(setDialog(""));
   };
 
-  const handleQRCode = () => {
-    dispatch(setDialog(CustomerBookingDialog.QRCODE));
-  };
+  // [TODO]: temprarily remove
+  // const handleQRCode = () => {
+  //   dispatch(setDialog(CustomerBookingDialog.QRCODE));
+  // };
 
-  const handlePhoneCall = () => {
-    const link = document.createElement("a");
-    link.setAttribute("href", "tel:+886-988376229");
-    link.click();
-  };
+  // const handlePhoneCall = () => {
+  //   const link = document.createElement("a");
+  //   link.setAttribute("href", "tel:+886-988376229");
+  //   link.click();
+  // };
 
   if (isLoading) {
     return <Loading open={true} />;
@@ -691,7 +688,8 @@ export const BookingReminderModal = () => {
         </Typography>
         <br />
         <ConfirmBookingInfo isReminder />
-        <Box
+        {/* [TODO]: temprarily remove */}
+        {/* <Box
           sx={{
             display: "flex",
             justifyContent: "center",
@@ -702,7 +700,7 @@ export const BookingReminderModal = () => {
         >
           <ActionIcon icon={<QrCodeIcon />} title="QR Code" onClick={handleQRCode} />
           <ActionIcon icon={<LocalPhoneIcon />} title="撥打電話" onClick={handlePhoneCall} />
-        </Box>
+        </Box> */}
         <ConfirmBookingTextField label="位置" value="台北市中山區民生東路一段52號" icon={<DirectionsIcon />} />
         <ConfirmBookingTextField
           label="溫馨提醒"
@@ -717,50 +715,6 @@ export const BookingReminderModal = () => {
           All Rights Reserved
         </Typography>
       </Box>
-    </MobileDialogLayout>
-  );
-};
-
-export const BookingQRCodeModal = () => {
-  const dispatch = useAppDispatch();
-
-  const dialog = useAppSelector(({ customerReservation }) => customerReservation.dialog);
-  const token = useAppSelector(({ customerReservation }) => customerReservation.token);
-  const reservationLogId = useAppSelector(({ customerReservation }) => customerReservation.reservationParams.id);
-
-  const checkInQRCode =
-    (import.meta.env.DEV ? "http://" : "https://") + window.location.host + "/orders?token=" + token ?? "";
-
-  console.log(checkInQRCode);
-
-  const handleClose = () => {
-    dispatch(setDialog(CustomerBookingDialog.REMINDER));
-  };
-
-  return (
-    <MobileDialogLayout
-      title={
-        <>
-          <Box>請出示此畫面</Box>
-          <Box>以便店員為您帶位</Box>
-        </>
-      }
-      titleSize="h5"
-      isOpen={dialog === CustomerBookingDialog.QRCODE}
-      onCloseDialog={handleClose}
-      actionButton={<Button onClick={handleClose}>關閉</Button>}
-    >
-      <Box
-        sx={{
-          display: "flex",
-          justifyContent: "center",
-          alignItems: "center",
-          my: "5rem"
-        }}
-      >
-        <QRCodeSVG size={200} value={checkInQRCode}></QRCodeSVG>
-      </Box>
-      <ConfirmBookingTextField label="訂位編號" value={reservationLogId.slice(0, 12)} icon={<QrCodeIcon />} />
     </MobileDialogLayout>
   );
 };

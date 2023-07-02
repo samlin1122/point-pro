@@ -4,7 +4,13 @@ import { AuthApi } from "~/api";
 // Others
 import { createAppAsyncThunk } from "~/app/hook";
 import { UserInfo } from "~/features/orders/type";
-import { GetUserInfoResponse, LoginPayload, LoginResponse } from "~/types/api";
+import {
+  GenerateTokenPayload,
+  GenerateTokenResponse,
+  GetUserInfoResponse,
+  LoginPayload,
+  LoginResponse
+} from "~/types/api";
 
 const name = "auth";
 
@@ -44,18 +50,36 @@ export const getUserInfo = createAppAsyncThunk<GetUserInfoResponse>(
   }
 );
 
+export const getUserTokenByReservationLogId = createAppAsyncThunk<GenerateTokenResponse, GenerateTokenPayload>(
+  `${name}/getUserTokenByReservationLogId`,
+  async (payload, { rejectWithValue }) => {
+    try {
+      const response = await AuthApi.generateToken({ reservationLogId: payload.reservationLogId });
+      return response;
+    } catch (error) {
+      if (error instanceof Error) {
+        return rejectWithValue({ message: error.message });
+      } else {
+        return rejectWithValue({ message: "unknown error" });
+      }
+    }
+  }
+);
+
 interface IAuthState {
   isLoading: boolean;
   isAuthenticated: boolean;
   authToken: string | null;
   userRole: UserInfo | null;
+  userToken: string | null;
 }
 
 const initialState: IAuthState = {
   isLoading: false,
   isAuthenticated: false,
   authToken: null,
-  userRole: null
+  userRole: null,
+  userToken: null
 };
 
 export const authSlice = createSlice({
@@ -71,27 +95,38 @@ export const authSlice = createSlice({
     }
   },
   extraReducers: (builder) => {
-    builder.addCase(login.fulfilled, (state, action) => {
-      const { result } = action.payload;
-      if (result.authToken) {
-        state.authToken = result.authToken;
-        state.isAuthenticated = true;
-      } else {
-        state.isAuthenticated = false;
-      }
-      state.isLoading = false;
-    }),
-      builder.addCase(login.pending, (state) => {
+    builder
+      .addCase(login.fulfilled, (state, action) => {
+        const { result } = action.payload;
+        if (result.authToken) {
+          state.authToken = result.authToken;
+          state.isAuthenticated = true;
+        } else {
+          state.isAuthenticated = false;
+        }
+        state.isLoading = false;
+      })
+      .addCase(login.pending, (state) => {
         state.isLoading = true;
-      }),
-      builder.addCase(login.rejected, (state) => {
+      })
+      .addCase(login.rejected, (state) => {
         state.isLoading = false;
         state.isAuthenticated = false;
         state.authToken = null;
+      })
+      .addCase(getUserInfo.fulfilled, (state, action) => {
+        state.userRole = action.payload.result;
+      })
+      .addCase(getUserTokenByReservationLogId.pending, (state) => {
+        state.isLoading = true;
+      })
+      .addCase(getUserTokenByReservationLogId.fulfilled, (state, action) => {
+        state.userToken = action.payload.result.token;
+        state.isLoading = true;
+      })
+      .addCase(getUserTokenByReservationLogId.rejected, (state) => {
+        state.userToken = initialState.userToken;
       });
-    builder.addCase(getUserInfo.fulfilled, (state, action) => {
-      state.userRole = action.payload.result;
-    });
   }
 });
 
